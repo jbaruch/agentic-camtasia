@@ -1,0 +1,83 @@
+{
+  "id": "mac-2025.0.3-format-9",
+  "appliesTo": {
+    "formatVersion": "9.0",
+    "authoringClient": {"name": "Camtasia", "platform": "Mac", "version": "2025.0.3"}
+  },
+  "upstreamCommit": "443a41e37cddb460c0aa6e046c951cb17f241bf3",
+  "upstreamSha256": "e8df2fab865f9a42b953985c01a47bfc898da3641b50dc7d0af80af53794f08a",
+  "changes": [
+    {"operation": "optional", "path": ["required"], "value": "sourceBin"},
+    {"operation": "add-property", "path": ["definitions", "timeline", "properties"], "name": "metadata", "schema": {"type": "object"}},
+    {"operation": "append-enum", "path": ["definitions", "effect", "properties", "effectName", "enum"], "value": "Border"},
+    {"operation": "append-enum", "path": ["definitions", "effect", "properties", "effectName", "enum"], "value": "Colorize"},
+    {
+      "operation": "add-property", "path": ["definitions"], "name": "Caption",
+      "schema": {
+        "description": "Observed Mac 2025.0.3 SRT-import clip; point captions with unstyled text. Other native variants need separate evidence.",
+        "type": "object",
+        "required": ["id", "_type", "allowTrimOut", "maxMediaDuration", "parameters", "effects", "start", "duration", "mediaStart", "mediaDuration", "scalar", "metadata", "animationTracks"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {"type": "integer"},
+          "_type": {"const": "Caption"},
+          "allowTrimOut": {"type": "boolean"},
+          "maxMediaDuration": {"type": "number", "minimum": 0},
+          "start": {"type": "integer"},
+          "duration": {"type": "integer", "minimum": 0},
+          "mediaStart": {"type": "number"},
+          "mediaDuration": {"type": "number", "minimum": 0},
+          "scalar": {"oneOf": [{"type": "number", "exclusiveMinimum": 0}, {"type": "string", "pattern": "^[1-9][0-9]*/[1-9][0-9]*$"}]},
+          "metadata": {"type": "object"},
+          "animationTracks": {"$ref": "#/definitions/animationTracks"},
+          "effects": {
+            "type": "array",
+            "items": {"oneOf": [{"$ref": "#/definitions/effect"}, {"$ref": "#/definitions/GenericBehaviorEffect"}]}
+          },
+          "parameters": {
+            "type": "object", "required": ["captionData"], "additionalProperties": false,
+            "properties": {
+              "captionData": {
+                "type": "object", "required": ["type", "keyframes"], "additionalProperties": false,
+                "properties": {
+                  "type": {"const": "caption"},
+                  "keyframes": {
+                    "type": "array",
+                    "items": {
+                      "type": "object", "required": ["time", "endTime", "duration", "value"], "additionalProperties": false,
+                      "properties": {
+                        "time": {"type": "integer"},
+                        "endTime": {"type": "integer"},
+                        "duration": {"const": 0},
+                        "value": {
+                          "type": "object", "required": ["text", "textAttributes"], "additionalProperties": false,
+                          "properties": {"text": {"type": "string"}, "textAttributes": {"type": "null"}}
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {"operation": "append-branch", "path": ["definitions", "media", "oneOf"], "schema": {"$ref": "#/definitions/Caption"}},
+    {"operation": "append-enum", "path": ["definitions", "calloutDef", "properties", "kind", "enum"], "value": "TypeWinPixelate"},
+    {"operation": "append-enum", "path": ["definitions", "calloutDef", "properties", "kind", "enum"], "value": "TypeWinHighlighter"},
+    {"operation": "append-enum", "path": ["definitions", "effect", "properties", "effectName", "enum"], "value": "CursorPath"},
+    {"operation": "append-enum", "path": ["definitions", "effect", "properties", "effectName", "enum"], "value": "ChromaKey"},
+    {"operation": "append-enum", "path": ["definitions", "effect", "properties", "effectName", "enum"], "value": "CursorHilight"},
+    {"operation": "append-enum", "path": ["definitions", "effect", "properties", "effectName", "enum"], "value": "DeviceFrameEffect"},
+    {"operation": "append-enum", "path": ["definitions", "effect", "properties", "effectName", "enum"], "value": "BlurRegion"},
+    {"operation": "append-enum", "path": ["definitions", "effect", "properties", "effectName", "enum"], "value": "Tonal"},
+    {"operation": "append-enum", "path": ["definitions", "effect", "properties", "effectName", "enum"], "value": "FreezeRegion"},
+    {"operation": "append-enum", "path": ["definitions", "effect", "properties", "effectName", "enum"], "value": "Pixelate"},
+    {"operation": "append-enum", "path": ["definitions", "effect", "properties", "effectName", "enum"], "value": "MediaPath"},
+    {"operation": "append-enum", "path": ["definitions", "effect", "properties", "effectName", "enum"], "value": "Sketch"},
+    {"operation": "append-enum", "path": ["definitions", "effect", "properties", "effectName", "enum"], "value": "Reflection"},
+    {"operation": "append-enum", "path": ["definitions", "effect", "properties", "effectName", "enum"], "value": "Sepia"}
+  ],
+  "evidence": "../references/native-verification.md"
+}

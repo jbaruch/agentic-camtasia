@@ -1,0 +1,22 @@
+[project]
+name = "agentic-camtasia"
+version = "0.1.0"
+description = "Camtasia context and safe project helpers for ACR"
+requires-python = ">=3.11"
+dependencies = []
+
+# Review this verification-tool pin quarterly and when refreshing the schema baseline.
+[project.optional-dependencies]
+verification = ["jsonschema==4.26.0"]
+
+[tool.pyright]
+include = ["skills/camtasia-project/scripts", "hooks", "tests", "scripts"]
+extraPaths = ["skills/camtasia-project/scripts", "hooks", "scripts"]
+pythonVersion = "3.11"
+typeCheckingMode = "basic"
+venvPath = "."
+venv = ".venv"
+
+[tool.ruff]
+target-version = "py311"
+line-length = 100

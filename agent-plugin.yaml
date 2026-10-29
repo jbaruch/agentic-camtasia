@@ -1,0 +1,33 @@
+schemaVersion: 1
+name: jbaruch/agentic-camtasia
+version: 0.1.0
+description: Inspect, edit, and investigate Camtasia projects while preserving native features and media.
+source:
+  repository: https://github.com/jbaruch/agentic-camtasia
+artifacts:
+  rules:
+    - id: camtasia-project-safety
+      path: rules/camtasia-project-safety.md
+      activation:
+        mode: always
+    - id: camtasia-timing
+      path: rules/camtasia-timing.md
+      activation:
+        mode: always
+    - id: camtasia-feature-evidence
+      path: rules/camtasia-feature-evidence.md
+      activation:
+        mode: always
+    - id: camtasia-validation
+      path: rules/camtasia-validation.md
+      activation:
+        mode: always
+  skills:
+    - id: camtasia-project
+      path: skills/camtasia-project
+    - id: camtasia-feature
+      path: skills/camtasia-feature
+  hooks:
+    - id: camtasia-session-context
+      event: session-start
+      path: hooks/session_context.py

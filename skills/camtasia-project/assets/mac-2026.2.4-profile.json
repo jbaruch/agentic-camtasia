@@ -1,0 +1,3546 @@
+{
+  "id": "mac-2026.2.4-format-10",
+  "appliesTo": {
+    "formatVersion": "10.0",
+    "authoringClient": {
+      "name": "Camtasia",
+      "platform": "Mac",
+      "version": "2026.2.4"
+    }
+  },
+  "upstreamCommit": "443a41e37cddb460c0aa6e046c951cb17f241bf3",
+  "upstreamSha256": "e8df2fab865f9a42b953985c01a47bfc898da3641b50dc7d0af80af53794f08a",
+  "changes": [
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "drifting"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "in",
+        "properties",
+        "attributes",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "drifting"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "center",
+        "properties",
+        "attributes",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "drifting"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "out",
+        "properties",
+        "attributes",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "drifting"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "explode"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "in",
+        "properties",
+        "attributes",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "implode"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "out",
+        "properties",
+        "attributes",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "explode"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "jumpAndFall"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "in",
+        "properties",
+        "attributes",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "bounceIn"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "center",
+        "properties",
+        "attributes",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "jump"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "out",
+        "properties",
+        "attributes",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "drop"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "center",
+        "properties",
+        "attributes",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "popUp"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "scale"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "tremble"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "wiggle"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "GenericBehaviorEffect",
+        "properties",
+        "center",
+        "properties",
+        "attributes",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "wiggle"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "CursorPath"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "MediaPath"
+    },
+    {
+      "operation": "add-property",
+      "path": [
+        "definitions",
+        "timeline",
+        "properties"
+      ],
+      "name": "metadata",
+      "schema": {
+        "type": "object"
+      }
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "LeftClickRings"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "LeftClickRipple"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "LeftClickScope"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "LeftClickTarget"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "LeftClickWarp"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "LeftClickBurst1"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "LeftClickBurst2"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "LeftClickBurst3"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "LeftClickBurst4"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "LeftClickZoom"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "LeftClickSound"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "RightClickRings"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "RightClickRipple"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "RightClickScaling"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "RightClickScope"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "RightClickTarget"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "RightClickWarp"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "RightClickBurst1"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "RightClickBurst2"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "RightClickBurst3"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "RightClickBurst4"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "RightClickZoom"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "RightClickSound"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "Keystroke"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "FrontMostWindowHighlight"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "category",
+        "enum"
+      ],
+      "value": "categoryScreenRecordingEffects"
+    },
+    {
+      "operation": "optional",
+      "path": [
+        "required"
+      ],
+      "value": "sourceBin"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "Negative"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "Lens"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "Gradient"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "Cursor Isolation"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "CursorSpotlight"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "CursorMagnify"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "CursorHilight"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "CursorGlow"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "CursorColor"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "Vignette"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "Tiling"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "CursorSmoothing"
+    },
+    {
+      "operation": "add-property",
+      "path": [
+        "definitions",
+        "sourceTrack",
+        "properties"
+      ],
+      "name": "transcriptionSet",
+      "schema": {
+        "type": "boolean"
+      }
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "category",
+        "enum"
+      ],
+      "value": "categoryGestureEffects"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "tapGestureEffect"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "doubleTapGestureEffect"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "tapAndHoldGestureEffect"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "pinchGestureEffect"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "swipeGestureEffect"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "WinCompression"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "Pitch"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "CRT Monitor"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "Static Noise"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "Torn Edge"
+    },
+    {
+      "operation": "add-property",
+      "path": [
+        "definitions"
+      ],
+      "name": "Caption",
+      "schema": {
+        "description": "Observed Mac 2026.2.4 VTT/SAMI-import point captions with text strings and null textAttributes. SAMI strings may contain native RTF. Other variants need separate native evidence.",
+        "type": "object",
+        "required": [
+          "id",
+          "_type",
+          "allowTrimOut",
+          "maxMediaDuration",
+          "parameters",
+          "effects",
+          "start",
+          "duration",
+          "mediaStart",
+          "mediaDuration",
+          "scalar",
+          "metadata",
+          "animationTracks"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "integer"
+          },
+          "_type": {
+            "const": "Caption"
+          },
+          "allowTrimOut": {
+            "type": "boolean"
+          },
+          "maxMediaDuration": {
+            "type": "number",
+            "minimum": 0
+          },
+          "start": {
+            "type": "integer"
+          },
+          "duration": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "mediaStart": {
+            "type": "number"
+          },
+          "mediaDuration": {
+            "type": "number",
+            "minimum": 0
+          },
+          "scalar": {
+            "oneOf": [
+              {
+                "type": "number",
+                "exclusiveMinimum": 0
+              },
+              {
+                "type": "string",
+                "pattern": "^[1-9][0-9]*/[1-9][0-9]*$"
+              }
+            ]
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "animationTracks": {
+            "$ref": "#/definitions/animationTracks"
+          },
+          "effects": {
+            "type": "array",
+            "items": {
+              "oneOf": [
+                {
+                  "$ref": "#/definitions/effect"
+                },
+                {
+                  "$ref": "#/definitions/GenericBehaviorEffect"
+                }
+              ]
+            }
+          },
+          "parameters": {
+            "type": "object",
+            "required": [
+              "captionData"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "captionData": {
+                "type": "object",
+                "required": [
+                  "type",
+                  "keyframes"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "type": {
+                    "const": "caption"
+                  },
+                  "keyframes": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "time",
+                        "endTime",
+                        "duration",
+                        "value"
+                      ],
+                      "additionalProperties": false,
+                      "properties": {
+                        "time": {
+                          "type": "integer"
+                        },
+                        "endTime": {
+                          "type": "integer"
+                        },
+                        "duration": {
+                          "const": 0
+                        },
+                        "value": {
+                          "type": "object",
+                          "required": [
+                            "text",
+                            "textAttributes"
+                          ],
+                          "additionalProperties": false,
+                          "properties": {
+                            "text": {
+                              "type": "string"
+                            },
+                            "textAttributes": {
+                              "type": "null"
+                            }
+                          }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "operation": "append-branch",
+      "path": [
+        "definitions",
+        "media",
+        "oneOf"
+      ],
+      "schema": {
+        "$ref": "#/definitions/Caption"
+      }
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Accordion"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ActionWipe"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "AngledLineWipe"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "AngledSliders"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "AnimatedMosaic"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ArrowSlice"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Arrows"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ArrowsSolid"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "BarWipe"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "BarnDoor"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Bars"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Blinds"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Blob"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Blob2"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "BlurZoom"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Bounce"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "BoxIris"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Bubbles"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Bubbles2"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Burn"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "BurnThroughFade"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "BurstingHeart"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CardFlipSwap"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CardSlide"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CardSwap"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CascadingSquares"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CellZoom"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CenterSlice"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CheckerBoard"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Chevrons"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CircleBloom"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CircleCrop"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CircleOffset"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CircleReveal"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CircleSlice2"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CircleStretch"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Circles"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ColorBurn"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ColorDistance"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ColorSpinDoor"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ColorWipe"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ConcentricRings"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CrossZoom"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Cube"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "CubeRotate"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "DiagonalMove"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "DiagonalSlice"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "DialWipe"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Diamonds"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Digital"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Dissolve"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "DistortedFall"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Doorway"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Drawbridge"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Drop"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Drops"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ExpandingSquares"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Fall"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "FallingHearts"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "BlurSlide"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Fan"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Flare"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Flare2"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Flashback"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Flip"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Fold"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "FoldShut"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "FourColorIris"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "FourColorWipe"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "FourSquares"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "GeometricSlice1"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Glitch"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Glitch2"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Glow"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "GradientDoor"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "GradientWipe"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "GridFlip"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "GrowingSquares"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "HeartFlips"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "HeartOffset"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "HeartPops"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "HexMagnify"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "BlurStretch"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "BlurStretch2"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "HexSpinCascade"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Hexagonalize"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Hexagons"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "HitchPush"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ImplodingHexagons"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ImplodingSquares"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Inset"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Interference"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "InvertedPageCurl"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "InwardSlice"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Iris"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "JaggedWipe"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "LikesNLoves"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "LineWipe"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "LuminanceFadeIn"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "LuminanceFadeOut"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Morph"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "MultiplyBlend"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Noise"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "OpacitySquares"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "PageRoll"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "PageTurn"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "PaintDrip"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "PaintStrokes"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "PaintSwipe"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "PerlinBlobs"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Pixelate"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Portal"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "PrismWipe"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "PurpleTriangles"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Push"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Puzzle"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "QuarterSplit"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "RadialBlur"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "RadialWipe"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "RandomBars"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "RandomDissolve"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "RandomSquares"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "RhombusDots"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Ripple"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "RollingSquares"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "RoundedSquares"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Shatter"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ShiftingHearts"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Shockwave"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ShuffleSlice"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ShutterSnap"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Shutters"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SimpleZoom"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SlamShut"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SlantShutters"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SlidingBars"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SlidingTriangles"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Smileys"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "BlurSpin"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SmoothSlide"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SnapShot"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Spin"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SpinFlip"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SpinView"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SpinView2"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SpinningBlinds"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SpinningColorWipe"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Spiral"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SquareDrops"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SquarePops"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "BlurOffset"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SquaresRotateAway"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Static"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Strips"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Swap"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Swing"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "SwirlSpin"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Tile"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Transmission"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Unfold"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Vortex"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "WalkingWipe"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Waves"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Waves2"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "Wheel"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ZigZag"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ZoomBlur"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ZoomFade"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "track",
+        "properties",
+        "transitions",
+        "items",
+        "properties",
+        "name",
+        "enum"
+      ],
+      "value": "ZoomIn"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "calloutDef",
+        "properties",
+        "kind",
+        "enum"
+      ],
+      "value": "TypeWinSVG"
+    },
+    {
+      "operation": "add-property",
+      "path": [
+        "definitions",
+        "Callout",
+        "properties"
+      ],
+      "name": "leftEdgeMods",
+      "schema": {
+        "type": "array",
+        "minItems": 1,
+        "maxItems": 1,
+        "items": {
+          "type": "object",
+          "required": [
+            "group",
+            "duration",
+            "parameters"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "group": {
+              "const": "DrawPercentageFade"
+            },
+            "duration": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "parameters": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 1,
+              "items": {
+                "type": "object",
+                "required": [
+                  "name",
+                  "func"
+                ],
+                "additionalProperties": false,
+                "properties": {
+                  "name": {
+                    "const": "DrawTime"
+                  },
+                  "func": {
+                    "const": "FadeInFunc"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "calloutDef",
+        "properties",
+        "shape",
+        "enum"
+      ],
+      "value": "speech-bubble"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "calloutDef",
+        "properties",
+        "shape",
+        "enum"
+      ],
+      "value": "speech-bubble2"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "calloutDef",
+        "properties",
+        "shape",
+        "enum"
+      ],
+      "value": "thought-bubble"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "calloutDef",
+        "properties",
+        "shape",
+        "enum"
+      ],
+      "value": "thought-bubble2"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "calloutDef",
+        "properties",
+        "shape",
+        "enum"
+      ],
+      "value": "text-arrow"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "calloutDef",
+        "properties",
+        "shape",
+        "enum"
+      ],
+      "value": "shape-star"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "calloutDef",
+        "properties",
+        "shape",
+        "enum"
+      ],
+      "value": "shape-octagon"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "calloutDef",
+        "properties",
+        "kind",
+        "enum"
+      ],
+      "value": "TypeWinHighlighter"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "calloutDef",
+        "properties",
+        "kind",
+        "enum"
+      ],
+      "value": "TypeWinSpotlight"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "calloutDef",
+        "properties",
+        "kind",
+        "enum"
+      ],
+      "value": "TypeWinPixelate"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "calloutDef",
+        "properties",
+        "kind",
+        "enum"
+      ],
+      "value": "MacKey"
+    },
+    {
+      "operation": "append-enum",
+      "path": [
+        "definitions",
+        "effect",
+        "properties",
+        "effectName",
+        "enum"
+      ],
+      "value": "Colorize"
+    }
+  ],
+  "evidence": "../references/mac-versions.md"
+}
