@@ -10,13 +10,24 @@ comparisons, public documentation and a separately identified community schema.
 
 ## Install
 
+After the first versioned GitHub release is available:
+
 ```bash
 acr install github:jbaruch/agentic-camtasia --agent codex --agent claude-code --agent cursor --freshness none --non-interactive
 acr realize
 ```
 
-For local development, clone the repository and install its absolute path from
-a separate consumer project. Local-path installs require a newer ACR build than
+Until then, clone the published source and install its absolute path from a
+separate consumer project using an ACR build with local-path support:
+
+```bash
+git clone https://github.com/jbaruch/agentic-camtasia.git
+# From a separate consumer project:
+acr install /absolute/path/to/agentic-camtasia --agent codex --agent claude-code --agent cursor --freshness none --non-interactive
+acr realize
+```
+
+Local-path installs require a newer ACR build than
 0.2.1; the three agent layouts have been exercised with ACR commit `845af87`.
 
 Python 3.11+ is required. Core helpers use the standard library. Native

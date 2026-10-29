@@ -5,10 +5,13 @@ missing capabilities as real projects require them. The target package version
 is 0.1.0. The repository is
 [jbaruch/agentic-camtasia](https://github.com/jbaruch/agentic-camtasia).
 
+The source repository and feature backlog are public. A versioned GitHub package
+release remains a separate step; ACR 0.2.1 resolves GitHub installs from releases.
+
 ## Remaining release work
 
-- Publish the source repository as requested by the user. Keep native media,
-  vendor resources, machine diagnostics and agent installer state local.
+- Keep native media, vendor resources, machine diagnostics and agent installer
+  state local when preparing subsequent updates.
 - Prepare release automation and review for versioned package distribution.
 - Select a license before advertising a particular reuse license.
 - Run the existing deterministic gates and a clean installed-consumer acceptance
