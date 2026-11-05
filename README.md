@@ -28,6 +28,7 @@ macOS. Schema auditing uses the optional pinned `jsonschema` dependency.
 | Effects and mattes | Create visual effects from native templates; edit static controls, typed effect curves and Color LUT resources, ranges and easing; author supported media/track mattes and intensity curves. |
 | Transitions | Discover installed presets, construct from matching local metadata or same-build saved transitions, edit duration/scalar controls and remove transitions. Preserve endpoint clocks and audio. |
 | Interactivity | Author and edit supported hotspots, quizzes, surveys, feedback and owner/clock transfers. |
+| Behaviors | Create from native templates; edit phase timing/static controls, bypass and remove while preserving linked media. |
 | Feature references | Captions, audio, annotations, behaviors, cursor/click effects, Quick Properties, themes, Library assets, Lottie/SVG dependencies and delivery formats. |
 | Native checks | Read-only process health and a backed-up save/reopen adapter with separate rendering status. |
 

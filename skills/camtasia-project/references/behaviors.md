@@ -8,6 +8,15 @@ exports in decoded video and audio. Entry, middle, and exit frames show the
 actual transformations. These whole-media specimens do not establish every
 per-character text option; verify glyph layout separately for a text task.
 
+
+The [behavior helper](helper.md#behavior-json-editing) now copies a selected
+same-build saved instance and stages phase timing/static controls, bypass and
+removal. It retains complete phase payloads and existing reset data. It requires
+matching owner kinds, linked layout and complete clocks for construction; it
+infers no outer interval retiming or phase-style replacement. Native references
+below describe observations, while the helper module owns its accepted input
+and refusal contract.
+
 ## Identifiers and phase ownership
 
 Behaviors use `_type: "GenericBehaviorEffect"`, separately from ordinary visual
@@ -84,3 +93,42 @@ audio-child objects are identical. Do not claim bit-identical audio against a
 no-behavior control or infer an audible audio effect from a hash mismatch alone.
 Keep native rerender persistence, signal measurements, and perceptual checks
 separate. See [audio](audio.md) for requested mix and delivery verification.
+
+## Phase editing and reset companions
+
+A current eight-second linked AV Fade probe saves entry/exit phase names
+`fadeIn`/`fadeOut`, outer start zero and whole-clip project-tick duration. Native
+entry Speed 50% saves `suggestedDurationPerCharacter: 2116800000` at edit rate
+705600000, representing three seconds per character. Both effect mirrors
+change together. The wrapper gains `metadata.default-Speed-fade: "705600000"`,
+retaining the prior duration as its reset value; no matching video-owner field
+is added. Other phase attributes and the complete audio child stay unchanged.
+This single observation does not define a general speed-percentage formula.
+
+The helper's template construction and explicit three-second entry edit produce
+the same complete native clip owner, including reset metadata. Native bypass
+roundtrip, save/close/reopen and export preserve that payload; the saved document
+changes only its command counter. Its export and the separate UI-created timing
+control match complete decoded video/audio. Raw and exact-build schema checks
+pass without an overlay extension.
+
+The active-center Jump & Fall constructor retains default-less typed integer
+`direction` point frames in entry/exit. These are distinct from the redundant
+static-double point shape that crashed the 2025 parser; preserve valid integer
+points when editing another control. The center `jump` parameter is a typed
+double with default 60 and bounds 0–500. Editing it to 120 retains those bounds,
+reset value and UI hints. The helper's `secondsPerLoop: "3/2"`, quarter-second
+delay and two-loop request appear natively as Loop time 1.50s, Delay 0.25s,
+Loops 2 and Loop Forever off. Delay remains ticks in JSON while loop time remains
+rational seconds. Do not convert all numerics in an attributes object as time.
+
+A three-slot native sequence contains the center edit, a bypassed copy and a
+copy with the behavior removed. Its independent 24-second exports repeat
+complete decoded video/audio. Fifteen inspected frames show entry, center
+movement, exit, bypass and removal beside matching source phases. The Fade
+pair adds five inspected intro/hold/outro frames. Strict lifecycle payload
+comparison allows only the observed copied-clip ID remap, duration label and
+command-counter changes; the remaining behavior, audio and source data match.
+All bundled source bytes remain identical. The existing exact-build profile
+accepts the saved sequence; its eight raw-schema errors are the previously
+recorded missing outer/phase names, not a new schema relaxation.
