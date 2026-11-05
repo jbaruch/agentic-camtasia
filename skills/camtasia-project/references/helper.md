@@ -123,15 +123,18 @@ defines editor selection, optional app-path input, preflight use, and recovery.
 
 ## Transition JSON editing
 
-Use `scripts/transitions.py` to inspect root-track transitions, construct a Fade,
-patch an existing transition or remove it. Its module docstring and
-`FADE_ATTRIBUTES` own the input/output contract, native defaults, duration
+Use `scripts/transitions.py` to inspect root-track transitions, discover local
+presets, construct transitions, patch an existing transition or remove it. Its module docstring and
+`scripts/transition_presets.py` own the input/output contract, native defaults, duration
 conversion and fit checks. Select endpoints by root clip ID, using wrapper IDs
 for linked AV. Read [native transition evidence](transitions.md) for boundary
 clocks, preroll behavior and rendering limits.
 
 ```bash
 python3 -B "{camtasia_skill_root}/scripts/transitions.py" inspect "<project>"
+python3 -B "{camtasia_skill_root}/scripts/transitions.py" presets "<project>" --app "<matching-Camtasia.app>"
+python3 -B "{camtasia_skill_root}/scripts/transitions.py" add "<project>" --app "<matching-Camtasia.app>" --name SnapShot --left-id 5 --right-id 8 --duration 1 --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/transitions.py" add "<project>" --template-project "<same-build-project>" --template-index 0 --right-id 5 --duration 1 --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/transitions.py" add-fade "<project>" --left-id 5 --right-id 8 --duration 1 --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/transitions.py" set "<project>" --left-id 5 --right-id 8 --spec "<transition-spec.json>" --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/transitions.py" remove "<project>" --left-id 5 --right-id 8 --output "<candidate.json>"
@@ -146,6 +149,16 @@ hashes, `changed`, `written` and `nativeVerified: false`; they stage a separate
 file and preserve the original. Follow the ordinary diff/validate/apply and
 native save/reopen/export workflow. Unknown combinations still require rendered
 verification, including source-handle availability and audio behavior.
+
+`presets` is read-only and returns internal names, English labels, definition
+paths and complete scalar defaults; choose `--name` from that output. Installation
+resources are read locally and shader code is neither executed nor copied. For
+built-in presets without definition files, `inspect` a saved same-build project
+and choose its zero-based transition inventory index with `--template-index`.
+That route preserves the complete saved transition, including opaque fields and
+custom attributes, while replacing endpoints and duration for the destination.
+Neither route copies external resources. Keep any template resource dependencies
+available and verify the candidate in the matching native editor.
 
 ## Animation JSON editing
 
