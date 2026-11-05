@@ -28,8 +28,8 @@ All fourteen issues are enhancements and explicitly do not block v0.1.
 
 | Issue | Capability |
 | --- | --- |
-| [#1](https://github.com/jbaruch/agentic-camtasia/issues/1) | Transition preset constructors |
-| [#2](https://github.com/jbaruch/agentic-camtasia/issues/2) | Visual-effect constructors and animated controls |
+| [#1](https://github.com/jbaruch/agentic-camtasia/issues/1) | Transition preset constructors shipped in 0.2.0. |
+| [#2](https://github.com/jbaruch/agentic-camtasia/issues/2) | Native-template visual-effect constructors in 0.3.0; resource replacement and animated-control authoring remain. |
 | [#3](https://github.com/jbaruch/agentic-camtasia/issues/3) | Behavior authoring and phase editing |
 | [#4](https://github.com/jbaruch/agentic-camtasia/issues/4) | Annotation constructors and shape/text controls |
 | [#5](https://github.com/jbaruch/agentic-camtasia/issues/5) | Closed and dynamic caption authoring |

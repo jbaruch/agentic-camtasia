@@ -33,6 +33,18 @@ Do not replace these with bare numbers based on the property panel's display.
 For example, the panel's blur amount text and serialized `sigma` use different
 display scaling. Preserve the observed negative mask feather value.
 
+The [visual-effect helper](helper.md#visual-effect-json-editing) now constructs
+effects by copying a selected same-build saved native instance. It retains typed
+parameters, curves, edges, resource selectors and opaque data, with fresh stable
+tokens for linked wrapper/video payloads. Direct owners retain their native
+metadata without allocating linked identities. Construction copies selected
+owner reset companions without replacing conflicting destination defaults. Use
+matching owner kinds/link layout and edit rate; timed payloads require identical
+complete owner clocks. This reuses the native serialization above rather than
+deriving project constructors from shader metadata. Newly edited destinations
+still require their own native output checks. Direct resource replacement,
+curve authoring and effect-specific retiming remain separate contracts.
+
 The installed editor also exposes Tiling. Its default `Tiling` effect saved
 and reopened but rendered black on the generated MP4; that specimen is a failed
 rendering test and is not an admitted profile extension. Keystroke and Window

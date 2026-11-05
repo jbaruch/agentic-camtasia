@@ -1,10 +1,23 @@
 #!/usr/bin/env python3
-"""Inspect, set static parameters, bypass or remove existing native visual effects.
+"""Construct from native templates, inspect, edit or remove visual effects.
 
 CLIENT_FORMATS owns the verified Mac builds. inspect PROJECT lists physical
 instances, array positions and optional stable effectIndex tokens. set PROJECT
 --clip-id ID --effect NAME [--effect-token TOKEN] --spec SPEC --output CANDIDATE
 patches an existing effect; remove uses the same selector without a spec.
+add PROJECT --clip-id ID --effect NAME --template-project TEMPLATE
+--template-clip-id ID [--template-effect-token TOKEN] --output CANDIDATE
+appends the complete saved effect. Linked pairs receive a fresh effectIndex
+token; direct owners preserve native metadata without allocating an identity. Construction
+requires Mac 2026.2.4/format 10, matching visual owner types/link layout and edit
+rate. Timed payloads additionally require matching owner clocks; no animation,
+edge, freeze or source clock is inferred or retimed. Resource references remain
+unchanged and must resolve separately at the destination. Existing effects,
+their order/tokens, audio and unrelated owner data survive. Effect-level reset
+and opaque data are copied, including distinct wrapper/video payloads. Selected
+owner default-NAME-* reset companions are copied without overwriting conflicting
+defaults; last-applied ease defaults need the selected effect as effectApplied.
+MediaPath construction uses motion_paths.py to preserve its clip-rotation coupling.
 
 Spec schema_version 1 accepts parameters (existing-name-to-scalar object) and/or
 bypassed (boolean). Raw native units/codes are required. Numeric rational input
@@ -12,7 +25,7 @@ is converted to the existing scalar kind; static typed double/int/bool parameter
 retain their representation, interpolation, bounds and hints. Present numeric
 minValue/maxValue bounds are enforced. Enum meaning and cross-parameter/geometry
 companions require the feature reference. Prefer a dedicated feature helper
-when its contract covers the request. No constructors, string/resource changes,
+when its contract covers the request. No string/resource changes,
 animated/default-less parameter flattening or new parameter names are inferred.
 
 Linked selections resolve to video and require the matching wrapper mirror.
@@ -56,6 +69,8 @@ MIRRORED_CONTROLS = (
     "start",
     "duration",
 )
+CONSTRUCTOR_TYPES = frozenset({"VMFile", "IMFile", "Callout", "Group"})
+CLOCK_FIELDS = ("start", "duration", "mediaStart", "mediaDuration", "scalar")
 
 
 def require_native(doc: dict[str, Any]) -> None:
@@ -251,6 +266,134 @@ def remove_effect(
     return result
 
 
+def constructor_owners(doc: dict[str, Any], clip_id: int) -> list[dict[str, Any]]:
+    path, visual = hotspots.visual_target(doc, clip_id, visual_types=CONSTRUCTOR_TYPES)
+    wrappers = [
+        node
+        for parent, node in hotspots.clips(doc)
+        if node.get("_type") == "UnifiedMedia" and path == parent + "/video"
+    ]
+    if len(wrappers) > 1:
+        raise ValueError("repair ambiguous linked visual ownership before construction")
+    return [*wrappers, visual]
+
+
+def timed_payload(value: Any) -> bool:
+    """Detect stored timing without interpreting parameter-specific clock units."""
+    if isinstance(value, dict):
+        if any(key in value for key in ("start", "duration")) or any(
+            key in value and value[key] != []
+            for key in ("keyframes", "leftEdgeMods", "rightEdgeMods")
+        ):
+            return True
+        return any(timed_payload(child) for child in value.values())
+    if isinstance(value, list):
+        return any(timed_payload(child) for child in value)
+    return False
+
+
+def next_constructor_token(owners: list[dict[str, Any]]) -> str:
+    nodes = list(owners)
+    if len(owners) == 2:
+        audio = owners[0].get("audio")
+        if not isinstance(audio, dict):
+            raise ValueError("repair the linked audio child before constructing visual effects")
+        nodes.append(audio)
+    observed = []
+    for owner in nodes:
+        seen: set[str] = set()
+        for effect in effects_of(owner):
+            token = token_of(effect)
+            if token is None or token in seen:
+                raise ValueError("capture unique native effectIndex bindings before adding effects")
+            seen.add(token)
+            observed.append(int(token))
+    return str(max(observed, default=-1) + 1)
+
+
+def owner_defaults(owner: dict[str, Any], name: str) -> dict[str, Any]:
+    metadata = owner.get("metadata", {})
+    if not isinstance(metadata, dict):
+        raise ValueError("inspect native owner metadata before copying reset companions")
+    selected = {k: v for k, v in metadata.items() if k.startswith("default-" + name + "-")}
+    for key in ("default-easeIn", "default-easeOut"):
+        if key in metadata:
+            if metadata.get("effectApplied") != name:
+                raise ValueError(
+                    "capture this effect as the last native applied effect to identify ease defaults"
+                )
+            selected[key] = metadata[key]
+    if metadata.get("effectApplied") == name:
+        selected["effectApplied"] = name
+    return selected
+
+
+def add_effect(
+    doc: dict[str, Any],
+    clip_id: int,
+    template: dict[str, Any],
+    template_clip_id: int,
+    name: str,
+    *,
+    template_token: str | None = None,
+) -> dict[str, Any]:
+    require_native(doc)
+    require_native(template)
+    if doc.get("authoringClientName") != hotspots.NATIVE_CLIENT or doc.get("version") != "10.0":
+        raise ValueError("construct effects using the verified Mac 2026.2.4 format-10 contract")
+    if template.get("authoringClientName") != doc.get("authoringClientName"):
+        raise ValueError("select a native effect template from the same authoring build")
+    if name == "MediaPath":
+        raise ValueError(
+            "construct Motion Path with motion_paths.py to preserve its clip rotation companion"
+        )
+    if project.number(doc.get("editRate")) <= 0 or project.number(
+        doc.get("editRate")
+    ) != project.number(template.get("editRate")):
+        raise ValueError("select a same-build template with the destination project edit rate")
+    source_owners = constructor_owners(template, template_clip_id)
+    source = targets(template, template_clip_id, name, template_token)
+    result = copy.deepcopy(doc)
+    destination = constructor_owners(result, clip_id)
+    if len(source_owners) != len(destination) or any(
+        a.get("_type") != b.get("_type") for a, b in zip(source_owners, destination)
+    ):
+        raise ValueError("select matching native visual owner types and linked mirror layout")
+    if any(timed_payload(effect) for _, effect in source):
+        for a, b in zip(source_owners, destination):
+            for key in CLOCK_FIELDS:
+                if key not in a or key not in b or project.number(a[key]) != project.number(b[key]):
+                    raise ValueError(
+                        "preserve timed effect payloads with matching complete owner clocks; use the feature helper for retiming"
+                    )
+    token = next_constructor_token(destination) if len(destination) == 2 else None
+    for (source_owner, native), owner in zip(source, destination):
+        companions = owner_defaults(source_owner, name)
+        metadata = owner.get("metadata", {})
+        if not isinstance(metadata, dict):
+            raise ValueError("inspect the destination owner's metadata before construction")
+        if any(
+            k != "effectApplied" and k in metadata and metadata[k] != v
+            for k, v in companions.items()
+        ):
+            raise ValueError(
+                "preserve conflicting existing reset defaults; apply this preset through the native editor"
+            )
+        effect = copy.deepcopy(native)
+        if token is not None:
+            effect.setdefault("metadata", {})["effectIndex"] = token
+        owner.setdefault("effects", [])
+        effects_of(owner).append(effect)
+        if companions:
+            metadata = owner.setdefault("metadata", {})
+            for key, value in companions.items():
+                if key == "effectApplied":
+                    metadata[key] = value
+                else:
+                    metadata.setdefault(key, copy.deepcopy(value))
+    return result
+
+
 def inventory(doc: dict[str, Any]) -> list[dict[str, Any]]:
     result = []
     for path, owner in hotspots.clips(doc):
@@ -274,15 +417,20 @@ def main(argv: list[str] | None = None) -> int:
     commands = parser.add_subparsers(dest="command", required=True)
     inspect = commands.add_parser("inspect")
     inspect.add_argument("project", type=Path)
-    for name in ("set", "remove"):
+    for name in ("add", "set", "remove"):
         command = commands.add_parser(name)
         command.add_argument("project", type=Path)
         command.add_argument("--clip-id", type=int, required=True)
         command.add_argument("--effect", required=True)
-        command.add_argument("--effect-token")
+        if name != "add":
+            command.add_argument("--effect-token")
         command.add_argument("--output", type=Path, required=True)
         if name == "set":
             command.add_argument("--spec", type=Path, required=True)
+        if name == "add":
+            command.add_argument("--template-project", type=Path, required=True)
+            command.add_argument("--template-clip-id", type=int, required=True)
+            command.add_argument("--template-effect-token")
     args = parser.parse_args(argv)
     try:
         doc, raw = project.load(args.project)
@@ -295,17 +443,25 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "inspect":
             report["effects"] = inventory(doc)
         else:
-            candidate = (
-                edit_effect(
+            if args.command == "add":
+                candidate = add_effect(
+                    doc,
+                    args.clip_id,
+                    project.load(args.template_project)[0],
+                    args.template_clip_id,
+                    args.effect,
+                    template_token=args.template_effect_token,
+                )
+            elif args.command == "set":
+                candidate = edit_effect(
                     doc,
                     args.clip_id,
                     args.effect,
                     project.load(args.spec)[0],
                     token=args.effect_token,
                 )
-                if args.command == "set"
-                else remove_effect(doc, args.clip_id, args.effect, token=args.effect_token)
-            )
+            else:
+                candidate = remove_effect(doc, args.clip_id, args.effect, token=args.effect_token)
             report.update(
                 effects=inventory(candidate),
                 output=str(args.output),
