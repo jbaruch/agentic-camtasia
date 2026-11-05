@@ -12,7 +12,7 @@ they are added when a real project needs them.
 | Projects and sources | Inspection, IDs/references, partial validation, exact numeric handling, source manifests, candidate staging, guarded writes and backups. |
 | Animation | Visual intervals, easing, removal and empty markers; explicit Motion Path points, orientation, bypass and removal on verified visual owners, including frozen/stitched forms. |
 | Transitions | Root-track Fade construction and existing scalar/duration/removal editing. Native references cover all 179 current palette presets, one/shared edges, short clips, source skips, gaps, retiming and preroll. |
-| Effects and mattes | Native-template visual effect creation, static edits and LUT resource/range/easing controls; supported track/media matte constructors, modes, intensity curves and lifecycle. Native references cover current visual, LUT and gesture families. |
+| Effects and mattes | Native-template visual effect creation, static edits, typed effect curves and LUT resource/range/easing controls; supported track/media matte constructors, modes, intensity curves and lifecycle. Native references cover current visual, LUT and gesture families. |
 | Annotations and behaviors | Native specimens for all 134 annotation entries and thirteen behaviors, with text/UTF-8, shape, arrow, modifier and phase contracts. General authoring helpers are follow-ups. |
 | Captions and audio | Native closed/dynamic caption structures, word/style edits, retiming and interchange; current audio presets, processing, alignment, fades, ducking and output formats. |
 | Cursors and input | Native recorded/generated paths, smoothing, click presets, keystroke styles and Window Spotlight, with source clocks and output controls. |

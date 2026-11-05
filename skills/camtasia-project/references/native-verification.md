@@ -334,6 +334,17 @@ observation alone does not prove the project closed or export stopped. Inspect
 or pending panel before continuing. Never repeat an export from a tool timeout
 without checking the destination, output files, and current native state.
 
+The effect-curve investigation reproduced the OneDrive-classification stall in
+an initial source-free **Save As** operation. The sampled main thread reached
+`EditorDocument panel:userEnteredFilename:confirmed:` → `isOnOneDrive` → a
+blocked filesystem `open`. Only the owned disposable editor PID was force quit.
+Native recovery exposed the shape in its temporary project; its bytes were
+preserved to a separate owned bundle before closing the temporary copy. Opening
+that existing bundle avoided the filename-panel path; ordinary saves and local
+exports then completed. This does not establish a permanent fix or identify
+the unknown blocked file. Curve serialization and output findings are in the
+[effect-curve contract](advanced-features.md#visual-effect-parameter-curves).
+
 ## Native adapter procedure
 
 The only Platform-Bound Untestable Carve-Out artifact is

@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.5.0 — 2026-11-05
+
+### Added
+
+- Linear interval curves on existing native visual-effect double parameters via
+  `effect_curves.py`, with explicit initial values, rational clip-relative times,
+  exact trimmed/retimed source positions and gap holds. Linked wrapper/video
+  mirrors change together; descriptors, bounds, reset metadata, stable tokens,
+  other curves, audio and resources remain intact.
+- Explicit curve clearing retains visual intervals and other parameters. Native
+  saves may collapse a cleared constant to a scalar; subsequent curve authoring
+  requires a native typed descriptor. Unknown/point parameter representations,
+  conflicting owner clocks and shared interval easing are refused.
+
+- Exact-build format-10 schema correction admits the natively observed Sepia
+  identifier, retaining all other effect constraints.
+
 ## 0.4.0 — 2026-11-05
 
 ### Added

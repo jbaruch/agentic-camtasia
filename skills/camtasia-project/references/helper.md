@@ -193,6 +193,35 @@ Edits stage a separate candidate and report hashes, `changed`, `written` and
 the edited project. Existing preset rendering evidence does not establish a
 new owner's geometry, resource closure or a new parameter combination.
 
+## Visual-effect curve editing
+
+Use `skills/camtasia-project/scripts/effect_curves.py` to inspect effects, replace
+an existing typed double parameter's linear interval curve, or clear it to a
+constant. Its module docstring, `OWNERS`, `selected`, `parameter_of` and
+`edit_curve` own the build, descriptor, clock and interval contracts. Read the
+[native effect-curve evidence](advanced-features.md#visual-effect-parameter-curves).
+
+```bash
+python3 -B "{camtasia_skill_root}/scripts/effect_curves.py" inspect "<project>"
+python3 -B "{camtasia_skill_root}/scripts/effect_curves.py" set "<project>" --clip-id 10 --effect Sepia --effect-token 7 --parameter intensity --spec "<curve-spec.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/effect_curves.py" clear "<project>" --clip-id 10 --effect Sepia --effect-token 7 --parameter intensity --value "1/2" --output "<candidate.json>"
+```
+
+The schema-version-one spec supplies `defaultValue` and `segments`. Each segment
+has `start`, `end` and target `value` in raw native units. Example:
+`{"schema_version":1,"defaultValue":0,"segments":[{"start":1,"end":2,"value":1},{"start":3,"end":4,"value":"1/4"}]}`.
+Times are rational clip-relative timeline seconds. The request replaces the
+selected parameter's complete curve, including its initial value; other curves
+and visual intervals survive. Clearing preserves intervals and descriptor data.
+Native reopening may collapse the constant descriptor to a scalar; curve
+commands require a typed native descriptor rather than inferring its kind.
+
+Edits stage a separate candidate and report hashes, inventory, `changed`,
+`written` and `nativeVerified: false`. Follow ordinary diff/validate/apply and
+native save/reopen/export checks. Resource closure and a new parameter's units,
+companions and rendered behavior remain separate verification obligations.
+Use the dedicated Motion Path helper for its coupled position/rotation data.
+
 ## Color LUT JSON editing
 
 Use `skills/camtasia-project/scripts/luts.py` for the existing `LutEffect` resource selector, intensity,
