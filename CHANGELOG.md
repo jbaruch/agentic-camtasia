@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.3.0 — 2026-11-05
+
+### Added
+
+- Visual-effect construction from a same-build saved project through
+  `effects.py add`. Copies the complete selected native payload, preserves
+  wrapper/video mirror differences and reset companions, appends without
+  changing existing order, and allocates a fresh stable effect token across
+  the destination's visual and audio instances.
+- Construction retains resource selectors, keyframes, edge modifiers and opaque
+  fields. Timed payloads require matching complete owner clocks; retiming,
+  resource replacement and new animated-control authoring remain separate work.
+  Conflicting reset defaults, mismatched builds/owners and ambiguous token
+  bindings refuse without changing either input.
+- Generated-fixture coverage for constructor preservation, linked audio,
+  template selection, clocks, tokens and exclusive candidate staging.
+
 ## 0.2.0 — 2026-11-05
 
 ### Added

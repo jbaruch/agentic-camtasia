@@ -160,6 +160,36 @@ custom attributes, while replacing endpoints and duration for the destination.
 Neither route copies external resources. Keep any template resource dependencies
 available and verify the candidate in the matching native editor.
 
+## Visual-effect JSON editing
+
+Use `scripts/effects.py` for construction from a saved native template, existing
+static scalar edits, bypass and removal. Its module docstring, `CLIENT_FORMATS`,
+`CONSTRUCTOR_TYPES`, `add_effect`, `owner_defaults` and `patch_parameter` own the
+build, owner, parameter, reset and preservation contracts. Read the relevant
+[native effect contract](advanced-features.md) before selecting a template.
+
+```bash
+python3 -B "{camtasia_skill_root}/scripts/effects.py" inspect "<template-project>"
+python3 -B "{camtasia_skill_root}/scripts/effects.py" add "<project>" --clip-id 10 --effect Sepia --template-project "<same-build-template>" --template-clip-id 40 --template-effect-token 7 --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/effects.py" set "<project>" --clip-id 10 --effect Sepia --effect-token 1 --spec "<effect-spec.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/effects.py" remove "<project>" --clip-id 10 --effect Sepia --effect-token 1 --output "<candidate.json>"
+```
+
+Inspection returns physical owners, array positions and stable `effectToken`
+values. Select a template by its native clip ID and effect name; use its token
+for repeated names. Construction appends a fresh instance and reports the new
+token. Preserve resource availability at the destination; the helper copies
+references, not their files. Retimed effects need their feature-specific clock
+contract. Construction preserves complete curves without changing their times.
+
+`set` accepts a schema-version-one spec, for example
+`{"schema_version":1,"parameters":{"intensity":"1/2"},"bypassed":false}`.
+Existing structured or animated controls are not flattened by scalar patches.
+Edits stage a separate candidate and report hashes, `changed`, `written` and
+`nativeVerified: false`. Follow diff/validate/apply and native verification for
+the edited project. Existing preset rendering evidence does not establish a
+new owner's geometry, resource closure or a new parameter combination.
+
 ## Animation JSON editing
 
 Use `scripts/animations.py` to inspect curves or stage a coupled visual interval.
