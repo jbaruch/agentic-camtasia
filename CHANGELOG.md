@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.6.0 — 2026-11-05
+
+### Added
+
+- Native-template behavior construction and existing phase editing through
+  `behaviors.py`. Explicit phase timing keeps project ticks distinct from loop
+  seconds, while preserving the outer interval, names, dimensionless values,
+  descriptors, reset metadata, linked mirrors, stable tokens and unchanged audio.
+- Behavior bypass/removal with exclusive, idempotent candidate staging. Constructor
+  clock/layout checks, separate outer/phase name restrictions and the reproduced
+  static-double zero-point hazard guard prevent unsupported synthesis.
+- Native entry-duration reset companions and preservation of valid default-less
+  integer direction points. Animated/structured parameter patches and inactive
+  phase replacement remain outside the scalar phase-edit contract.
+
 ## 0.5.0 — 2026-11-05
 
 ### Added

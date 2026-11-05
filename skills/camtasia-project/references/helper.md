@@ -160,6 +160,40 @@ custom attributes, while replacing endpoints and duration for the destination.
 Neither route copies external resources. Keep any template resource dependencies
 available and verify the candidate in the matching native editor.
 
+## Behavior JSON editing
+
+Use `skills/camtasia-project/scripts/behaviors.py` to construct a behavior from a
+saved native template, edit existing phase timing/static parameters, bypass it,
+or remove it. Its module docstring, `NAMES`, `PHASE_NAMES`, `PHASE_ATTRIBUTES`,
+`TICK_ATTRIBUTES`, `targets`, `reset_companions` and `attribute_value` own the
+build, names, mixed-clock, selector and reset contracts. Read the
+[native behavior evidence](behaviors.md) before selecting a template.
+
+```bash
+python3 -B "{camtasia_skill_root}/scripts/behaviors.py" inspect "<template-project>"
+python3 -B "{camtasia_skill_root}/scripts/behaviors.py" add "<project>" --clip-id 10 --behavior fade --template-project "<same-build-template>" --template-clip-id 40 --template-effect-token 7 --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/behaviors.py" set "<project>" --clip-id 10 --behavior fade --effect-token 7 --spec "<behavior-spec.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/behaviors.py" remove "<project>" --clip-id 10 --behavior fade --effect-token 7 --output "<candidate.json>"
+```
+
+The schema-version-one spec supplies `phases` and/or boolean `bypassed`.
+Phase entries supply existing `attributes` and/or static scalar `parameters`.
+For example:
+`{"schema_version":1,"phases":{"in":{"attributes":{"suggestedDurationPerCharacter":3}}},"bypassed":false}`.
+Timing inputs use rational seconds; the helper retains each field's native
+clock. Parameter inputs use raw native units. It does not interpret UI speed
+percentages, replace phase styles or infer total per-character phase duration.
+
+Inspection returns physical owners, payloads and optional stable `effectToken`
+values; repeated names require a token. Construction preserves complete saved
+phases and requires matching native owner kinds, linked layout and full clocks.
+New linked copies receive fresh tokens. No external resource bytes are copied.
+
+Edits return a separate candidate, hashes, inventory, `changed`, `written` and
+`nativeVerified: false`. Follow ordinary diff/validate/apply and native
+save/reopen/export checks. Verify requested entry, center and exit behavior;
+text glyph ordering and new parameter combinations retain their own checks.
+
 ## Visual-effect JSON editing
 
 Use `scripts/effects.py` for construction from a saved native template, existing
