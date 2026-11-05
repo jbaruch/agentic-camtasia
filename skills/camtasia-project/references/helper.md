@@ -193,6 +193,40 @@ Edits stage a separate candidate and report hashes, `changed`, `written` and
 the edited project. Existing preset rendering evidence does not establish a
 new owner's geometry, resource closure or a new parameter combination.
 
+## Color LUT JSON editing
+
+Use `skills/camtasia-project/scripts/luts.py` for the existing `LutEffect` resource selector, intensity,
+native ranges, bypass and edge easing. Its module docstring, `RANGE_CHOICES`,
+`lookup_roots`, `resolve_resource`, `patch_double` and `patch_edge` own the
+lookup, parameter and preservation contracts. Read [the LUT native evidence](advanced-features.md#color-lut-filters).
+
+```bash
+python3 -B "{camtasia_skill_root}/scripts/luts.py" resources --app "<matching-Camtasia.app>"
+python3 -B "{camtasia_skill_root}/scripts/luts.py" inspect "<project>"
+python3 -B "{camtasia_skill_root}/scripts/luts.py" set "<project>" --clip-id 10 --effect-token 7 --spec "<lut-spec.json>" --app "<matching-Camtasia.app>" --output "<candidate.json>"
+```
+
+The schema-version-one spec accepts `source`, `intensity`, `range`, `easeIn`,
+`easeOut` and `bypassed`; provide at least one. Example:
+`{"schema_version":1,"source":"Basic Black & White.cube","intensity":"1/2","range":"grey-shadows","easeIn":1,"easeOut":"3/2"}`.
+Use an exact filename from `resources`; `--app` is required when changing it.
+Discovery reads the selected installation and the observed native user Color
+LUTs directory. Import new CUBE files in Camtasia first. No file is copied,
+installed or modified. Same-name/case aliases with different hashes refuse.
+
+Edits return a separate candidate, hashes, inventory, `changed`, `written` and
+`nativeVerified: false`. A resource change also returns its filename, locations,
+hash, finite-table audit and `closure: "selected-file-only"`; `resource: null`
+means no resource audit was requested. The CUBE title does not replace the native
+filename or original preset metadata. Audits do not establish native lookup,
+resource portability or rendered processing. Follow the ordinary validation,
+apply and native save/reopen/export workflow.
+
+Existing curves survive resource/bypass/easing edits. Scalar intensity or range
+patches refuse animated controls. Ease disabling retains existing native
+zero-duration records; unrelated edge parameters and reset values stay intact.
+Use the feature workflow for new keyframe shapes or effect-specific retiming.
+
 ## Animation JSON editing
 
 Use `scripts/animations.py` to inspect curves or stage a coupled visual interval.
