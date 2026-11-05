@@ -20,6 +20,8 @@ def document(linked=False):
         owners.append(node(doc)["video"])
     for owner in owners:
         owner.update(start=0, duration=8000, mediaStart=2000, mediaDuration=12000, scalar="3/2")
+        if not linked:
+            owner["effects"][0]["metadata"].pop("effectIndex")
     return doc
 
 
@@ -45,6 +47,8 @@ def template(linked=False):
                 opaque={"future": "retained"},
             )
         ]
+        if not linked:
+            owner["effects"][0]["metadata"].pop("effectIndex")
         owner.setdefault("metadata", {}).update(
             {"effectApplied": "Sepia", "default-Sepia-intensity": "1", "unrelated": "template-only"}
         )
@@ -65,7 +69,6 @@ class EffectConstructorTests(unittest.TestCase):
         result = effects.add_effect(destination, 3, source, 3, "Sepia")
         expected = copy.deepcopy(destination)
         added = copy.deepcopy(node(source)["effects"][0])
-        added["metadata"]["effectIndex"] = "1"
         node(expected)["effects"].append(added)
         node(expected)["metadata"].update(effectApplied="Sepia", **{"default-Sepia-intensity": "1"})
         self.assertEqual(result, expected)
@@ -168,22 +171,23 @@ class EffectConstructorTests(unittest.TestCase):
             effects.add_effect(destination, 10, source, 10, "Sepia")
 
     def test_same_project_duplicate_creation_keeps_old_tokens_and_order(self):
-        doc = template()
+        doc = template(True)
         before = copy.deepcopy(doc)
-        result = effects.add_effect(doc, 3, doc, 3, "Sepia", template_token="7")
+        result = effects.add_effect(doc, 10, doc, 10, "Sepia", template_token="7")
         self.assertEqual(node(result)["effects"][0], node(doc)["effects"][0])
         self.assertEqual([effects.token_of(e) for e in node(result)["effects"]], ["7", "8"])
         self.assertEqual(doc, before)
 
     def test_repeated_template_names_require_their_stable_token(self):
-        source = template()
-        second = copy.deepcopy(node(source)["effects"][0])
-        second["metadata"]["effectIndex"] = "12"
-        second["parameters"]["intensity"]["defaultValue"] = 0.5
-        node(source)["effects"].append(second)
+        source = template(True)
+        for owner in owners(source, True):
+            second = copy.deepcopy(owner["effects"][0])
+            second["metadata"]["effectIndex"] = "12"
+            second["parameters"]["intensity"]["defaultValue"] = 0.5
+            owner["effects"].append(second)
         with self.assertRaisesRegex(ValueError, "unique effectIndex"):
-            effects.add_effect(document(), 3, source, 3, "Sepia")
-        result = effects.add_effect(document(), 3, source, 3, "Sepia", template_token="12")
+            effects.add_effect(document(True), 10, source, 10, "Sepia")
+        result = effects.add_effect(document(True), 10, source, 10, "Sepia", template_token="12")
         self.assertEqual(node(result)["effects"][1]["parameters"]["intensity"]["defaultValue"], 0.5)
 
     def test_reset_companions_preserve_unrelated_owner_metadata_and_refuse_conflicts(self):
@@ -212,7 +216,7 @@ class EffectConstructorTests(unittest.TestCase):
 
     def test_constructor_refuses_unindexed_duplicate_or_noncanonical_destination_tokens(self):
         for bad in [None, "01", "-1", 3]:
-            dest = document()
+            dest = document(True)
             metadata = node(dest)["effects"][0]["metadata"]
             if bad is None:
                 metadata.pop("effectIndex")
@@ -220,12 +224,12 @@ class EffectConstructorTests(unittest.TestCase):
                 metadata["effectIndex"] = bad
             before = copy.deepcopy(dest)
             with self.subTest(bad=bad), self.assertRaises(ValueError):
-                effects.add_effect(dest, 3, template(), 3, "Sepia")
+                effects.add_effect(dest, 10, template(True), 10, "Sepia")
             self.assertEqual(dest, before)
-        dest = document()
+        dest = document(True)
         node(dest)["effects"].append(copy.deepcopy(node(dest)["effects"][0]))
         with self.assertRaisesRegex(ValueError, "unique native"):
-            effects.add_effect(dest, 3, template(), 3, "Sepia")
+            effects.add_effect(dest, 10, template(True), 10, "Sepia")
 
     def test_existing_equal_reset_defaults_keep_their_original_representation(self):
         source, dest = template(), document()
@@ -234,12 +238,23 @@ class EffectConstructorTests(unittest.TestCase):
         result = effects.add_effect(dest, 3, source, 3, "Sepia")
         self.assertIs(type(node(result)["metadata"]["default-Sepia-intensity"]), int)
 
-    def test_empty_destination_allocates_zero_and_does_not_require_source_token(self):
+    def test_empty_direct_destination_preserves_native_metadata_without_linked_token(self):
         source, dest = template(), document()
-        node(source)["effects"][0]["metadata"].pop("effectIndex")
         node(dest).pop("effects")
         result = effects.add_effect(dest, 3, source, 3, "Sepia")
-        self.assertEqual(effects.token_of(node(result)["effects"][0]), "0")
+        self.assertEqual(
+            node(result)["effects"][0]["metadata"], node(source)["effects"][0]["metadata"]
+        )
+        self.assertIsNone(effects.token_of(node(result)["effects"][0]))
+
+    def test_empty_linked_destination_allocates_zero(self):
+        source, dest = template(True), document(True)
+        for owner in owners(dest, True):
+            owner["effects"] = []
+        result = effects.add_effect(dest, 10, source, 10, "Sepia")
+        self.assertEqual(
+            [effects.token_of(owner["effects"][0]) for owner in owners(result, True)], ["0", "0"]
+        )
 
     def test_constructor_rejects_build_rate_owner_or_link_layout_mismatches(self):
         for change in ["build", "format", "rate", "type", "linked", "audio", "recording"]:

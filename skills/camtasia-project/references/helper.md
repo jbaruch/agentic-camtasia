@@ -177,8 +177,9 @@ python3 -B "{camtasia_skill_root}/scripts/effects.py" remove "<project>" --clip-
 
 Inspection returns physical owners, array positions and stable `effectToken`
 values. Select a template by its native clip ID and effect name; use its token
-for repeated names. Construction appends a fresh instance and reports the new
-token. Preserve resource availability at the destination; the helper copies
+for repeated names. Construction appends a fresh instance. Linked instances
+receive a fresh stable token; direct instances preserve their native metadata
+and may have no token. Preserve resource availability at the destination; the helper copies
 references, not their files. Retimed effects need their feature-specific clock
 contract. Construction preserves complete curves without changing their times.
 Use `scripts/motion_paths.py` for Motion Path construction and its coupled clip

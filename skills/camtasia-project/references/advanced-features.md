@@ -36,7 +36,8 @@ display scaling. Preserve the observed negative mask feather value.
 The [visual-effect helper](helper.md#visual-effect-json-editing) now constructs
 effects by copying a selected same-build saved native instance. It retains typed
 parameters, curves, edges, resource selectors and opaque data, with fresh stable
-tokens and separate linked wrapper/video payloads. Construction copies selected
+tokens for linked wrapper/video payloads. Direct owners retain their native
+metadata without allocating linked identities. Construction copies selected
 owner reset companions without replacing conflicting destination defaults. Use
 matching owner kinds/link layout and edit rate; timed payloads require identical
 complete owner clocks. This reuses the native serialization above rather than

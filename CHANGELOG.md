@@ -7,8 +7,9 @@
 - Visual-effect construction from a same-build saved project through
   `effects.py add`. Copies the complete selected native payload, preserves
   wrapper/video mirror differences and reset companions, appends without
-  changing existing order, and allocates a fresh stable effect token across
-  the destination's visual and audio instances.
+  changing existing order. Linked construction allocates a fresh stable effect
+  token across the destination's visual and audio instances; direct owners
+  preserve native metadata without allocating linked identities.
 - Construction retains resource selectors, keyframes, edge modifiers and opaque
   fields. Timed payloads require matching complete owner clocks; retiming,
   resource replacement and new animated-control authoring remain separate work.

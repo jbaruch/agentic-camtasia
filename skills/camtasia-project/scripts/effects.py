@@ -7,7 +7,8 @@ instances, array positions and optional stable effectIndex tokens. set PROJECT
 patches an existing effect; remove uses the same selector without a spec.
 add PROJECT --clip-id ID --effect NAME --template-project TEMPLATE
 --template-clip-id ID [--template-effect-token TOKEN] --output CANDIDATE
-appends the complete saved effect, with a fresh effectIndex token. Construction
+appends the complete saved effect. Linked pairs receive a fresh effectIndex
+token; direct owners preserve native metadata without allocating an identity. Construction
 requires Mac 2026.2.4/format 10, matching visual owner types/link layout and edit
 rate. Timed payloads additionally require matching owner clocks; no animation,
 edge, freeze or source clock is inferred or retimed. Resource references remain
@@ -365,7 +366,7 @@ def add_effect(
                     raise ValueError(
                         "preserve timed effect payloads with matching complete owner clocks; use the feature helper for retiming"
                     )
-    token = next_constructor_token(destination)
+    token = next_constructor_token(destination) if len(destination) == 2 else None
     for (source_owner, native), owner in zip(source, destination):
         companions = owner_defaults(source_owner, name)
         metadata = owner.get("metadata", {})
@@ -379,7 +380,8 @@ def add_effect(
                 "preserve conflicting existing reset defaults; apply this preset through the native editor"
             )
         effect = copy.deepcopy(native)
-        effect.setdefault("metadata", {})["effectIndex"] = token
+        if token is not None:
+            effect.setdefault("metadata", {})["effectIndex"] = token
         owner.setdefault("effects", []).append(effect)
         if companions:
             metadata = owner.setdefault("metadata", {})
