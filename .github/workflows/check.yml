@@ -1,0 +1,44 @@
+name: Checks
+
+on:
+  workflow_call:
+  pull_request:
+  push:
+    branches: [main]
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.11'
+      - uses: astral-sh/setup-uv@d0d8abe699bfb85fec6de9f7adb5ae17292296ff # v6
+        with:
+          version: '0.13.5'
+      # Review tool pins quarterly, alongside pyproject.toml's verification pin.
+      - name: Install check tools
+        run: |
+          set -euo pipefail
+          uv tool install ruff==0.9.5
+          uv tool install pyright==1.1.414
+          curl --fail --location --output "$RUNNER_TEMP/acr.tar.gz" \
+            https://github.com/jbaruch/agentic-context-registry/releases/download/v0.2.1/acr-linux-amd64.tar.gz
+          echo "d6c435927507e1ccdf4f2147069335aa92084d786c201127d5670deddb3cca5d  $RUNNER_TEMP/acr.tar.gz" | sha256sum --check
+          mkdir -p "$RUNNER_TEMP/acr"
+          tar -xzf "$RUNNER_TEMP/acr.tar.gz" -C "$RUNNER_TEMP/acr"
+          echo "$RUNNER_TEMP/acr" >> "$GITHUB_PATH"
+      - name: Lint and format
+        run: |
+          set -euo pipefail
+          ruff check skills hooks tests scripts
+          ruff format --check skills hooks tests scripts
+      - name: Check source and distribution
+        run: bash scripts/check.sh
