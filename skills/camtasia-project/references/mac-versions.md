@@ -111,6 +111,13 @@ from the upstream enum; parameter and independent rerender contracts are in
 [cursors](cursors.md). Upstream identifiers such as `CursorPhysics` remain
 distinct from their UI labels.
 
+The format-10 profile also admits the natively observed `Sepia` identifier.
+The [effect-curve probe](advanced-features.md#visual-effect-parameter-curves)
+uses native Callout Auto Animate and a trimmed 2× linked-video sequence. Their
+saved effect curves, cleared constant and inspected exports establish this
+identifier in the exercised build. The correction leaves unrelated enum values,
+parameter shapes, categories and property rejection unchanged.
+
 ## Recorded-cursor smoothing
 
 The 2026.2.4 probe uses an actual `ScreenVMFile` and the original TREC's recorded

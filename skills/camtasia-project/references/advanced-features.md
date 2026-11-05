@@ -42,8 +42,9 @@ owner reset companions without replacing conflicting destination defaults. Use
 matching owner kinds/link layout and edit rate; timed payloads require identical
 complete owner clocks. This reuses the native serialization above rather than
 deriving project constructors from shader metadata. Newly edited destinations
-still require their own native output checks. Direct resource replacement,
-curve authoring and effect-specific retiming remain separate contracts.
+still require their own native output checks. Resource selectors use their feature-specific helpers. Typed double curves use
+the [effect-curve helper](helper.md#visual-effect-curve-editing); effect-specific
+retiming and other curve representations retain separate contracts.
 
 The installed editor also exposes Tiling. Its default `Tiling` effect saved
 and reopened but rendered black on the generated MP4; that specimen is a failed
@@ -51,6 +52,48 @@ rendering test and is not an admitted profile extension. Keystroke and Window
 Spotlight offered no **Add to Selected Media** action for that MP4. Test those
 with a recording carrying the relevant events rather than manufacturing event
 data or treating palette presence as successful feature support.
+
+## Visual-effect parameter curves
+
+Mac 2026.2.4 / format 10 Auto Animate creates a typed Sepia `intensity` default
+and interval keyframes with `time`, `endTime`, `duration` and target `value`.
+The visual owner's `animationTracks.visual` contains matching intervals. The
+native two-segment Callout control starts at zero, reaches one over seconds
+1–2, holds it through second 3, then reaches 0.25 over seconds 3–4. Its typed
+parameter carries `interp: "linr"`; native frame interpolation may be omitted.
+The helper's explicit linear frame form produces the same complete decoded
+video/audio as that UI-created control. Five inspected phase frames show the
+initial color, first ramp, hold, return ramp and final color. A separate
+helper save/reopen/export pair also repeats both complete decoded streams;
+resaving changes only the thumbnail, command counter and redundant parameter
+interpolation in this Callout specimen.
+
+The [curve helper](helper.md#visual-effect-curve-editing) preserves the native
+parameter descriptor while replacing its selected default/frames. Ordinary
+visual clocks use source positions in project ticks, with trim and inverse
+speed retained. New matching visual interval companions belong to the video
+child of linked media; the effect parameter itself is mirrored on wrapper and
+video. Existing intervals and unrelated curves remain untouched.
+
+Native resaving of a trimmed 2× linked-video specimen retains the helper's
+source-position intervals and mirrored effect curves. It removes redundant
+parameter-level interpolation when explicit frame codes remain. Clearing the
+second specimen to 0.5 retains the visual intervals and saves the effect value
+as a bare scalar; an untouched full-intensity control also collapses to a
+scalar. A fresh reopen/save reconstructs constant 0.5 frames from the retained
+visual intervals. Both independent nine-second exports match complete decoded
+video/audio; eleven inspected phase frames include the curve, cleared constant
+and full-intensity control. Strict payload comparison retains the observed ID
+remap, source bundling with identical bytes, empty-wrapper cleanup, UI metadata
+and descriptor changes while preserving all other data, including audio.
+Preserve the observed constant representation and original typed descriptor
+when planning later edits. Do not infer integer/enum kinds from a
+bare JSON number or silently flatten other animated parameters.
+
+This is an interval-double authoring contract, not an assertion that arbitrary
+parameter combinations, point curves, nonlinear easing, recorded/frozen owners
+or companion-resource behavior have been verified. Each edited consumer project
+still requires native output checks.
 
 ## Placeholder replacement
 

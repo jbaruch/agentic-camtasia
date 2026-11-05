@@ -954,6 +954,28 @@ class SchemaAuditTests(unittest.TestCase):
         with self.assertRaises(ValueError):
             schema_audit.audit(doc, baseline, profile)
 
+    def test_format_ten_native_sepia_keeps_other_effect_constraints(self) -> None:
+        baseline, doc, profile = self.current_profile_fixture()
+        original = copy.deepcopy(baseline)
+        doc["timeline"]["effect"] = {"effectName": "Sepia", "category": "categoryVisualEffects"}
+        report = schema_audit.audit(doc, baseline, profile)
+        self.assertTrue(report["ok"])
+        self.assertTrue(report["upstreamErrors"])
+        self.assertEqual(baseline, original)
+        for change in [
+            {"effectName": "InventedSepia"},
+            {"effectName": 1},
+            {"category": "InventedCategory"},
+            {"unexpected": True},
+        ]:
+            candidate = copy.deepcopy(doc)
+            candidate["timeline"]["effect"].update(change)
+            with self.subTest(change=change):
+                self.assertFalse(schema_audit.audit(candidate, baseline, profile)["ok"])
+        doc["authoringClientName"]["version"] = "2026.2.5"
+        with self.assertRaises(ValueError):
+            schema_audit.audit(doc, baseline, profile)
+
     def test_profile_accepts_native_pixelate_and_highlighter_kinds_only(self) -> None:
         baseline = schema()
         baseline["definitions"]["timeline"]["properties"]["annotation"] = {
