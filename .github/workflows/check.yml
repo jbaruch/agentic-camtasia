@@ -1,6 +1,7 @@
 name: Checks
 
 on:
+  workflow_call:
   pull_request:
   push:
     branches: [main]
@@ -34,5 +35,10 @@ jobs:
           mkdir -p "$RUNNER_TEMP/acr"
           tar -xzf "$RUNNER_TEMP/acr.tar.gz" -C "$RUNNER_TEMP/acr"
           echo "$RUNNER_TEMP/acr" >> "$GITHUB_PATH"
+      - name: Lint and format
+        run: |
+          set -euo pipefail
+          ruff check skills hooks tests scripts
+          ruff format --check skills hooks tests scripts
       - name: Check source and distribution
         run: bash scripts/check.sh

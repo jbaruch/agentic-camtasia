@@ -11,6 +11,14 @@
 - Known feature gaps are post-release issues in `jbaruch/agentic-camtasia`; implement them when requested by a real project.
 - Do not expand native feature or parameter matrices as a release prerequisite.
 
+## Temporary review scope
+
+- The operator requested on 2026-11-05: "skip claude reivews for now (out of quota)".
+- For this feature-shipping work, require the current-head Codex policy verdict
+  and passing deterministic checks; skip the Claude quality lane and its gate.
+- This operator override applies to the release skill's dual-review requirement
+  until the operator restores Claude reviews.
+
 ## Working storage
 
 - Keep only current disposable test inputs, the matching Camtasia app and the schema cache under `build/native-verification`.

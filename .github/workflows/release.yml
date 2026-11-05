@@ -1,0 +1,36 @@
+name: Publish ACR package
+
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    uses: ./.github/workflows/check.yml
+  publish:
+    needs: check
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      # Review the ACR pin quarterly, alongside the check workflow's tool pins.
+      - name: Install ACR
+        run: |
+          set -euo pipefail
+          curl --fail --location --output "$RUNNER_TEMP/acr.tar.gz" \
+            https://github.com/jbaruch/agentic-context-registry/releases/download/v0.2.1/acr-linux-amd64.tar.gz
+          echo "d6c435927507e1ccdf4f2147069335aa92084d786c201127d5670deddb3cca5d  $RUNNER_TEMP/acr.tar.gz" | sha256sum --check
+          mkdir -p "$RUNNER_TEMP/acr"
+          tar -xzf "$RUNNER_TEMP/acr.tar.gz" -C "$RUNNER_TEMP/acr"
+          echo "$RUNNER_TEMP/acr" >> "$GITHUB_PATH"
+      - name: Publish immutable package release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: acr publish . --json
