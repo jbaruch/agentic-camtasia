@@ -372,6 +372,47 @@ class EffectConstructorTests(unittest.TestCase):
             self.assertEqual(output.read_text(), "occupied")
             self.assertEqual((source.read_bytes(), native.read_bytes()), before)
 
+    def test_cli_refuses_malformed_direct_effect_arrays_as_json_without_output(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source, native, output = [
+                root / x for x in ["source.json", "template.json", "candidate.json"]
+            ]
+            native.write_bytes(project.encode_document(template()))
+            for malformed in ["not-an-array", None, 1, {}, [None]]:
+                doc = document()
+                node(doc)["effects"] = malformed
+                source.write_bytes(project.encode_document(doc))
+                before = source.read_bytes(), native.read_bytes()
+                with (
+                    self.subTest(malformed=malformed),
+                    patch("sys.stderr", new_callable=io.StringIO) as stream,
+                ):
+                    self.assertEqual(
+                        effects.main(
+                            [
+                                "add",
+                                str(source),
+                                "--clip-id",
+                                "3",
+                                "--effect",
+                                "Sepia",
+                                "--template-project",
+                                str(native),
+                                "--template-clip-id",
+                                "3",
+                                "--output",
+                                str(output),
+                            ]
+                        ),
+                        1,
+                    )
+                error = json.loads(stream.getvalue())
+                self.assertFalse(error["ok"])
+                self.assertIn("effects array", error["error"])
+                self.assertFalse(output.exists())
+                self.assertEqual((source.read_bytes(), native.read_bytes()), before)
+
 
 if __name__ == "__main__":
     unittest.main()

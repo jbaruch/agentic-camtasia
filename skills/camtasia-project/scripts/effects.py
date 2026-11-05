@@ -382,7 +382,8 @@ def add_effect(
         effect = copy.deepcopy(native)
         if token is not None:
             effect.setdefault("metadata", {})["effectIndex"] = token
-        owner.setdefault("effects", []).append(effect)
+        owner.setdefault("effects", [])
+        effects_of(owner).append(effect)
         if companions:
             metadata = owner.setdefault("metadata", {})
             for key, value in companions.items():
