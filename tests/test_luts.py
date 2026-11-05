@@ -302,7 +302,7 @@ class LutTests(unittest.TestCase):
             self.assertEqual(resource["sha256"], project.digest(CUBE.encode()))
             self.assertEqual(len(resource["locations"]), 2)
             self.assertEqual(resource["closure"], "selected-file-only")
-            self.assertEqual(before, {p: p.read_bytes() for p in before})
+            self.assertEqual(before, {p: p.read_bytes() for p in root.rglob("*") if p.is_file()})
 
     def test_conflicting_missing_or_path_resource_selectors_refuse(self):
         with tempfile.TemporaryDirectory() as temporary:
@@ -484,6 +484,45 @@ class LutTests(unittest.TestCase):
                         self.assertEqual(luts.main([*args[:-1], str(path)]), 1)
                 self.assertEqual(output.read_text(), "occupied")
                 self.assertEqual(source.read_bytes(), before)
+
+    def test_cli_corrupt_effect_names_refuse_as_json_before_inspection_or_staging(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source, settings, output = [
+                root / n for n in ["source.json", "spec.json", "candidate.json"]
+            ]
+            settings.write_text(json.dumps(spec(intensity=0.5)))
+            for value in [None, "", [], 0]:
+                doc = fixture()
+                if value is None:
+                    node(doc)["effects"][0].pop("effectName")
+                else:
+                    node(doc)["effects"][0]["effectName"] = value
+                source.write_bytes(project.encode_document(doc))
+                original = source.read_bytes()
+                for args in [
+                    ["inspect", str(source)],
+                    [
+                        "set",
+                        str(source),
+                        "--clip-id",
+                        "3",
+                        "--spec",
+                        str(settings),
+                        "--output",
+                        str(output),
+                    ],
+                ]:
+                    with (
+                        self.subTest(value=value, command=args[0]),
+                        patch("sys.stderr", new_callable=io.StringIO) as stream,
+                    ):
+                        self.assertEqual(luts.main(args), 1)
+                    error = json.loads(stream.getvalue())
+                    self.assertFalse(error["ok"])
+                    self.assertIn("effectName", error["error"])
+                    self.assertFalse(output.exists())
+                    self.assertEqual(source.read_bytes(), original)
 
 
 if __name__ == "__main__":

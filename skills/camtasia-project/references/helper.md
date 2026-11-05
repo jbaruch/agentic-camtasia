@@ -195,7 +195,7 @@ new owner's geometry, resource closure or a new parameter combination.
 
 ## Color LUT JSON editing
 
-Use `scripts/luts.py` for the existing `LutEffect` resource selector, intensity,
+Use `skills/camtasia-project/scripts/luts.py` for the existing `LutEffect` resource selector, intensity,
 native ranges, bypass and edge easing. Its module docstring, `RANGE_CHOICES`,
 `lookup_roots`, `resolve_resource`, `patch_double` and `patch_edge` own the
 lookup, parameter and preservation contracts. Read [the LUT native evidence](advanced-features.md#color-lut-filters).

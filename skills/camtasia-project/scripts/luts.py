@@ -5,7 +5,7 @@ resources --app APP lists CUBE names, paths and SHA-256 hashes from the verified
 installation and native user Color LUTs directory. It reads files, never imports
 or copies resources. Case aliases with different bytes are ambiguous.
 set PROJECT --clip-id ID [--effect-token TOKEN] --spec SPEC [--app APP]
---output CANDIDATE edits an existing LutEffect selected through effects.py.
+--output CANDIDATE edits an existing LutEffect through the shared visual selector.
 inspect PROJECT lists its physical instances. Linked mirrors change together;
 audio, other effects, tokens, reset metadata and original presetName survive.
 
@@ -303,7 +303,16 @@ def edit_lut(
 
 
 def inventory(doc: dict[str, Any]) -> list[dict[str, Any]]:
-    return [row for row in effects.inventory(doc) if row["effect"]["effectName"] == "LutEffect"]
+    result = []
+    for row in effects.inventory(doc):
+        name = row["effect"].get("effectName")
+        if not isinstance(name, str) or not name:
+            raise ValueError(
+                f"{row['path']}/effectName: restore a nonempty native visual-effect name"
+            )
+        if name == "LutEffect":
+            result.append(row)
+    return result
 
 
 def main(argv: list[str] | None = None) -> int:
