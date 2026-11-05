@@ -162,7 +162,7 @@ available and verify the candidate in the matching native editor.
 
 ## Annotation JSON editing
 
-Use `scripts/annotations.py` for construction from a standalone native Callout,
+Use `skills/camtasia-project/scripts/annotations.py` for construction from a standalone native Callout,
 uniform Unicode text/rich properties, and existing static shape/text fields.
 Its module docstring, `KINDS`, `NUMBERS`, `ENUMS`, `RICH_TYPES`, `uniform_runs`
 and `add_annotation` own the build, selector, value and preservation contracts.
