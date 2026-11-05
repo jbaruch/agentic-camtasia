@@ -524,6 +524,47 @@ class LutTests(unittest.TestCase):
                     self.assertFalse(output.exists())
                     self.assertEqual(source.read_bytes(), original)
 
+    def test_cli_syntax_errors_are_json_on_stderr_with_exit_two(self):
+        for args in [
+            [],
+            ["inspect"],
+            ["set"],
+            ["resources"],
+            ["unknown"],
+            [
+                "set",
+                "source.json",
+                "--clip-id",
+                "not-an-integer",
+                "--spec",
+                "spec.json",
+                "--output",
+                "candidate.json",
+            ],
+        ]:
+            with (
+                self.subTest(args=args),
+                patch("sys.stderr", new_callable=io.StringIO) as errors,
+                patch("sys.stdout", new_callable=io.StringIO) as output,
+            ):
+                with self.assertRaises(SystemExit) as stopped:
+                    luts.main(args)
+            self.assertEqual(stopped.exception.code, 2)
+            self.assertFalse(json.loads(errors.getvalue())["ok"])
+            self.assertTrue(json.loads(errors.getvalue())["error"])
+            self.assertEqual(output.getvalue(), "")
+
+    def test_cli_help_remains_plaintext_without_an_error(self):
+        with (
+            patch("sys.stderr", new_callable=io.StringIO) as errors,
+            patch("sys.stdout", new_callable=io.StringIO) as output,
+        ):
+            with self.assertRaises(SystemExit) as stopped:
+                luts.main(["--help"])
+        self.assertEqual(stopped.exception.code, 0)
+        self.assertIn("usage:", output.getvalue())
+        self.assertEqual(errors.getvalue(), "")
+
 
 if __name__ == "__main__":
     unittest.main()

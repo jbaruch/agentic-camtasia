@@ -27,6 +27,7 @@ exclusive or an identical no-op. Use ordinary diff/validate/apply and matching
 native save/reopen/export afterward. JSON stdout schema_version 1, owner
 camtasia-luts, contains hashes, inventory, resource audit and nativeVerified false.
 Exit 0 success, 1 input/I/O refusal, 2 CLI syntax; diagnostics are JSON on stderr.
+--help retains standard plaintext help on stdout.
 """
 
 from __future__ import annotations
@@ -39,7 +40,7 @@ from pathlib import Path
 import plistlib
 import shlex
 import sys
-from typing import Any
+from typing import Any, NoReturn
 from xml.parsers.expat import ExpatError
 
 import effects
@@ -60,6 +61,11 @@ RANGE_CHOICES = {
     for region, values in RAMPS.items()
     if region != "all" or channel == "grey"
 }
+
+
+class JsonArgumentParser(argparse.ArgumentParser):
+    def error(self, message: str) -> NoReturn:
+        self.exit(2, json.dumps(dict(ok=False, error=message), ensure_ascii=False) + "\n")
 
 
 def require_native(doc: dict[str, Any]) -> None:
@@ -316,7 +322,7 @@ def inventory(doc: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = JsonArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     command = commands.add_parser("resources")
     command.add_argument("--app", type=Path, required=True)
