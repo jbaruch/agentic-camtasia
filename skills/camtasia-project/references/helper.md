@@ -181,6 +181,8 @@ for repeated names. Construction appends a fresh instance and reports the new
 token. Preserve resource availability at the destination; the helper copies
 references, not their files. Retimed effects need their feature-specific clock
 contract. Construction preserves complete curves without changing their times.
+Use `scripts/motion_paths.py` for Motion Path construction and its coupled clip
+rotation; the generic constructor refuses `MediaPath`.
 
 `set` accepts a schema-version-one spec, for example
 `{"schema_version":1,"parameters":{"intensity":"1/2"},"bypassed":false}`.

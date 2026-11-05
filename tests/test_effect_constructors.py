@@ -294,6 +294,25 @@ class EffectConstructorTests(unittest.TestCase):
                 effects.add_effect(document(True), 10, source, 10, "Sepia")
             self.assertEqual(source, before)
 
+    def test_motion_path_creation_routes_to_its_rotation_companion_helper(self):
+        source, dest = template(), document()
+        node(source)["effects"][0]["effectName"] = "MediaPath"
+        node(source)["effects"][0]["parameters"] = {"mediaPathAutoOrient": 1}
+        before = copy.deepcopy(source), copy.deepcopy(dest)
+        with self.assertRaisesRegex(ValueError, "motion_paths.py.*rotation"):
+            effects.add_effect(dest, 3, source, 3, "MediaPath")
+        self.assertEqual((source, dest), before)
+
+    def test_construction_does_not_extend_to_the_legacy_static_editor_profile(self):
+        source, dest = template(), document()
+        for doc in [source, dest]:
+            doc.update(
+                version="9.0",
+                authoringClientName={"name": "Camtasia", "platform": "Mac", "version": "2025.0.3"},
+            )
+        with self.assertRaisesRegex(ValueError, "2026.2.4"):
+            effects.add_effect(dest, 3, source, 3, "Sepia")
+
     def test_cli_stages_copies_without_touching_project_template_or_existing_outputs(self):
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

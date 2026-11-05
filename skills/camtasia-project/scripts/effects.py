@@ -16,6 +16,7 @@ their order/tokens, audio and unrelated owner data survive. Effect-level reset
 and opaque data are copied, including distinct wrapper/video payloads. Selected
 owner default-NAME-* reset companions are copied without overwriting conflicting
 defaults; last-applied ease defaults need the selected effect as effectApplied.
+MediaPath construction uses motion_paths.py to preserve its clip-rotation coupling.
 
 Spec schema_version 1 accepts parameters (existing-name-to-scalar object) and/or
 bypassed (boolean). Raw native units/codes are required. Numeric rational input
@@ -341,6 +342,10 @@ def add_effect(
         raise ValueError("construct effects using the verified Mac 2026.2.4 format-10 contract")
     if template.get("authoringClientName") != doc.get("authoringClientName"):
         raise ValueError("select a native effect template from the same authoring build")
+    if name == "MediaPath":
+        raise ValueError(
+            "construct Motion Path with motion_paths.py to preserve its clip rotation companion"
+        )
     if project.number(doc.get("editRate")) <= 0 or project.number(
         doc.get("editRate")
     ) != project.number(template.get("editRate")):
