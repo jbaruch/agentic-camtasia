@@ -928,6 +928,13 @@ persistence, or rendering.
 
 ## Color LUT filters
 
+The [LUT helper](helper.md#color-lut-json-editing) edits the observed resource,
+intensity, range, bypass and edge controls below. It preserves complete native
+parameter descriptors, mirrors, curves and reset metadata. It reads existing
+lookup files without importing resources, rejects ambiguous filenames and
+leaves native lookup/render verification separate from its selected-file audit.
+New keyframe authoring remains outside this helper's verified scope.
+
 Mac 2026.2.4 natively applies **Basic Black & White** as `LutEffect`, category
 `categoryVisualEffects`, `bypassed: false`. A linked AV clip mirrors the effect
 on its wrapper and video child; its audio child remains unchanged. The wrapper's

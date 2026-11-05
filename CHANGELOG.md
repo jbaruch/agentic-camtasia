@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.4.0 — 2026-11-05
+
+### Added
+
+- Color LUT editing through `luts.py`: select existing installed/imported CUBE
+  filenames, set intensity, all 13 observed channel/range choices, bypass and
+  project-clock ease-in/out. Linked visual mirrors change together; audio,
+  tokens, original preset/reset metadata and unrelated controls survive.
+- Read-only resource discovery and selected-file SHA-256/CUBE audits. Conflicting
+  filename/case aliases refuse instead of guessing native lookup precedence.
+  Resource files remain in their native lookup locations and are never copied
+  into the plugin or project by this helper.
+- Typed/bare native double handling without flattening keyframes, preservation
+  of zero-duration ease records, and refusal of ambiguous shared edge timing.
+  Native output evidence is reused from the established LUT controls; new
+  combinations and destinations still require project-specific verification.
+
 ## 0.3.0 — 2026-11-05
 
 ### Added
