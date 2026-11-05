@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.7.0 — 2026-11-05
+
+### Added
+
+- Annotation construction from caller-owned standalone native templates via
+  `annotations.py`, retaining complete definitions, native style identifiers,
+  clocks, animations and drawing modifiers. One-sided Fade references receive
+  the new clip ID; destination lane state stays intact.
+- Existing static shape/text controls and uniform rich-text edits with UTF-8
+  byte-range updates, native signed style codes, default-font preservation and
+  declared-font inventory. Mixed/partial/animated runs refuse unsupported edits.
+- Exclusive candidate staging and explicit build, canvas, clock, ID, clean-template
+  and dependency checks. Vendor presets, SVG definitions and fonts remain local.
+
 ## 0.6.0 — 2026-11-05
 
 ### Added

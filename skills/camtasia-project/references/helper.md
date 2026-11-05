@@ -160,6 +160,52 @@ custom attributes, while replacing endpoints and duration for the destination.
 Neither route copies external resources. Keep any template resource dependencies
 available and verify the candidate in the matching native editor.
 
+## Annotation JSON editing
+
+Use `scripts/annotations.py` for construction from a standalone native Callout,
+uniform Unicode text/rich properties, and existing static shape/text fields.
+Its module docstring, `KINDS`, `NUMBERS`, `ENUMS`, `RICH_TYPES`, `uniform_runs`
+and `add_annotation` own the build, selector, value and preservation contracts.
+Read [annotation definitions](advanced-features.md#text-callout-presets) and
+[rich typography](quick-properties.md#text-and-rich-font-runs) before editing.
+
+```bash
+python3 -B "{camtasia_skill_root}/scripts/annotations.py" inspect "<template-project>"
+python3 -B "{camtasia_skill_root}/scripts/annotations.py" add "<project>" --track 0:2 --new-clip-id 40 --template-project "<native-template>" --template-clip-id 7 --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/annotations.py" set "<project>" --clip-id 40 --spec "<annotation-spec.json>" --output "<candidate.json>"
+```
+
+Construction uses an existing empty root lane in a single-scene destination.
+Match the template's build, canvas and edit rate. Capture the Callout alone on
+a root lane without lane parameters, effects, source references, markers or
+quizzes. The complete clip keeps its existing clock and modifiers; standalone
+one-sided Fade companions remap to the requested fresh ID. Destination lane
+parameters and visibility remain unchanged. No retiming or external resources
+are copied. Add supported effects afterward with their dedicated helpers.
+
+A schema-version-one edit spec supplies `text`, `rich` and/or `definition`:
+
+```json
+{"schema_version":1,"text":"Build → Buy","rich":{"fontSize":48,"fgColor":"(60,20,180,255)"},"definition":{"width":400,"horizontal-alignment":"left"}}
+```
+
+Name only existing fields and rich properties. Text changes without rich data
+retain default fonts. Existing rich data must consist of one static frame of
+unique full-string properties; replacement updates every end to the new UTF-8
+byte length. Empty text has zero-byte ranges. Mixed, partial, unknown or animated
+runs require a separate native contract. Native signed codes, value types,
+opaque style IDs and default fonts survive. Shape/style identifiers are not
+editable substitutes for full preset definitions. Numeric definition edits
+retain static typed descriptors and refuse animated parameters.
+
+Inspection reports declared fonts with `fontFilesVerified: false`. Resolve actual
+fonts and glyph coverage on the rendering host. Staging reports hashes,
+`changed`, `written` and `nativeVerified: false`. Follow ordinary project
+validate/diff/apply, native save/reopen and output checks; inspect text fitting,
+contrast, drawing/Fade phases and audio. A stored size can render smaller with
+native auto-resize. Neither installed font names nor a valid candidate proves
+cross-host dependency closure.
+
 ## Behavior JSON editing
 
 Use `skills/camtasia-project/scripts/behaviors.py` to construct a behavior from a

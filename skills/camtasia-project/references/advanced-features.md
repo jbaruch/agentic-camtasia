@@ -484,6 +484,42 @@ checks that bijection and retains all other payload, with observed duration-labe
 and track-height bookkeeping recorded separately. Do not strip IDs or metadata
 wholesale to make a preservation check pass.
 
+## Reusable annotation helper verification
+
+The [annotation helper](helper.md#annotation-json-editing) was exercised on Mac
+2026.2.4 (2026.132), format 10, using caller-owned saved templates on a 640×360,
+30-fps, eight-second generated AV project. A copied Industrial octagon retains
+its literal `urban` style while width/height become 500×280, fill opacity 0.75
+and outline thickness 6. A copied Basic text box changes to `Build →\nBuy café`,
+Arial rich size 48, Bold Italic, underline, purple byte-tuple color, line spacing
+1.2 and outline thickness 4. All eight rich ranges end at nineteen UTF-8 bytes;
+the original Montserrat default font remains unchanged. Native auto-resize shows
+a smaller fitted size in the property panel while saved rich size stays 48.
+
+Native save preserves complete clips, source payload and audio. Strict comparison
+allows only the observed clip-ID map 10→6/11→7, permutation of the unique eight
+rich properties, project thumbnail and command count. Save/close/reopen and two
+independent MP4 exports reproduce complete decoded video/audio. Six inspected
+frames show early/late held text, arrow/accent glyphs, retained styling, the
+translucent outlined octagon and disappearance after five seconds.
+
+A separate saved, self-authored `TypeWinSVG` stroke tests construction with both
+the one-second `DrawPercentageFade` modifier and a one-second ending Fade. The
+helper copies its native definition/animation payload unchanged to ID 20 and
+remaps the Fade endpoint. Native save changes only 20→6 and its endpoint plus
+command count. Two independent exports after save/reopen reproduce complete
+decoded video/audio; eight inspected frames cover drawing, held stroke, fading
+and disappearance. Decoded audio matches the text/shape sequence.
+
+Both candidates pass structural validation and the existing exact-build schema
+profile with no compatibility errors. Raw community schema still rejects the
+known octagon shape, SVG kind and Callout drawing modifier; those upstream
+errors remain separate from the existing profile corrections. This verifies
+copying and the exercised edits, not new palette matrices, arbitrary SVG layout,
+mixed rich styles or physical font-file selection. Definitions, fonts and test
+media stay outside the package; completed disposable evidence is deleted after
+incorporating these findings and generated-fixture tests.
+
 ## Chroma key
 
 The native Remove a Color effect serializes as `ChromaKey`. Observed parameters
