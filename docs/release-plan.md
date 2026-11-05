@@ -1,23 +1,26 @@
-# Initial release plan
+# Release plan
 
-The user froze feature scope on 2026-10-29: ship the existing coverage and add
-missing capabilities as real projects require them. The target package version
-is 0.1.0. The repository is
+The initial 0.1 scope was frozen on 2026-10-29 and version 0.1.0 was published
+on 2026-11-01. On 2026-11-05 the operator requested continued feature shipping,
+with a patch or minor release after each feature. The repository is
 [jbaruch/agentic-camtasia](https://github.com/jbaruch/agentic-camtasia).
 
-The source repository and feature backlog are public. A versioned GitHub package
-release remains a separate step; ACR 0.2.1 resolves GitHub installs from releases.
+The source repository and feature backlog are public. ACR 0.2.1 resolves GitHub
+installs from versioned package releases.
 
-## Remaining release work
+## Subsequent releases
 
 - Keep native media, vendor resources, machine diagnostics and agent installer
   state local when preparing subsequent updates.
-- Prepare release automation and review for versioned package distribution.
-- Select a license before advertising a particular reuse license.
+- Ship each feature separately through a reviewed PR and a semver bump in both
+  manifests and the Python lockfile's root-package entry.
+- Run the deterministic CI gates before tag-triggered ACR publication. Confirm
+  the resulting GitHub release assets and an installed-consumer acceptance check.
+- Apply the temporary Claude review waiver recorded in `AGENTS.md`; retain the
+  current-head Codex policy review.
 - Run the existing deterministic gates and a clean installed-consumer acceptance
-  check against the final release candidate. The latest code gate has 360 tests
-  and 41 clean distribution files; these counts are observations, not exit criteria.
-- Prepare the reviewable release and report any actual release blocker.
+  check against each release candidate. Counts are observations, not exit criteria.
+- Keep the MIT license in the source repository.
 
 ## Post-release feature backlog
 

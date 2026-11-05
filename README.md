@@ -10,25 +10,10 @@ comparisons, public documentation and a separately identified community schema.
 
 ## Install
 
-After the first versioned GitHub release is available:
-
 ```bash
 acr install github:jbaruch/agentic-camtasia --agent codex --agent claude-code --agent cursor --freshness none --non-interactive
 acr realize
 ```
-
-Until then, clone the published source and install its absolute path from a
-separate consumer project using an ACR build with local-path support:
-
-```bash
-git clone https://github.com/jbaruch/agentic-camtasia.git
-# From a separate consumer project:
-acr install /absolute/path/to/agentic-camtasia --agent codex --agent claude-code --agent cursor --freshness none --non-interactive
-acr realize
-```
-
-Local-path installs require a newer ACR build than
-0.2.1; the three agent layouts have been exercised with ACR commit `845af87`.
 
 Python 3.11+ is required. Core helpers use the standard library. Native
 save/reopen/export checks require a licensed matching Camtasia installation on
@@ -41,7 +26,7 @@ macOS. Schema auditing uses the optional pinned `jsonschema` dependency.
 | Project safety | Inspect and validate structure, hash source files, stage candidates, compare changes, apply with baseline/ownership checks and backups. |
 | Animations | Author and remove visual intervals, set easing, create empty markers and edit explicit Motion Path points and orientation. |
 | Effects and mattes | Edit existing static visual effects; author supported media/track mattes, intensity curves, bypass and removal. |
-| Transitions | Construct Fade transitions and edit existing duration/scalar controls or remove transitions, preserving endpoint clocks and audio. |
+| Transitions | Discover installed presets, construct from matching local metadata or same-build saved transitions, edit duration/scalar controls and remove transitions. Preserve endpoint clocks and audio. |
 | Interactivity | Author and edit supported hotspots, quizzes, surveys, feedback and owner/clock transfers. |
 | Feature references | Captions, audio, annotations, behaviors, cursor/click effects, Quick Properties, themes, Library assets, Lottie/SVG dependencies and delivery formats. |
 | Native checks | Read-only process health and a backed-up save/reopen adapter with separate rendering status. |
@@ -95,9 +80,9 @@ No complete official project JSON schema is asserted. Community-schema omissions
 and native compatibility corrections remain separate. Vendor media, fonts,
 presets, shaders and private recordings are excluded from this repository.
 
-The initial feature scope is frozen. Known gaps are tracked as
-[post-release enhancements](https://github.com/jbaruch/agentic-camtasia/issues?q=is%3Aissue+is%3Aopen+label%3Aenhancement)
-and will be added as real projects need them. See the
+Known gaps are tracked as
+[post-release enhancements](https://github.com/jbaruch/agentic-camtasia/issues?q=is%3Aissue+label%3Aenhancement)
+and added in separate feature releases. See the
 [coverage summary](docs/mac-feature-coverage.md) and
 [verification guide](docs/verification.md).
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.2.0 — 2026-11-05
+
+### Added
+
+- Transition preset discovery and construction from the matching local Mac
+  2026.2.4 installation. Reads all 148 installed definitions without distributing
+  vendor metadata or evaluating shader code; supports double, boolean and RGB
+  defaults and the observed metadata-only trailing decimal syntax.
+- Same-build native transition template cloning for built-in presets and saved
+  customized transitions. Preserves complete attributes and opaque payloads while
+  remapping root clip endpoints and duration to the destination project clock.
+- Generated-fixture coverage for parser boundaries, build matching, omitted
+  controls, resource/payload preservation, linked AV identities and exclusive
+  candidate staging. Existing Fade and edit/remove commands remain available.
+
 ## 0.1.0 — 2026-10-29
 
 ### Added

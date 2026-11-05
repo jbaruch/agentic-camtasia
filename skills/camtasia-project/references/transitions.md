@@ -26,8 +26,18 @@ all copied source hashes stay unchanged and the native MP4 handle resolves
 inside the test bundle. Raw and existing-profile schemas pass without correction.
 Each installed Codex, Claude Code and Cursor copy executes all eight controls.
 
-This helper's constructor is Fade. Existing other-preset scalar edits preserve
-the saved preset payload; a new combination needs its own native render check.
+The helper also discovers and constructs presets from the selected Mac 2026.2.4
+(2026.132) installation. Its 148 local definition files supply complete double,
+boolean and RGB defaults; presets with no extra attributes retain the common
+flags. Discovery handles the observed trailing-decimal metadata syntax without
+changing strict project parsing. Directional metadata ranges do not clamp defaults.
+The remaining built-in presets can be cloned from a same-build saved transition
+with `add --template-project --template-index`; all saved fields survive except
+the destination endpoints and duration. Vendor definitions and shader strings
+remain outside the plugin. See [the CLI contract](helper.md#transition-json-editing).
+
+These constructors reuse the native default-payload evidence below. Existing
+other-preset scalar edits preserve the saved preset payload; a new combination needs its own native render check.
 Nested track clocks, null endpoints and source-handle synthesis are separate
 contracts. The earlier preset catalogue and boundary measurements below retain
 their original scope.

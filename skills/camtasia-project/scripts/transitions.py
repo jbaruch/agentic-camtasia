@@ -16,8 +16,12 @@ shared endpoints are refused. No source-handle availability is inferred.
 Static numeric/bool attributes retain scalar kinds; strings, new fields and
 structured controls need native investigation. Existing names/opaque payloads,
 unpatched flags, IDs, source clocks, media, audio and other transitions survive.
-FADE_ATTRIBUTES owns constructor defaults. Other presets require an existing
-same-build transition; no installed vendor definition is distributed.
+presets PROJECT --app APP discovers installed names/defaults. add PROJECT
+--app APP --name INTERNAL_NAME constructs one. Alternatively add accepts
+--template-project PROJECT --template-index INDEX (zero-based inspect inventory)
+to clone a complete same-build transition and replace only endpoints/duration.
+Both add routes require --duration and the ordinary endpoint/output arguments.
+No installed vendor definition is distributed. No shader text is executed.
 
 No original project/media is written or editor launched. Candidate staging is
 exclusive or an identical no-op. Stdout schema_version 1 owner camtasia-transitions
@@ -38,10 +42,9 @@ from typing import Any
 import effects
 import hotspots
 import project
+import transition_presets
 
-FADE_ATTRIBUTES = dict(
-    bypass=False, reverse=False, trivial=False, useAudioPreRoll=True, useVisualPreRoll=True
-)
+FADE_ATTRIBUTES = transition_presets.COMMON_ATTRIBUTES
 VISUAL_TYPES = frozenset(
     {
         "UnifiedMedia",
@@ -165,21 +168,44 @@ def selected_transition(track: dict[str, Any], chosen: dict[str, int]) -> dict[s
 def add_fade(
     doc: dict[str, Any], left: int | None, right: int | None, seconds: Any
 ) -> dict[str, Any]:
+    return add_transition(doc, left, right, seconds, dict(name="Fade", attributes=FADE_ATTRIBUTES))
+
+
+def add_transition(
+    doc: dict[str, Any],
+    left: int | None,
+    right: int | None,
+    seconds: Any,
+    template: dict[str, Any],
+) -> dict[str, Any]:
+    """Remap a complete preset, keeping the target's clocks and clip identities."""
     require_native(doc)
     result = copy.deepcopy(doc)
     chosen = selector(left, right)
     track = selected_track(result, chosen)
     if selected_transition(track, chosen) is not None:
         raise ValueError("edit or remove the existing transition at this boundary first")
-    value = dict(
-        name="Fade",
-        duration=extent_ticks(result, chosen, seconds),
-        **chosen,
-        attributes=copy.deepcopy(FADE_ATTRIBUTES),
-    )
+    if not isinstance(template.get("name"), str) or not template["name"]:
+        raise ValueError("select a native transition with a nonempty internal name")
+    if not isinstance(template.get("attributes"), dict):
+        raise ValueError("select a complete native transition with its attributes")
+    value = copy.deepcopy(template)
+    for key in ["leftMedia", "rightMedia"]:
+        value.pop(key, None)
+    value.update(duration=extent_ticks(result, chosen, seconds), **chosen)
     check_fit(track, value, None)
     track.setdefault("transitions", []).append(value)
     return result
+
+
+def native_template(doc: dict[str, Any], index: int) -> dict[str, Any]:
+    require_native(doc)
+    values = inventory(doc)
+    if type(index) is not int or index < 0 or index >= len(values):
+        raise ValueError("select a zero-based transition index from inspect TEMPLATE_PROJECT")
+    value = values[index]["transition"]
+    endpoints(value)
+    return value
 
 
 def set_transition(
@@ -240,15 +266,23 @@ def inventory(doc: dict[str, Any]) -> list[dict[str, Any]]:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    for name in ["inspect", "add-fade", "set", "remove"]:
+    for name in ["inspect", "presets", "add", "add-fade", "set", "remove"]:
         command = commands.add_parser(name)
         command.add_argument("project", type=Path)
-        if name != "inspect":
+        if name not in {"inspect", "presets"}:
             command.add_argument("--left-id", type=int)
             command.add_argument("--right-id", type=int)
             command.add_argument("--output", type=Path, required=True)
-        if name == "add-fade":
+        if name in {"add-fade", "add"}:
             command.add_argument("--duration", required=True)
+        if name == "presets":
+            command.add_argument("--app", type=Path, required=True)
+        if name == "add":
+            origin = command.add_mutually_exclusive_group(required=True)
+            origin.add_argument("--app", type=Path)
+            origin.add_argument("--template-project", type=Path)
+            command.add_argument("--name", help="Exact installed internal name, not a UI label")
+            command.add_argument("--template-index", type=int)
         if name == "set":
             command.add_argument("--spec", type=Path, required=True)
     args = parser.parse_args(argv)
@@ -261,13 +295,38 @@ def main(argv: list[str] | None = None) -> int:
             projectSha256=project.digest(raw),
         )
         candidate = doc
-        if args.command == "add-fade":
+        if args.command == "presets":
+            require_native(doc)
+            report["presets"] = transition_presets.installed(args.app)
+        elif args.command == "add":
+            require_native(doc)
+            if args.app:
+                if not args.name or args.template_index is not None:
+                    raise ValueError(
+                        "use --app with --name, or --template-project with --template-index"
+                    )
+                matches = [
+                    p for p in transition_presets.installed(args.app) if p["name"] == args.name
+                ]
+                if len(matches) != 1:
+                    raise ValueError(
+                        "select an exact internal name from presets; use a native template for built-in presets"
+                    )
+                template = {k: matches[0][k] for k in ["name", "attributes"]}
+            else:
+                if args.template_index is None or args.name is not None:
+                    raise ValueError("use --template-project with --template-index only")
+                template = native_template(
+                    project.load(args.template_project)[0], args.template_index
+                )
+            candidate = add_transition(doc, args.left_id, args.right_id, args.duration, template)
+        elif args.command == "add-fade":
             candidate = add_fade(doc, args.left_id, args.right_id, args.duration)
         elif args.command == "set":
             candidate = set_transition(doc, args.left_id, args.right_id, project.load(args.spec)[0])
         elif args.command == "remove":
             candidate = remove_transition(doc, args.left_id, args.right_id)
-        if args.command != "inspect":
+        if args.command not in {"inspect", "presets"}:
             report.update(
                 output=str(args.output),
                 written=hotspots.stage(args.project, args.output, candidate),
