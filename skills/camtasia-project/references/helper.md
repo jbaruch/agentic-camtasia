@@ -267,10 +267,11 @@ cross-host dependency closure.
 
 Use `skills/camtasia-project/scripts/behaviors.py` to construct a behavior from a
 saved native template, edit existing phase timing/static parameters, bypass it,
-or remove it. Its module docstring, `NAMES`, `PHASE_NAMES`, `PHASE_ATTRIBUTES`,
-`TICK_ATTRIBUTES`, `targets`, `reset_companions` and `attribute_value` own the
+or remove it. Its module docstring, `OWNERS`, `NAMES`, `PHASE_NAMES`, `PHASE_ATTRIBUTES`,
+`TICK_ATTRIBUTES`, `behavior_owners`, `targets`, `reset_companions` and `attribute_value` own the
 build, names, mixed-clock, selector and reset contracts. Read the
-[native behavior evidence](behaviors.md) before selecting a template.
+[native behavior evidence](behaviors.md) and applicable
+[recording controls](behavior-recordings.md) before selecting a template.
 
 ```bash
 python3 -B "{camtasia_skill_root}/scripts/behaviors.py" inspect "<template-project>"

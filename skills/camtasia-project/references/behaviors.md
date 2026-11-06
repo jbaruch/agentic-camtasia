@@ -17,6 +17,10 @@ infers no outer interval retiming or phase-style replacement. Native references
 below describe observations, while the helper module owns its accepted input
 and refusal contract.
 
+Direct moving/frozen recordings and stitched parents have separate
+[native interval and lifecycle controls](behavior-recordings.md), including
+source in-points, held frames and independent rendered phase comparisons.
+
 ## Identifiers and phase ownership
 
 Behaviors use `_type: "GenericBehaviorEffect"`, separately from ordinary visual
