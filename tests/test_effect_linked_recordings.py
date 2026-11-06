@@ -11,7 +11,6 @@ from unittest.mock import patch
 from test_matte_linked_recordings import fixture, wrapper
 from test_animations import visual
 import behaviors
-import effect_curves
 import effects
 import project
 
@@ -279,8 +278,6 @@ class LinkedRecordingEffectTests(unittest.TestCase):
             effects.constructor_owners(doc, 3, visual_types=effects.EFFECT_TYPES)
         with self.assertRaisesRegex(ValueError, "linked recording"):
             behaviors.behavior_owners(doc, 3)
-        with self.assertRaisesRegex(ValueError, "linked recording effect-curve"):
-            effect_curves.selected(doc, 3, "Sepia", None)
 
     def test_conflicting_reset_defaults_and_flattening_animated_parameters_refuse(self):
         source, dest = native_template(), fixture()

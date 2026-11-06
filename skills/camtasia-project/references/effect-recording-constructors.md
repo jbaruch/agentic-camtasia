@@ -99,8 +99,9 @@ through these native edits.
 
 The helper's linked-recording constants and `constructor_owners` own accepted
 owners, source/audio bindings, complete clock checks and unique-token refusals.
-This opt-in applies to generic visual-effect construction and lifecycle paths.
-Behavior and effect-curve authoring retain their separate owner contracts.
+Generic visual-effect construction and lifecycle use this opt-in. Behavior and
+[effect-curve authoring](effect-recording-curves.md#linked-moving-recordings)
+retain their separate owner contracts.
 Further linked held, stitched and nested forms need their own evidence.
 
 Five complete helper/native comparisons cover full and half construction,
@@ -117,8 +118,8 @@ a two-second source in-point. Both effect mirrors contain the same linear
 intensity frame and native descriptor. The constructor copies those complete
 payloads only with matching owner clocks; it copies no geometry or visual
 animation track and performs no retiming. Native loading derives the missing
-visual interval from the copied effect. This copies a native curve rather than
-adding linked recording support to the effect-curve authoring commands.
+visual interval from the copied effect. The separate effect-curve contract
+linked above records authoring and clearing on this linked form.
 
 A 42-second sequence compares those helpers with independent native full,
 half, bypass, removal and animated controls, plus bare recording and background
