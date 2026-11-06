@@ -222,7 +222,7 @@ class LinkedRecordingEffectCurveTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "positive"):
                 edit(doc)
 
-    def test_unknown_audio_nested_held_stitched_and_multiple_scene_owners_refuse(self):
+    def test_unknown_audio_held_stitched_and_multiple_scene_owners_refuse(self):
         for change in (
             "missing-audio",
             "audio-kind",
@@ -230,7 +230,6 @@ class LinkedRecordingEffectCurveTests(unittest.TestCase):
             "boolean-source",
             "held",
             "stitched",
-            "nested",
             "scenes",
         ):
             doc = fixture()
@@ -242,11 +241,6 @@ class LinkedRecordingEffectCurveTests(unittest.TestCase):
                 wrapper(doc)["audio"]["src"] = True if change == "boolean-source" else 2
             elif change in ("held", "stitched"):
                 visual(doc)["_type"] = "ScreenIMFile" if change == "held" else "StitchedMedia"
-            elif change == "nested":
-                old = wrapper(doc)
-                project.scene_tracks(doc)[0][0]["medias"] = [
-                    dict(id=20, _type="Group", tracks=[dict(trackIndex=0, medias=[old])])
-                ]
             else:
                 doc["timeline"]["sceneTrack"]["scenes"].append(dict(csml=dict(tracks=[])))
             before = copy.deepcopy(doc)

@@ -382,7 +382,7 @@ constant. Its module docstring, `OWNERS`, `selected`, `parameter_of` and
 independent geometry, retimed linked/Group output and constant reconstruction.
 [Recording-owner verification](effect-recording-curves.md) adds moving, frozen
 and stitched-parent effect clocks, clearing and preserved cursor/child data,
-plus root linked moving recordings with preserved recorded audio.
+plus root and Group-contained linked moving recordings with preserved recorded audio.
 
 ```bash
 python3 -B "{camtasia_skill_root}/scripts/effect_curves.py" inspect "<project>"

@@ -12,7 +12,6 @@ from test_effect_linked_recordings import native_template
 from test_matte_linked_recordings import fixture
 from test_animation_freezes import RATE
 import behaviors
-import effect_curves
 import effects
 import hotspots
 import mattes
@@ -219,7 +218,6 @@ class GroupedRecordingEffectTests(unittest.TestCase):
         )
         for action in (
             lambda: behaviors.behavior_owners(doc, 3),
-            lambda: effect_curves.selected(doc, 3, "Sepia", None),
             lambda: mattes.media_targets(doc, 3),
         ):
             with self.assertRaises(ValueError):
