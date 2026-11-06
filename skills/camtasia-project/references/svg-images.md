@@ -35,10 +35,8 @@ missing references, ambiguous ownership and unverified dynamic/active forms
 refuse. Viewport size and aspect fitting remain separate from the PNG's physical
 pixel dimensions. Original source and PNG files remain unchanged.
 
-Active-content refusals include SVG scripts and handlers, unqualified `on*`
-attributes, XML Events listeners and attributes in the XML Events namespace.
-Namespace aliases do not change this guard; unrelated namespace metadata remains
-opaque.
+Recognized active content causes refusal. `svg_images.py`'s `Document.active`
+contract owns that classification.
 
 Parsing uses Expat's namespace and ordered-attribute information to locate
 values in UTF-8 source bytes; it does not reserialize an XML tree. XML DTDs,
