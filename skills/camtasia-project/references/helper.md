@@ -544,7 +544,7 @@ project diff, validation and guarded apply workflow, then verify native output.
 Use `scripts/hotspots.py` to inspect existing hotspots/marker identities and stage
 full JSON candidates. The observed build, constructors, action mapping, supported
 clip targets and timing constraints are owned by that script's module docstring,
-`DEFAULT_HOTSPOT`, `ACTIONS`, `visual_target` and `edit_hotspot`. The
+`DEFAULT_HOTSPOT`, `ACTIONS`, `HOTSPOT_TYPES`, `hotspot_target` and `edit_hotspot`. The
 [native hotspot evidence](advanced-features.md#interactive-hotspots) distinguishes
 serialized acceptance from Smart Player behavior.
 
@@ -559,7 +559,10 @@ Time targets take `--time SECONDS`; URL targets take `--url URL` and optionally
 Marker targets take `--marker-owner ID --marker-time SECONDS`. Use the logical
 `ownerId` from inspection, not the label, list position or `parameterOwnerId`.
 The script's `marker_global_ticks` resolves observed single-scene media and Group
-clocks automatically. Other structures require `--marker-global-time SECONDS`
+clocks automatically, including the distinct held and stitched marker origins.
+The [recording-owner evidence](hotspot-recording-owners.md) records native
+ownership, trim/speed checks and a failed forward-reference roundtrip.
+Other structures require `--marker-global-time SECONDS`
 from native evidence. An explicit value must agree with an available verified
 mapping. The [Group reopen finding](project-format.md#clock-domains) records a
 native duration instability and the exercised content-preserving construction.

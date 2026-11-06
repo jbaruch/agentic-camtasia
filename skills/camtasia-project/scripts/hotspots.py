@@ -1,15 +1,23 @@
 #!/usr/bin/env python3
 """Stage interactive-hotspot JSON without opening or changing a Camtasia project.
 
-Native contract: Mac 2026.2.4, format 10.0; visual types in VISUAL_TYPES,
+Native contract: Mac 2026.2.4, format 10.0; hotspot owners in HOTSPOT_TYPES,
 including UnifiedMedia.video. Native application stores Group hotspots on the
 Group itself, independently of its children.
+Standalone held ScreenIMFile and StitchedMedia parents use the same hotspot
+payload. Select the stitched parent; its hidden children are not independent
+hotspot targets. Linked wrappers of these new owners require separate native
+ownership evidence. Shared visual_target defaults remain VISUAL_TYPES and do not
+expand other helpers' editing scope.
 The four actions and defaults come from independent native property/save captures.
 Marker targets use the logical media owner: a linked video's markers live on its
 video child, but markerParametricId identifies the UnifiedMedia wrapper. Verified
 single-scene media/Group clocks resolve marker global time automatically, using
-exact rational arithmetic and treating linked child timing as a mirror. Other
-clock structures require an explicit global time. Smart Player behavior
+exact rational arithmetic and treating linked child timing as a mirror.
+Held marker points have a local zero origin; mediaStart selects the source frame
+and is not subtracted from that marker time. Stitched parent markers instead
+retain the ordinary source-position clock, including trim and inverse speed.
+Other clock structures require an explicit global time. Smart Player behavior
 requires a separate native web export/runtime check; MP4 is not interactive.
 
 CLI: inspect PROJECT; set/remove PROJECT --clip-id ID --output CANDIDATE.
@@ -35,6 +43,7 @@ import project
 NATIVE_CLIENT = {"name": "Camtasia", "platform": "Mac", "version": "2026.2.4"}
 ACTIONS = {"continue": 0, "time": 1, "url": 2, "marker": 3}
 VISUAL_TYPES = frozenset({"VMFile", "IMFile", "ScreenVMFile", "Callout", "Group"})
+HOTSPOT_TYPES = VISUAL_TYPES | {"ScreenIMFile", "StitchedMedia"}
 DEFAULT_HOTSPOT = {
     "action": 0,
     "gotoTime": 0,
@@ -76,6 +85,22 @@ def visual_target(
         path = project.pointer(path, "video")
     if not isinstance(node, dict) or node.get("_type") not in visual_types:
         raise ValueError("select a visual clip type verified for the requested operation")
+    return path, node
+
+
+def hotspot_target(doc: dict[str, Any], clip_id: int) -> tuple[str, dict[str, Any]]:
+    path, node = visual_target(doc, clip_id, visual_types=HOTSPOT_TYPES)
+    ancestors = [
+        ancestor for parent_path, ancestor in clips(doc) if path.startswith(parent_path + "/")
+    ]
+    if any(ancestor.get("_type") == "StitchedMedia" for ancestor in ancestors):
+        raise ValueError("select the stitched parent; capture independent child hotspot ownership")
+    if node.get("_type") in HOTSPOT_TYPES - VISUAL_TYPES and any(
+        ancestor.get("_type") == "UnifiedMedia" for ancestor in ancestors
+    ):
+        raise ValueError(
+            "select a standalone held/stitched owner; capture its linked hotspot binding"
+        )
     return path, node
 
 
@@ -144,7 +169,9 @@ def marker_global_ticks(doc: dict[str, Any], owner_id: int, point: int) -> int:
     their visible duration, not mediaDuration, when checking point visibility.
     UnifiedMedia owns one transform; its video's mirrored start is not added.
     Exact native captures cover trims, inverse speed, nested Groups and Group
-    markers. Stitched containers, multiple scenes, missing timing, trimmed-out
+    markers. Held owners use local zero independently of the selected source
+    frame; stitched parent points retain the source clock. Linked held/stitched
+    wrappers, stitched descendants, multiple scenes, missing timing, trimmed-out
     points and fractional final ticks require the explicit caller-supplied path.
     """
     if type(owner_id) is not int or type(point) is not int:
@@ -159,8 +186,14 @@ def marker_global_ticks(doc: dict[str, Any], owner_id: int, point: int) -> int:
     if len(owners) != 1:
         raise ValueError("marker owner is missing or ambiguous; repair clip IDs")
     path, owner = owners[0]
-    if owner.get("_type") not in VISUAL_TYPES | {"UnifiedMedia"}:
+    if owner.get("_type") not in HOTSPOT_TYPES | {"UnifiedMedia"}:
         raise ValueError("this marker owner's clock needs a native global-time example")
+    if (
+        owner.get("_type") == "UnifiedMedia"
+        and isinstance(owner.get("video"), dict)
+        and owner["video"].get("_type") in HOTSPOT_TYPES - VISUAL_TYPES
+    ):
+        raise ValueError("capture linked held/stitched marker clocks before mapping automatically")
     ancestors = sorted(
         [(p, n) for p, n in nodes if path.startswith(p + "/")],
         key=lambda entry: len(entry[0]),
@@ -171,7 +204,11 @@ def marker_global_ticks(doc: dict[str, Any], owner_id: int, point: int) -> int:
     result = project.number(point)
     for _, node in [(path, owner), *ancestors]:
         start = project.number(node.get("start"))
-        media_start = project.number(node.get("mediaStart"))
+        media_start = (
+            project.number(0)
+            if node.get("_type") == "ScreenIMFile"
+            else project.number(node.get("mediaStart"))
+        )
         scalar = project.number(node.get("scalar"))
         duration = project.number(node.get("duration"))
         if scalar <= 0 or duration <= 0:
@@ -217,7 +254,7 @@ def edit_hotspot(
     if action == "remove" and pause is not None:
         raise ValueError("remove takes no hotspot settings")
     candidate = copy.deepcopy(doc)
-    _, node = visual_target(candidate, clip_id)
+    _, node = hotspot_target(candidate, clip_id)
     attributes = node.get("attributes", {})
     if not isinstance(attributes, dict):
         raise ValueError("inspect malformed clip attributes before editing its hotspot")
@@ -367,7 +404,7 @@ def main(argv: list[str] | None = None) -> int:
             candidate = edit_hotspot(
                 doc, args.clip_id, args.action if args.command == "set" else "remove", **options
             )
-            path, node = visual_target(candidate, args.clip_id)
+            path, node = hotspot_target(candidate, args.clip_id)
             report.update(
                 output=str(args.output),
                 written=stage(args.project, args.output, candidate),
