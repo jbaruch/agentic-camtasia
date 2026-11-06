@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.11.0 — 2026-11-05
+
+### Added
+
+- Media matte construction, controls, intensity curves and lifecycle edits on
+  existing moving/frozen screen recordings and stitched parents. Frozen
+  intensity uses its local-zero animation clock while preserving source-frame
+  selection; moving/stitched owners retain source-position timing.
+- Native constructor captures and independent render controls for trim/speed,
+  cursor/child preservation, curve clearing, bypass and removal. Linked recording
+  wrappers remain refused until their native mirrors are established.
+
 ## 0.10.0 — 2026-11-05
 
 ### Added

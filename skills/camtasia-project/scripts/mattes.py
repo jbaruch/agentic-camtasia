@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """Inspect and stage Mac 2026.2.4 format-10 media/track mattes as JSON.
 
-MODES owns native mode codes. Media constructors cover Callout, VMFile,
-IMFile, Group and linked UnifiedMedia/video. Preserve native fill/alpha content
+MODES owns native mode codes; MEDIA_TYPES owns visual owner support, including
+moving/frozen screen recordings and stitched parents. Ordinary linked
+UnifiedMedia/video uses mirrored effects; linked recording wrappers still
+require their own native mirror contract. Preserve native fill/alpha content
 and use a separate lower track. Linked edits preserve the audio child and patch
 both visual mirrors through their stable effectIndex token, not array position.
 Media intensity is a scalar in [0,1]; omitted controls retain native values.
@@ -33,7 +35,10 @@ optional segment easing: linear (default), exponential, bounce or spring.
 Defaults and targets stay in [0,1]; native spring interpolation can overshoot.
 Keyframes convert through mediaStart
 and scalar to source positions in project ticks. Linked mirrors share the visual
-clock; mismatched clocks are refused. Curves replace only intensity's timing and
+clock; mismatched clocks are refused. Frozen ScreenIMFile curves use a local
+zero origin through inverse speed while mediaStart selects the held source frame.
+Stitched parent effects do not rewrite child clocks, cursor points or resources.
+Curves replace only intensity's timing and
 default, preserving unrelated parameters/animations. Clear removes only intensity
 keyframes; existing visual intervals and other parameter curves remain unchanged.
 Native reopening can regenerate flat intensity companions from those intervals;
@@ -75,7 +80,9 @@ DEFAULT_EFFECT = {
         "trackDepth": 10002,
     },
 }
-MEDIA_TYPES = frozenset({"Callout", "VMFile", "IMFile", "Group"})
+MEDIA_TYPES = frozenset(
+    {"Callout", "VMFile", "IMFile", "Group", "ScreenVMFile", "ScreenIMFile", "StitchedMedia"}
+)
 
 
 def require_native(doc: dict[str, Any]) -> None:
@@ -146,7 +153,7 @@ def effect_token(effect: dict[str, Any]) -> str | None:
 
 
 def media_targets(doc: dict[str, Any], clip_id: int) -> list[dict[str, Any]]:
-    path, node = hotspots.visual_target(doc, clip_id)
+    path, node = hotspots.visual_target(doc, clip_id, visual_types=MEDIA_TYPES)
     if node.get("_type") not in MEDIA_TYPES:
         raise ValueError("select a verified media-matte visual owner")
     wrappers = [
@@ -158,6 +165,10 @@ def media_targets(doc: dict[str, Any], clip_id: int) -> list[dict[str, Any]]:
         return [node]
     if len(wrappers) != 1:
         raise ValueError("repair the ambiguous linked visual owner")
+    if node.get("_type") != "VMFile":
+        raise ValueError(
+            "capture native linked recording matte mirrors before editing this wrapper"
+        )
     wrapper = wrappers[0]
     video_matte, wrapper_matte = one_matte(node), one_matte(wrapper)
     if (video_matte is None) != (wrapper_matte is None):
@@ -323,11 +334,6 @@ def curve_parameter(
     segments = spec["segments"]
     if not isinstance(segments, list) or not segments:
         raise ValueError("supply nonempty curve segments; use clear-intensity-curve to clear")
-    rate = project.number(doc.get("editRate"))
-    scalar_value = project.number(visual.get("scalar"))
-    media_start = project.number(visual.get("mediaStart"))
-    if rate <= 0 or scalar_value <= 0:
-        raise ValueError("repair the positive project rate and visual source clock")
     result = copy.deepcopy(DEFAULT_EFFECT["parameters"]["intensity"])
     result.pop("interp")
     result["defaultValue"] = scalar(spec["defaultValue"])
@@ -357,10 +363,7 @@ def curve_parameter(
         start, end = (project.number(segment[key]) for key in ("start", "end"))
         if end <= start or (previous_end is not None and start < previous_end):
             raise ValueError("supply ordered, nonoverlapping curve segments of positive duration")
-        bounds = [media_start + seconds * rate / scalar_value for seconds in (start, end)]
-        if any(value.denominator != 1 for value in bounds):
-            raise ValueError("choose curve bounds that map to exact native project ticks")
-        time, end_time = (int(value) for value in bounds)
+        time, end_time = animations.source_bounds(doc, visual, segment["start"], segment["end"])
         frames.append(
             {
                 "time": time,

@@ -484,11 +484,13 @@ documents/media and the editor are not changed by these commands.
 ## Matte JSON editing
 
 Use `scripts/mattes.py` to inspect and stage media or track mattes. Its module
-docstring, `MODES`, `DEFAULT_EFFECT`, `patch_ease`, `edit_media`, `curve_parameter`,
+docstring, `MODES`, `MEDIA_TYPES`, `DEFAULT_EFFECT`, `patch_ease`, `edit_media`, `curve_parameter`,
 `edit_intensity_curve`, `clear_intensity_curve` and `track_target`
 own the build, constructors, control units, edge preservation and ownership
 contract. The [native matte evidence](advanced-features.md#media-and-track-mattes)
 records the difference between intensity, bypass and track-level masking.
+[Recording-owner verification](matte-recording-owners.md) adds native moving,
+frozen and stitched ownership, clocks and lifecycle controls.
 
 | Command | Required inputs | Output and side effects |
 | --- | --- | --- |

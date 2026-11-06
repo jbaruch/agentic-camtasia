@@ -49,8 +49,9 @@ intervals use the usual source-position clock. A `ScreenIMFile`
 instead stores animation bounds from local zero: its zero–one-second interval
 uses `time: 0`, `endTime: 705600000`, independently of the selected source frame.
 The interval helper preserves all children and recording data. Its
-`source_bounds` owns the inverse-speed conversion. Hotspot and matte owner scopes
-remain separate; the independently verified Motion Path extension is recorded below.
+`source_bounds` owns the inverse-speed conversion. Hotspot ownership remains separate. The [matte extension](matte-recording-owners.md)
+verifies its own frozen clock and lifecycle; the independently verified Motion
+Path extension is recorded below.
 
 Fresh native saves normalize recording parameters in two stages. First, static
 typed frozen crop, cursor and scale values become bare doubles; animated scales

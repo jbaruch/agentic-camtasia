@@ -665,7 +665,7 @@ class MatteTests(unittest.TestCase):
                 mattes.edit_media(fixture(), 3, **kwargs)
 
     def test_unobserved_owners_builds_ambiguous_effects_and_curves_are_preserved(self) -> None:
-        for kind in ("ScreenVMFile", "Caption", "AMFile"):
+        for kind in ("Caption", "AMFile", "UnknownRecording"):
             doc = fixture()
             clip(doc)["_type"] = kind
             with self.subTest(kind=kind), self.assertRaises(ValueError):
