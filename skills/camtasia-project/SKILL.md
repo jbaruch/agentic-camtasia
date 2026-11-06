@@ -25,6 +25,7 @@ relevant sections of [the feature map](references/features.md).
 For captions or source transcription, also read [captions](references/captions.md).
 For recording streams, color conversion, or portable/source-file closure checks, read [media](references/media.md).
 For Lottie image dependencies or explicit PNG embedding, read [Lottie images](references/lottie-images.md).
+For SVG image references or explicit PNG embedding, read [SVG images](references/svg-images.md).
 For recorded cursors, keystrokes, or window highlighting, read [cursors](references/cursors.md).
 For local video formats, transparency, or batch export, read [delivery](references/delivery.md).
 For cleanup, pitch, dynamics, or audio-only delivery, read [audio](references/audio.md).
