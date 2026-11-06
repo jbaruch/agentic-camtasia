@@ -3551,6 +3551,15 @@
         "enum"
       ],
       "value": "Sepia"
+    },
+    {
+      "operation": "optional",
+      "path": [
+        "definitions",
+        "Callout",
+        "required"
+      ],
+      "value": "metadata"
     }
   ],
   "evidence": "../references/mac-versions.md"

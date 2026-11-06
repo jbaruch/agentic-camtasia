@@ -300,6 +300,8 @@ class SchemaAuditTests(unittest.TestCase):
     def current_profile_fixture(self) -> tuple[dict, dict, dict]:
         profile = schema_audit.read_document(schema_audit.PROFILE_FILES["mac-2026.2.4"])
         baseline = schema()
+        baseline["definitions"]["Callout"]["required"].append("metadata")
+        baseline["definitions"]["Callout"]["properties"]["metadata"] = {"type": "object"}
         baseline["definitions"]["sourceTrack"] = {
             "type": "object",
             "properties": {},
@@ -318,6 +320,28 @@ class SchemaAuditTests(unittest.TestCase):
             },
         }
         return baseline, doc, profile
+
+    def test_current_native_callout_omits_empty_metadata_without_relaxing_types(self):
+        baseline, doc, profile = self.sketch_fixture()
+        clip = doc["timeline"]["callout"]
+        clip.pop("leftEdgeMods")
+        clip["def"] = {"kind": "remix", "shape": "text-rectangle"}
+        result = schema_audit.audit(doc, baseline, profile)
+        self.assertTrue(result["ok"])
+        self.assertTrue(
+            any(
+                "'metadata' is a required property" in e["message"]
+                for e in result["upstreamErrors"]
+            )
+        )
+        clip["metadata"] = []
+        self.assertFalse(schema_audit.audit(doc, baseline, profile)["ok"])
+        clip["metadata"] = {}
+        clip["unknown"] = 1
+        self.assertFalse(schema_audit.audit(doc, baseline, profile)["ok"])
+        clip.pop("unknown")
+        clip.pop("def")
+        self.assertFalse(schema_audit.audit(doc, baseline, profile)["ok"])
 
     def sketch_fixture(self) -> tuple[dict, dict, dict]:
         baseline, doc, profile = self.current_profile_fixture()
