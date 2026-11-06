@@ -32,6 +32,7 @@ macOS. Schema auditing uses the optional pinned `jsonschema` dependency.
 | Annotations | Copy standalone native templates with drawing/Fade companions; edit uniform Unicode rich text and existing static shape/text controls. |
 | Captions | Author plain closed cues, correct recognized source words, map trims/speed/offsets and edit existing dynamic display controls. |
 | Quick Properties | Edit Group bindings and shared text/colors; replace or clear bound native media with preserved fitting, clocks and source ownership. |
+| Theme duplication | Follow the verified native workflow to preserve the source UUID and independently edit the copy's colors, font and logo. |
 | Feature references | Captions, audio, annotations, behaviors, cursor/click effects, Quick Properties, themes, Library assets, Lottie/SVG dependencies and delivery formats. |
 | Native checks | Read-only process health and a backed-up save/reopen adapter with separate rendering status. |
 

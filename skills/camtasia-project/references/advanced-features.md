@@ -310,9 +310,10 @@ Repository evidence is `theme-manager-rename-checks.json`,
 reports, native controls/disk captures and `theme_manager_contract.py`.
 
 The native Duplicate dialog initially reuses the selected name, reports that
-it already exists and disables OK. This is name-collision evidence only.
-Successful duplication, its UUID/logo allocation and later independent edits
-remain required cases; do not synthesize those contracts from Rename/Delete.
+it already exists and disables OK. Successful
+[independent duplication](theme-duplication.md) now has its own UUID/label,
+copied-logo, independent-edit and native project/render evidence. Follow that
+workflow's identity-preserving rename sequence.
 
 ## Text callout presets
 
