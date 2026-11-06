@@ -12,7 +12,6 @@ from unittest.mock import patch
 from test_animation_freezes import RATE
 from test_effect_curve_linked_recordings import fixture as root_fixture, spec
 from test_effect_grouped_recordings import grouped, node
-import behaviors
 import effect_curves
 import project
 
@@ -227,12 +226,6 @@ class GroupedRecordingCurveTests(unittest.TestCase):
                 with self.subTest(change=change), self.assertRaises(ValueError):
                     action()
                 self.assertEqual(doc, original)
-
-    def test_other_feature_helpers_keep_their_group_scope(self):
-        doc = fixture()
-        for action in (lambda: behaviors.behavior_owners(doc, 3),):
-            with self.assertRaises(ValueError):
-                action()
 
     def test_cli_set_repeat_and_clear_preserve_inputs_and_native_verification_status(self):
         with tempfile.TemporaryDirectory() as directory:

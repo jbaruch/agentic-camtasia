@@ -30,11 +30,12 @@ Mirrored controls/tokens and complete owner clocks must agree; audio is untouche
 Direct moving/frozen recordings and stitched parents retain cursor data, child
 clocks, virtual holds and source selection. Their complete native behavior
 intervals are copied, not retimed: moving/stitched outer origins can follow
-source in-points, while held recordings use local zero. Root linked moving
-ScreenVMFile recordings share verified wrapper/video behavior mirrors and
+source in-points, while held recordings use local zero. Root and Group-contained
+linked moving ScreenVMFile recordings share verified wrapper/video mirrors and
 preserve their same-source AMFile. The constructor_owners opt-in guard in
 effects owns their complete clock, source/audio and stable-token checks.
-Linked held, stitched and nested variants retain separate contracts.
+Group ancestors retain their timing, geometry, effects and layer arrangement.
+Linked held, stitched and other container variants retain separate contracts.
 No recording/freeze/stitch constructor is inferred. Hidden
 stitched descendants are refused; select their independently verified parent.
 A redundant static-double zero-point frame reproduces a 2025 parser hazard;
@@ -42,8 +43,8 @@ this helper also refuses that unsupported shape in a 2026 template, without
 claiming a 2026 crash. No vendor preset, shader, media or resource is copied.
 
 Existing native owner reset fields survive. A first entry/exit duration edit
-seeds its observed default-Speed-NAME companion from the prior duration. Root
-linked moving recordings convert that prior source duration through inverse
+seeds its observed default-Speed-NAME companion from the prior duration. Linked
+moving recordings convert that prior source duration through inverse
 speed to integral timeline reset ticks; fractional reset ticks require a native
 capture. Existing reset companions survive unchanged. Edits
 with differing unrecorded phase defaults refuse instead of choosing one reset.
@@ -247,7 +248,9 @@ def behavior_owners(doc: dict[str, Any], clip_id: int) -> list[dict[str, Any]]:
         for parent_path, ancestor in hotspots.clips(doc)
     ):
         raise ValueError("select the stitched parent; capture independent child behavior ownership")
-    return effects.constructor_owners(doc, clip_id, visual_types=OWNERS, linked_recordings=True)
+    return effects.constructor_owners(
+        doc, clip_id, visual_types=OWNERS, linked_recordings=True, grouped_recordings=True
+    )
 
 
 def targets(
