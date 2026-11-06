@@ -31,7 +31,8 @@ Direct moving/frozen recordings and stitched parents retain cursor data, child
 clocks, virtual holds and source selection. Their complete native behavior
 intervals are copied, not retimed: moving/stitched outer origins can follow
 source in-points, while held recordings use local zero. No recording/freeze/
-stitch constructor or linked recording behavior mirror is inferred.
+stitch constructor or linked recording behavior mirror is inferred. Hidden
+stitched descendants are refused; select their independently verified parent.
 A redundant static-double zero-point frame reproduces a 2025 parser hazard;
 this helper also refuses that unsupported shape in a 2026 template, without
 claiming a 2026 crash. No vendor preset, shader, media or resource is copied.
@@ -216,6 +217,17 @@ def matching(owner: dict[str, Any], name: str, token: str | None) -> list[dict[s
     return found
 
 
+def behavior_owners(doc: dict[str, Any], clip_id: int) -> list[dict[str, Any]]:
+    """Resolve verified owners for both template selection and lifecycle operations."""
+    path, _ = hotspots.visual_target(doc, clip_id, visual_types=OWNERS)
+    if any(
+        ancestor.get("_type") == "StitchedMedia" and path.startswith(parent_path + "/")
+        for parent_path, ancestor in hotspots.clips(doc)
+    ):
+        raise ValueError("select the stitched parent; capture independent child behavior ownership")
+    return effects.constructor_owners(doc, clip_id, visual_types=OWNERS)
+
+
 def targets(
     doc: dict[str, Any], clip_id: int, name: str, token: str | None, *, absent_ok: bool = False
 ) -> list[tuple[dict[str, Any], dict[str, Any]]]:
@@ -226,7 +238,7 @@ def targets(
         )
     if token is not None:
         effects.canonical_token(token)
-    owners = effects.constructor_owners(doc, clip_id, visual_types=OWNERS)
+    owners = behavior_owners(doc, clip_id)
     found = [matching(owner, name, token) for owner in owners]
     if len({bool(values) for values in found}) != 1:
         raise ValueError("repair missing linked behavior mirrors before editing")
@@ -277,7 +289,7 @@ def add_behavior(
     if project.number(doc["editRate"]) != project.number(template["editRate"]):
         raise ValueError("select a native template with the destination project edit rate")
     result = copy.deepcopy(doc)
-    destination = effects.constructor_owners(result, clip_id, visual_types=OWNERS)
+    destination = behavior_owners(result, clip_id)
     if len(source) != len(destination) or any(
         a.get("_type") != b.get("_type") for (a, _), b in zip(source, destination)
     ):

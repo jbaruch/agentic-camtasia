@@ -161,6 +161,33 @@ class RecordingBehaviorTests(unittest.TestCase):
                         call()
             self.assertEqual(linked, before)
 
+    def test_hidden_stitched_children_refuse_donors_recipients_and_lifecycle_without_mutation(self):
+        for kind, child_id in (("ScreenVMFile", 4), ("ScreenIMFile", 5)):
+            hidden = donor("StitchedMedia")
+            children = visual(hidden)["medias"]
+            index = child_id - 4
+            child = copy.deepcopy(visual(donor(kind)))
+            child["id"] = child_id
+            children[index] = child
+            source, dest = donor(kind), recipient(kind)
+            before = copy.deepcopy((hidden, source, dest))
+            for call in (
+                lambda: behaviors.add_behavior(hidden, child_id, source, 3, "fade"),
+                lambda: behaviors.add_behavior(dest, 3, hidden, child_id, "fade"),
+                lambda: behaviors.edit_behavior(
+                    hidden, child_id, "fade", dict(schema_version=1, bypassed=True)
+                ),
+                lambda: behaviors.remove_behavior(hidden, child_id, "fade"),
+            ):
+                with self.subTest(kind=kind), self.assertRaisesRegex(ValueError, "stitched parent"):
+                    call()
+                self.assertEqual((hidden, source, dest), before)
+            child["effects"] = []
+            before_absent = copy.deepcopy(hidden)
+            with self.assertRaisesRegex(ValueError, "stitched parent"):
+                behaviors.remove_behavior(hidden, child_id, "fade")
+            self.assertEqual(hidden, before_absent)
+
     def test_other_owners_builds_and_cross_kind_templates_remain_refused(self):
         for kind in KINDS:
             doc = donor(kind)
