@@ -250,7 +250,8 @@ def reference_kind(filename: str, directory: str) -> str:
 def inventory(doc: dict[str, Any]) -> dict[str, Any]:
     rows = []
     unhandled = []
-    for index, asset in enumerate(source_assets(doc)):
+    assets = source_assets(doc)
+    for index, asset in enumerate(assets):
         if "p" not in asset:
             continue
         row: dict[str, Any] = {
@@ -289,19 +290,28 @@ def inventory(doc: dict[str, Any]) -> dict[str, Any]:
         if "dimensions" not in row:
             unhandled.append(asset["id"])
     ids = {row["assetId"] for row in rows if row["assetId"] not in unhandled}
+    layer_arrays = [("/layers", doc["layers"])] + [
+        (f"/assets/{index}/layers", asset["layers"])
+        for index, asset in enumerate(assets)
+        if isinstance(asset.get("layers"), list)
+    ]
+    references = [
+        (f"{path}/{index}", layer)
+        for path, layers in layer_arrays
+        for index, layer in enumerate(layers)
+        if isinstance(layer, dict) and layer.get("ty") == 2
+    ]
     missing = sorted(
         {
             node["refId"]
-            for _, node in project.objects(doc)
-            if node.get("ty") == 2
-            and isinstance(node.get("refId"), str)
-            and node["refId"] not in ids
+            for _, node in references
+            if isinstance(node.get("refId"), str) and node["refId"] not in ids
         }
     )
     invalid_references = [
         path
-        for path, node in project.objects(doc)
-        if node.get("ty") == 2 and (not isinstance(node.get("refId"), str) or not node["refId"])
+        for path, node in references
+        if not isinstance(node.get("refId"), str) or not node["refId"]
     ]
     return {
         "images": rows,

@@ -88,6 +88,25 @@ def fixture() -> dict:
 
 
 class LottieImageTests(unittest.TestCase):
+    def test_effect_values_and_opaque_nested_objects_are_not_image_layers(self) -> None:
+        source = lottie_images.embed_png(fixture(), "photo", png())
+        color = {"ty": 2, "nm": "Color", "v": {"a": 0, "k": [1, 0, 0, 1]}}
+        source["layers"][0]["ef"] = [copy.deepcopy(color)]
+        source["assets"][1]["layers"][0]["ef"] = [copy.deepcopy(color)]
+        source["future"]["layers"] = [{"ty": 2, "refId": "not-an-image-reference"}]
+        report = lottie_images.inventory(source)
+        self.assertTrue(report["imageAssetsEmbedded"])
+        self.assertEqual(report["invalidImageReferencePaths"], [])
+        self.assertEqual(report["missingImageAssetIds"], [])
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "source.json"
+            path.write_bytes(lottie_images.encode_document(source))
+            with patch("sys.stdout", stream := io.StringIO()):
+                self.assertEqual(
+                    lottie_images.main(["inspect", str(path), "--require-embedded"]), 0
+                )
+            self.assertTrue(json.loads(stream.getvalue())["imageAssetsEmbedded"])
+
     def test_compact_huge_decimal_image_dimensions_refuse_before_integer_conversion(self) -> None:
         for value in (Decimal("1e1000000"), Decimal("1e-1000000"), Decimal("2147483648")):
             source = fixture()
@@ -132,7 +151,7 @@ class LottieImageTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             source = Path(directory) / "source.json"
             raw = project.encode_document(fixture()).rstrip()[:-1]
-            source.write_bytes(raw + b',"nested":' + b"[" * 2000 + b"0" + b"]" * 2000 + b"}")
+            source.write_bytes(raw + b',"nested":' + b"[" * 20000 + b"0" + b"]" * 20000 + b"}")
             result = subprocess.run(
                 [
                     sys.executable,
