@@ -3,8 +3,11 @@
 
 MODES owns native mode codes; MEDIA_TYPES owns visual owner support, including
 moving/frozen screen recordings and stitched parents. Ordinary linked
-UnifiedMedia/video uses mirrored effects; linked recording wrappers still
-require their own native mirror contract. Preserve native fill/alpha content
+UnifiedMedia/video uses mirrored effects. Root linked moving ScreenVMFile
+recordings share native wrapper/video tokens and preserve their same-source
+AMFile. Recording mirrors require complete matching wrapper/video clocks and
+positive edit rate/inverse speed. Nested, held and stitched recording wrappers
+retain separate contracts. Preserve native fill/alpha content
 and use a separate lower track. Linked edits preserve the audio child and patch
 both visual mirrors through their stable effectIndex token, not array position.
 Media intensity is a scalar in [0,1]; omitted controls retain native values.
@@ -57,8 +60,9 @@ Ambiguous multiple media mattes require inspection rather than an inferred
 target. Original JSON/media are never written. Staging is exclusive or an
 identical no-op; apply through project.py after closing the native document.
 Stdout schema_version 1, owner camtasia-mattes, hashes/inventory and outcome;
-nativeVerified false distinguishes staging from native acceptance. Exit 0
-success, 1 input/I/O refusal, 2 CLI syntax. No editor or export is launched.
+nativeVerified false distinguishes staging from native acceptance. Help emits
+the same owner/version with ok true and a formatted help string. Exit 0 success,
+1 input/I/O refusal, 2 CLI syntax. No editor or export is launched.
 """
 
 from __future__ import annotations
@@ -93,6 +97,21 @@ DEFAULT_EFFECT = {
 MEDIA_TYPES = frozenset(
     {"Callout", "VMFile", "IMFile", "Group", "ScreenVMFile", "ScreenIMFile", "StitchedMedia"}
 )
+LINKED_RECORDING_TYPES = frozenset({"ScreenVMFile"})
+LINKED_RECORDING_CLOCK_FIELDS = ("start", "duration", "mediaStart", "mediaDuration", "scalar")
+
+
+class JsonHelpParser(argparse.ArgumentParser):
+    def format_help(self) -> str:
+        return (
+            json.dumps(
+                dict(
+                    schema_version=1, owner="camtasia-mattes", ok=True, help=super().format_help()
+                ),
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
 
 
 def require_native(doc: dict[str, Any]) -> None:
@@ -167,7 +186,7 @@ def media_targets(doc: dict[str, Any], clip_id: int) -> list[dict[str, Any]]:
     if node.get("_type") not in MEDIA_TYPES:
         raise ValueError("select a verified media-matte visual owner")
     wrappers = [
-        n
+        (p, n)
         for p, n in hotspots.clips(doc)
         if n.get("_type") == "UnifiedMedia" and path == p + "/video"
     ]
@@ -175,11 +194,38 @@ def media_targets(doc: dict[str, Any], clip_id: int) -> list[dict[str, Any]]:
         return [node]
     if len(wrappers) != 1:
         raise ValueError("repair the ambiguous linked visual owner")
-    if node.get("_type") != "VMFile":
+    if node.get("_type") not in {"VMFile", *LINKED_RECORDING_TYPES}:
         raise ValueError(
             "capture native linked recording matte mirrors before editing this wrapper"
         )
-    wrapper = wrappers[0]
+    wrapper_path, wrapper = wrappers[0]
+    if node.get("_type") in LINKED_RECORDING_TYPES:
+        if len(project.scene_tracks(doc)) != 1 or any(
+            wrapper_path.startswith(parent + "/") for parent, _ in hotspots.clips(doc)
+        ):
+            raise ValueError("select a root linked moving recording; capture nested matte clocks")
+        audio = wrapper.get("audio")
+        if (
+            not isinstance(audio, dict)
+            or audio.get("_type") != "AMFile"
+            or type(node.get("src")) is not int
+            or audio.get("src") != node["src"]
+            or type(audio.get("src")) is not int
+        ):
+            raise ValueError("capture native linked recording audio with a shared recording source")
+        if any(
+            field not in owner
+            for field in LINKED_RECORDING_CLOCK_FIELDS
+            for owner in (wrapper, node)
+        ):
+            raise ValueError("capture complete native linked recording wrapper/video clocks")
+        if any(
+            project.number(wrapper[field]) != project.number(node[field])
+            for field in LINKED_RECORDING_CLOCK_FIELDS
+        ):
+            raise ValueError("repair conflicting linked recording wrapper/video clocks")
+        if project.number(doc.get("editRate")) <= 0 or project.number(node["scalar"]) <= 0:
+            raise ValueError("repair positive project rate and linked recording inverse speed")
     video_matte, wrapper_matte = one_matte(node), one_matte(wrapper)
     if (video_matte is None) != (wrapper_matte is None):
         raise ValueError("repair missing linked media-matte mirrors before editing")
@@ -572,7 +618,7 @@ def inventory(doc: dict[str, Any]) -> dict[str, Any]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = JsonHelpParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     inspect = commands.add_parser("inspect")
     inspect.add_argument("project", type=Path)

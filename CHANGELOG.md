@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.26.0 — 2026-11-06
+
+### Added
+
+- Media Matte construction, static edits, intensity curves, clearing, bypass
+  and removal on root linked moving recordings. Native wrapper/video mirrors
+  share stable tokens and exact trim/speed clocks; recorded stereo audio,
+  source data, cursor settings and unrelated visual state survive. Ambiguous
+  clocks or audio bindings refuse; further linked owner forms remain separate.
+- Native linked animation and lifecycle controls, a 36-second save/reopen
+  comparison with identical complete decoded repeat exports, inspected masks
+  and independently measured background/system-audio tones. The matte CLI's
+  help now emits structured JSON with its existing owner and schema version.
+
 ## 0.25.0 — 2026-11-06
 
 ### Added

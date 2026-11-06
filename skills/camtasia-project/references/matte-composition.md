@@ -88,6 +88,7 @@ raw pinned schema; native saves pass the existing exact-build profile with its
 previously documented omitted-Callout-metadata correction. No new correction is
 needed. Completed probes, exports and measurement files are disposable.
 
-Linked recording mirrors and a working point-intensity representation retain
+Root linked moving recordings have a separate [mirror/audio contract](matte-recording-owners.md#linked-moving-recordings).
+Further linked variants and a working point-intensity representation retain
 separate investigation. Verify the actual consumer project's native output
 before delivery; this bounded arrangement does not cover every matte stack.
