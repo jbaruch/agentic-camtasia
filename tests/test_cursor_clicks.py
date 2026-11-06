@@ -62,6 +62,26 @@ def spec(*clicks):
 
 
 class CursorClickTests(unittest.TestCase):
+    def test_top_level_and_every_subcommand_help_emit_versioned_json(self):
+        for command in [[], ["inspect"], ["set-path-clicks"], ["set-recorded-clicks"]]:
+            with (
+                self.subTest(command=command),
+                patch("sys.stdout", new_callable=io.StringIO) as stream,
+                self.assertRaises(SystemExit) as error,
+            ):
+                cursor_clicks.main([*command, "--help"])
+            self.assertEqual(error.exception.code, 0)
+            report = json.loads(stream.getvalue())
+            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["owner"], "camtasia-cursor-clicks")
+            self.assertTrue(report["ok"])
+            self.assertIn("usage:", report["help"])
+            self.assertIn("--help", report["help"])
+            if command:
+                self.assertIn(command[0], report["help"])
+            else:
+                self.assertIn("set-recorded-clicks", report["help"])
+
     def test_recorded_path_override_and_original_source_fields_survive_click_authoring(self):
         doc = recorded()
         visual(doc)["parameters"]["cursorLocation"] = dict(

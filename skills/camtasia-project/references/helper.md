@@ -574,7 +574,9 @@ physical `paths`/`recordings` inventories with raw `cursorAction` payloads or
 null when absent. Inspection includes unsupported owners without promising
 editability. Edit reports add `output`, `changed`, `written` and
 `nativeVerified: false`. JSON diagnostics go to stderr; exit 1 refuses input/I/O
-and exit 2 reports CLI syntax. `--help` is plaintext. Stage a separate candidate,
+and exit 2 reports CLI syntax. Top-level and subcommand `--help` return JSON
+with the same owner/version, `ok: true` and a formatted `help` string.
+Stage a separate candidate,
 inspect its diff and validation, apply through the project helper, then verify
 native save/reopen and rendered event frames before delivery.
 

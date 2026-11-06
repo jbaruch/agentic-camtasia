@@ -39,7 +39,8 @@ Stdout schema_version 1 owner camtasia-cursor-clicks has projectSha256 and paths
 recordings inventory; edit reports add hashes, output, changed/written and
 nativeVerified false. Exclusive or identical staging uses hotspots.stage.
 JSON diagnostics use stderr: exit 1 input/I/O refusal, 2 CLI syntax; exit 0
-success. --help is plaintext stdout.
+success. --help emits the same owner/schema version with ok true and a help
+string containing argparse's usage, description and available options.
 """
 
 from __future__ import annotations
@@ -56,6 +57,22 @@ import project
 
 BUTTONS = {"left": 1, "right": 4}
 VALUES = frozenset(BUTTONS.values())
+
+
+class JsonHelpParser(cursor_paths.JsonArgumentParser):
+    def format_help(self) -> str:
+        return (
+            json.dumps(
+                dict(
+                    schema_version=1,
+                    owner="camtasia-cursor-clicks",
+                    ok=True,
+                    help=super().format_help(),
+                ),
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
 
 
 def spec_clicks(spec: Any) -> list[Any]:
@@ -231,7 +248,7 @@ def inventories(doc: dict[str, Any]) -> dict[str, Any]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = cursor_paths.JsonArgumentParser(description=__doc__)
+    parser = JsonHelpParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     inspect = commands.add_parser("inspect")
     inspect.add_argument("project", type=Path)
