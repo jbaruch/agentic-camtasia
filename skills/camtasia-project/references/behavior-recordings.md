@@ -4,7 +4,8 @@ Use the [behavior workflow](helper.md#behavior-json-editing) to copy a saved
 native behavior or edit its phase controls, bypass or removal. The helper owns
 admitted owners, build checks, matching clocks, selection and refusals. These
 Camtasia Mac 2026.2.4/format-10 Fade controls exercise direct moving recordings,
-standalone freeze frames, stitched parents and root linked moving recordings.
+standalone freeze frames, stitched parents and root or Group-contained linked
+moving recordings.
 They establish neither new
 recording constructors nor every preset-specific recording combination.
 
@@ -70,8 +71,8 @@ The same Mac build saves Fade on both the root `UnifiedMedia` wrapper and its
 `ScreenVMFile` child with matching `effectIndex` tokens. The same-source
 `AMFile`, recorded cursor data and source processing survive construction,
 phase editing, bypass and removal. The helper owns the supported layout and
-refusals; linked held, stitched, nested and additional-scene forms retain
-separate contracts.
+refusals; Group containment is covered below. Linked held/stitched owners, other
+containers and additional scenes retain separate contracts.
 
 The four-second control has source in-point `1411200000`, source duration
 `5644800000` and inverse speed `"1/2"`. Its complete behavior outer interval
@@ -109,3 +110,50 @@ Verify requested presets, text layout, unfamiliar phase controls and further
 recording layouts in their consumer project. Completed projects, movies,
 screenshots and measurements are deleted after incorporation into the plugin
 and deterministic tests.
+
+## Group-contained linked moving recordings
+
+Mac 2026.2.4 (2026.132), format 10, retains the linked Fade mirrors inside a
+native Group. The recording has a two-second source in-point, four visible
+seconds and inverse speed `"1/2"`; the containing Group starts at timeline
+second one and retains its own four-second clock and bounds. Selecting either
+the wrapper or video edits the same physical behavior pair. Parent Group
+clocks, geometry, effects and layer placement are preserved.
+
+Native entry Speed 50% saves six source seconds, or `4233600000` ticks, in
+both mirrors. The wrapper's `default-Speed-fade: "352800000"` retains half a
+timeline second, independently of the Group start. Five whole-document
+comparisons verify helper construction, phase editing, edited-template copying,
+bypass and removal against native controls. Differences are confined to the
+thumbnail, command count, Group-open flag and default lane UI metadata.
+Complete native templates copy between root and Group-contained owners with
+matching child clocks; no parent timing is imported or phase retiming inferred.
+
+A twelve-cell, 72-second sequence pairs default, edited, bypassed, removed and
+nested edited-template states with native controls, plus bare-Group and
+background-only controls. Two exports separated by saved close/reopen have
+identical complete decoded RGB and PCM: 2160 frames, 640×360 H.264 at 30 fps
+and stereo 44.1 kHz AAC, using the same running editor. The analysis samples
+132 phase frames; two contact sheets show 96 of them. Fifty-five paired samples
+differ by at most 1.147 mean RGB byte levels per channel. At local second 1.5,
+foreground projection is approximately 0.508 for the edited entry and 1.000 for
+the default, bypassed and removed controls. Nested edited-template copying
+retains that ramp. The recorded picture includes a macOS permission notice;
+no permission was granted during verification.
+
+All 120 measured audio-channel windows retain the independent 440 Hz background.
+The 66 active recording windows additionally retain the 660 Hz recorded tone,
+with measured amplitude 0.1334–0.1339 and combined RMS 0.1344–0.1352. Outside
+the Group's visible interval, and in the background-only cell, the recording
+tone is absent. Behavior opacity changes do not fade the recorded audio.
+
+The first native save remaps 82 clip IDs and updates duration/thumbnail UI
+metadata; every other field remains equal, including behavior phases, reset
+companions, ancestor and child clocks, cursor payload, sources and all audio.
+The reopened save is byte-identical. Both bundled source hashes and the original
+geometry baseline remain unchanged. Thirteen native/candidate/save snapshots
+pass the existing exact-build profile and native hazard checks; each raw result
+contains only the known timeline-metadata omission. No schema correction is
+added. Completed disposable inputs, renders and measurements are deleted after
+incorporating the findings. Further presets, phase-style changes and linked
+owner forms retain their separate contracts.

@@ -246,7 +246,7 @@ class LinkedRecordingBehaviorTests(unittest.TestCase):
             "speed",
             "held",
             "stitched",
-            "nested",
+            "other-container",
             "scenes",
         ):
             doc = donor()
@@ -263,10 +263,10 @@ class LinkedRecordingBehaviorTests(unittest.TestCase):
                     owner["scalar"] = 0
             elif change in ("held", "stitched"):
                 visual(doc)["_type"] = "ScreenIMFile" if change == "held" else "StitchedMedia"
-            elif change == "nested":
+            elif change == "other-container":
                 old = wrapper(doc)
                 project.scene_tracks(doc)[0][0]["medias"] = [
-                    dict(id=20, _type="Group", tracks=[dict(trackIndex=0, medias=[old])])
+                    dict(id=20, _type="StitchedMedia", medias=[old])
                 ]
             else:
                 doc["timeline"]["sceneTrack"]["scenes"].append(dict(csml=dict(tracks=[])))

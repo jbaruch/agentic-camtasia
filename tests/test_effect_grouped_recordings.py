@@ -11,7 +11,6 @@ from unittest.mock import patch
 from test_effect_linked_recordings import native_template
 from test_matte_linked_recordings import fixture
 from test_animation_freezes import RATE
-import behaviors
 import effects
 import hotspots
 import project
@@ -200,7 +199,7 @@ class GroupedRecordingEffectTests(unittest.TestCase):
                 effects.edit_effect(doc, 10, "Sepia", dict(schema_version=1, bypassed=True))
             self.assertEqual(doc, original)
 
-    def test_shared_resolver_other_features_and_explicit_opt_in_remain_separate(self):
+    def test_shared_resolver_requires_both_linked_and_grouped_opt_ins(self):
         doc = grouped(native_template())
         for kwargs in ({}, dict(linked_recordings=True), dict(grouped_recordings=True)):
             with self.assertRaises(ValueError):
@@ -215,9 +214,6 @@ class GroupedRecordingEffectTests(unittest.TestCase):
             ),
             [node(doc, 10), node(doc, 3)],
         )
-        for action in (lambda: behaviors.behavior_owners(doc, 3),):
-            with self.assertRaises(ValueError):
-                action()
 
     def test_cli_construct_repeat_edit_and_remove_preserve_both_inputs(self):
         with tempfile.TemporaryDirectory() as directory:

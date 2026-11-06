@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.33.0 — 2026-11-06
+
+### Added
+
+- Native-template behavior construction, phase timing/static edits, bypass and
+  removal on linked moving recordings inside Groups, including nested Groups.
+  Matching wrapper/video mirrors preserve source/timeline reset distinctions,
+  recorded audio, child clocks, ancestor geometry and unrelated payload.
+- Five whole-document native comparisons and a 72-second save/reopen sequence
+  verify the extension. Complete repeat exports match decoded video/audio,
+  with 132 measured phase frames, 55 paired samples and 120 audio-channel windows.
+  The independent native save is byte-identical.
+
 ## 0.32.0 — 2026-11-06
 
 ### Added
