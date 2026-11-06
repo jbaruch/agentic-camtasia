@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.30.0 — 2026-11-06
+
+### Added
+
+- Native-template visual-effect construction, static editing, bypass and removal
+  on linked moving recordings inside Groups, including nested Groups. Matching
+  wrapper/video mirrors retain complete child-source clocks, stable identities,
+  reset metadata and recorded audio; ancestor geometry and timing stay intact.
+  Complete timed templates copy without retiming or importing parent state.
+- Native lifecycle comparisons, an 84-second independent control with identical
+  decoded repeat exports, 126 inspected phase frames and 140 audio-channel
+  windows verify the Group extension. Other feature helpers retain their
+  separate Group ownership contracts.
+
 ## 0.29.0 — 2026-11-06
 
 ### Added

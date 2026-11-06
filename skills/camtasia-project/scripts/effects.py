@@ -21,11 +21,15 @@ MediaPath construction uses motion_paths.py to preserve its clip-rotation coupli
 Its editing/removal also use that dedicated helper.
 Direct moving recordings, frozen recordings and stitched parents support native
 template construction and lifecycle edits. FROZEN_STITCHED_TYPES is restricted to Mac
-2026.2.4/format 10 for all mutations. Root linked moving recordings support
+2026.2.4/format 10 for all mutations. Root and Group-contained linked moving
+recordings support
 matching wrapper/video mirrors with complete equal clocks, positive project
 rate/inverse speed and a same-source AMFile audio child. Their visual effects
-require unique canonical tokens; recorded audio is preserved. Linked held,
-stitched and nested owners retain separate contracts. Other feature callers
+require unique canonical tokens; recorded audio is preserved. Group ancestors
+and their clocks/geometry remain unchanged. Complete effect payloads keep the
+child's source clock independently of parent placement; no Group retiming is
+performed. Linked held, stitched and other containing owner kinds retain
+separate contracts. Other feature callers
 must explicitly opt into their own verified linked-recording scope.
 Stitched parent edits preserve descendants and virtual holds;
 no recording/freeze/stitch constructor is inferred. Timed templates retain the
@@ -285,7 +289,9 @@ def edit_effect(
     if "bypassed" in spec and type(spec["bypassed"]) is not bool:
         raise ValueError("supply a boolean effect bypass")
     result = copy.deepcopy(doc)
-    constructor_owners(result, clip_id, visual_types=EFFECT_TYPES, linked_recordings=True)
+    constructor_owners(
+        result, clip_id, visual_types=EFFECT_TYPES, linked_recordings=True, grouped_recordings=True
+    )
     for _, effect in targets(result, clip_id, name, token, visual_types=EFFECT_TYPES):
         for key, value in parameters.items():
             patch_parameter(effect["parameters"], key, value)
@@ -303,7 +309,9 @@ def remove_effect(
     if name == "MediaPath":
         raise ValueError("remove Motion Path with motion_paths.py to preserve rotation coupling")
     result = copy.deepcopy(doc)
-    constructor_owners(result, clip_id, visual_types=EFFECT_TYPES, linked_recordings=True)
+    constructor_owners(
+        result, clip_id, visual_types=EFFECT_TYPES, linked_recordings=True, grouped_recordings=True
+    )
     for owner, effect in targets(
         result, clip_id, name, token, absent_ok=True, visual_types=EFFECT_TYPES
     ):
@@ -317,6 +325,7 @@ def constructor_owners(
     *,
     visual_types: frozenset[str] = CONSTRUCTOR_TYPES,
     linked_recordings: bool = False,
+    grouped_recordings: bool = False,
 ) -> list[dict[str, Any]]:
     """Select general-operation owners; other feature callers retain their own scope."""
     path, visual = hotspots.visual_target(doc, clip_id, visual_types=visual_types)
@@ -337,10 +346,16 @@ def constructor_owners(
         wrapper_path, wrapper = wrappers[0]
         if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
             raise ValueError("use Mac 2026.2.4 format-10 linked recording effect evidence")
-        if len(project.scene_tracks(doc)) != 1 or any(
-            wrapper_path.startswith(parent + "/") for parent, _ in hotspots.clips(doc)
+        ancestors = [
+            node for parent, node in hotspots.clips(doc) if wrapper_path.startswith(parent + "/")
+        ]
+        if len(project.scene_tracks(doc)) != 1 or (
+            ancestors
+            and (not grouped_recordings or any(node.get("_type") != "Group" for node in ancestors))
         ):
-            raise ValueError("select a root linked moving recording; capture nested effect clocks")
+            raise ValueError(
+                "select a root linked moving recording or a verified Group-contained effect owner"
+            )
         audio = wrapper.get("audio")
         if (
             not isinstance(audio, dict)
@@ -440,12 +455,16 @@ def add_effect(
     ) != project.number(template.get("editRate")):
         raise ValueError("select a same-build template with the destination project edit rate")
     source_owners = constructor_owners(
-        template, template_clip_id, visual_types=EFFECT_TYPES, linked_recordings=True
+        template,
+        template_clip_id,
+        visual_types=EFFECT_TYPES,
+        linked_recordings=True,
+        grouped_recordings=True,
     )
     source = targets(template, template_clip_id, name, template_token, visual_types=EFFECT_TYPES)
     result = copy.deepcopy(doc)
     destination = constructor_owners(
-        result, clip_id, visual_types=EFFECT_TYPES, linked_recordings=True
+        result, clip_id, visual_types=EFFECT_TYPES, linked_recordings=True, grouped_recordings=True
     )
     if len(source_owners) != len(destination) or any(
         a.get("_type") != b.get("_type") for a, b in zip(source_owners, destination)
