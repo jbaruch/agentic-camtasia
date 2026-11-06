@@ -32,6 +32,7 @@ from __future__ import annotations
 import argparse
 import base64
 import copy
+from decimal import Decimal, InvalidOperation
 import json
 import math
 import os
@@ -42,12 +43,81 @@ import sys
 from typing import Any
 import zlib
 
-import hotspots
 import project
 
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 PNG_DATA_PREFIX = "data:image/png;base64,"
 PNG_DEPTHS = {0: {1, 2, 4, 8, 16}, 2: {8, 16}, 3: {1, 2, 4, 8}, 4: {8, 16}, 6: {8, 16}}
+
+
+class JSONArgumentParser(argparse.ArgumentParser):
+    def error(self, message: str) -> None:
+        self.exit(2, json.dumps({"ok": False, "error": message, "action": "run --help"}) + "\n")
+
+
+def load_source(path: Path) -> tuple[dict[str, Any], bytes]:
+    """Keep finite decimal values exact, including unfamiliar animation payload."""
+    raw = path.read_bytes()
+    try:
+        doc = json.loads(
+            raw,
+            parse_float=Decimal,
+            parse_constant=project.invalid_constant,
+            object_pairs_hook=project.unique_object,
+        )
+    except InvalidOperation as exc:
+        raise ValueError(
+            "use finite animation numbers within the exact decimal parser's range"
+        ) from exc
+    if not isinstance(doc, dict):
+        raise ValueError("select a Lottie JSON object rather than a scalar or array")
+    return doc, raw
+
+
+def encode_document(doc: dict[str, Any]) -> bytes:
+    """Serialize exact finite decimals as JSON numbers without a float conversion."""
+
+    def value(node: Any) -> str:
+        if isinstance(node, Decimal):
+            if not node.is_finite():
+                raise ValueError("replace nonfinite animation numbers with finite values")
+            return str(node)
+        if isinstance(node, dict):
+            if not all(isinstance(key, str) for key in node):
+                raise ValueError("retain string JSON object keys before staging")
+            return (
+                "{"
+                + ",".join(
+                    json.dumps(k, ensure_ascii=False) + ":" + value(v) for k, v in node.items()
+                )
+                + "}"
+            )
+        if isinstance(node, list):
+            return "[" + ",".join(value(child) for child in node) + "]"
+        return json.dumps(node, ensure_ascii=False, allow_nan=False)
+
+    return (value(doc) + "\n").encode("utf-8")
+
+
+def stage(source: Path, output: Path, candidate: dict[str, Any]) -> bool:
+    """Stage exact source values to an exclusive file, refusing inode aliases."""
+    if output.is_symlink() or output.resolve() == source.resolve():
+        raise ValueError("choose a separate nonsymlink candidate outside the source document")
+    raw = encode_document(candidate)
+    try:
+        with output.open("xb") as stream:
+            stream.write(raw)
+    except FileExistsError:
+        if output.is_symlink() or os.path.samefile(source, output):
+            raise ValueError(
+                "choose a candidate that is not linked to the original source"
+            ) from None
+        if not output.is_file() or output.read_bytes() != raw:
+            raise ValueError(
+                "candidate contains different data; choose a new output path"
+            ) from None
+        return False
+    return True
 
 
 def read_image(path: Path) -> bytes:
@@ -114,7 +184,11 @@ def png_size(raw: bytes) -> tuple[int, int]:
 
 
 def finite_number(value: Any) -> bool:
-    return type(value) is int or (type(value) is float and math.isfinite(value))
+    return (
+        type(value) is int
+        or (type(value) is float and math.isfinite(value))
+        or (isinstance(value, Decimal) and value.is_finite())
+    )
 
 
 def source_assets(doc: dict[str, Any]) -> list[dict[str, Any]]:
@@ -260,7 +334,7 @@ def embed_png(doc: dict[str, Any], asset_id: str, raw: bytes) -> dict[str, Any]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = JSONArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     inspect = commands.add_parser("inspect")
     inspect.add_argument("source", type=Path)
@@ -272,7 +346,7 @@ def main(argv: list[str] | None = None) -> int:
     embed.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
-        doc, source = project.load(args.source)
+        doc, source = load_source(args.source)
         report: dict[str, Any] = {
             "schema_version": 1,
             "owner": "camtasia-lottie-images",
@@ -289,14 +363,14 @@ def main(argv: list[str] | None = None) -> int:
                 assetId=args.asset_id,
                 pngSha256=project.digest(raw),
                 output=str(args.output),
-                candidateSha256=project.digest(project.encode_document(candidate)),
+                candidateSha256=project.digest(encode_document(candidate)),
                 changed=candidate != doc,
-                written=hotspots.stage(args.source, args.output, candidate),
+                written=stage(args.source, args.output, candidate),
             )
         else:
             report.update(inventory(doc))
             report["ok"] = not args.require_embedded or report["imageAssetsEmbedded"]
-        print(project.encode_document(report).decode("utf-8"), end="")
+        print(encode_document(report).decode("utf-8"), end="")
         return 0 if report["ok"] else 1
     except (OSError, ValueError) as exc:
         print(json.dumps({"ok": False, "error": str(exc)}), file=sys.stderr)

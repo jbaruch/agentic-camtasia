@@ -36,7 +36,9 @@ glyphs, unfamiliar payload and other assets. Only the selected image's native
 embedding fields change. PNG physical dimensions must match the asset.
 Original source and image bytes remain unchanged. The output is exclusive;
 an identical rerun is a no-op, while a different occupied output, source alias
-or output symlink refuses. Exit codes are 0 for inspection/staging, 1 for a
+or output symlink refuses. Hard links to the source also refuse. JSON decimal
+clocks and unfamiliar numeric values retain their exact values without a binary
+float conversion. Exit codes are 0 for inspection/staging, 1 for a
 refusal or unmet `--require-embedded`, and 2 for argument syntax. Errors are JSON
 on stderr. A successful embed can still report other unresolved images.
 

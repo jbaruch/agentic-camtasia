@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import base64
 import copy
+from decimal import Decimal
 import io
 import json
 import os
@@ -86,6 +87,94 @@ def fixture() -> dict:
 
 
 class LottieImageTests(unittest.TestCase):
+    def test_cli_argument_failures_emit_json_with_exit_two(self) -> None:
+        for command in ([], ["embed"], ["inspect"], ["unknown"]):
+            with (
+                patch("sys.stderr", stream := io.StringIO()),
+                self.assertRaises(SystemExit) as error,
+            ):
+                lottie_images.main(command)
+            self.assertEqual(error.exception.code, 2)
+            report = json.loads(stream.getvalue())
+            self.assertFalse(report["ok"])
+            self.assertEqual(report["action"], "run --help")
+
+    def test_unrepresentable_or_nonfinite_json_numbers_refuse_with_json_diagnostics(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "source.json"
+            for value in ("1e99999999999999999999", "NaN", "Infinity", "-Infinity"):
+                source.write_text('{"value":' + value + "}")
+                with patch("sys.stderr", stream := io.StringIO()):
+                    self.assertEqual(lottie_images.main(["inspect", str(source)]), 1)
+                self.assertFalse(json.loads(stream.getvalue())["ok"])
+
+    def test_cli_preserves_raw_json_decimal_clocks_and_opaque_precision(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, image, output = [root / n for n in ("source.json", "image.png", "out.json")]
+            raw = project.encode_document(fixture()).replace(
+                b'"fr":30', b'"fr":29.970000000000000001'
+            )
+            raw = raw.replace(b'"ip":0', b'"ip":0.000000000000000001')
+            raw = raw.replace(b'"colors":[0.5,', b'"colors":[0.123456789012345678901,')
+            source.write_bytes(raw)
+            image.write_bytes(png())
+            with patch("sys.stdout", io.StringIO()):
+                self.assertEqual(
+                    lottie_images.main(
+                        [
+                            "embed",
+                            str(source),
+                            "--asset-id",
+                            "photo",
+                            "--image",
+                            str(image),
+                            "--output",
+                            str(output),
+                        ]
+                    ),
+                    0,
+                )
+            before = json.loads(raw, parse_float=Decimal)
+            after = json.loads(output.read_bytes(), parse_float=Decimal)
+            self.assertEqual(after["fr"], Decimal("29.970000000000000001"))
+            self.assertEqual(after["ip"], Decimal("0.000000000000000001"))
+            self.assertEqual(after["future"]["colors"][0], Decimal("0.123456789012345678901"))
+            for key in ("p", "u", "e"):
+                after["assets"][0][key] = before["assets"][0][key]
+            self.assertEqual(after, before)
+            self.assertEqual(source.read_bytes(), raw)
+
+    @unittest.skipUnless(hasattr(os, "link"), "hard-link fixture")
+    def test_canonical_identical_hard_link_output_refuses_source_alias(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, image, output = [root / n for n in ("source.json", "image.png", "out.json")]
+            candidate = lottie_images.embed_png(fixture(), "photo", png())
+            raw = lottie_images.encode_document(candidate)
+            source.write_bytes(raw)
+            image.write_bytes(png())
+            os.link(source, output)
+            with patch("sys.stderr", stream := io.StringIO()):
+                self.assertEqual(
+                    lottie_images.main(
+                        [
+                            "embed",
+                            str(source),
+                            "--asset-id",
+                            "photo",
+                            "--image",
+                            str(image),
+                            "--output",
+                            str(output),
+                        ]
+                    ),
+                    1,
+                )
+            self.assertIn("not linked", json.loads(stream.getvalue())["error"])
+            self.assertEqual(source.read_bytes(), raw)
+            self.assertEqual(output.read_bytes(), raw)
+
     def test_embedding_changes_only_selected_native_fields_and_keeps_exact_png_bytes(self) -> None:
         source = fixture()
         before = copy.deepcopy(source)
