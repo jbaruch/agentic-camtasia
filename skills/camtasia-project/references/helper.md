@@ -663,6 +663,8 @@ time and verifies it through the shared forward mapper. The script's
 `VISUAL_TYPES` and mapping functions own supported constructors and exact-clock
 limits. Unknown containers, multiple scene clocks, out-of-view points and
 fractional owner ticks require a new native case; no clock fields are flattened.
+The [frozen/stitched quiz evidence](quiz-recording-owners.md) records native
+pin/unpin, source-frame separation, trim/speed and exported responses.
 
 Stdout uses schema 1, owner `camtasia-quizzes`, hashes and the resulting quiz
 inventory. Staging adds `changed`, `written` and `nativeVerified: false`; errors

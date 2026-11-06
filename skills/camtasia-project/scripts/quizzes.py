@@ -35,6 +35,10 @@ to the timeline. --time is seconds in the chosen owner's parameter clock, not
 always global time. Linked video storage uses its UnifiedMedia clock once.
 Owner IDs from inspect remain physical parameter-owner IDs; a UnifiedMedia ID
 can also select its video. The observed visual constructors are VISUAL_TYPES.
+Standalone frozen recordings and stitched parents store the same quiz points;
+their hidden stitched children and linked variants are not independent targets.
+Frozen quiz points use a local-zero origin, independently of mediaStart's source
+frame. Stitched parent points retain source positions, trim and inverse speed.
 Native XML comments/PIs survive. DTD-bearing input requires manual inspection.
 
 CLI: inspect PROJECT; upsert PROJECT --spec JSON --time SECONDS --output FILE
@@ -93,7 +97,9 @@ QUESTION_ATTRIBUTES = {
     },
 }
 MIN_CANVAS = (640, 480)
-VISUAL_TYPES = frozenset({"VMFile", "IMFile", "ScreenVMFile", "Callout", "Group"})
+VISUAL_TYPES = frozenset(
+    {"VMFile", "IMFile", "ScreenVMFile", "ScreenIMFile", "StitchedMedia", "Callout", "Group"}
+)
 
 
 def children(node: minidom.Element, tag: str | None = None) -> list[minidom.Element]:
@@ -575,6 +581,13 @@ def resolve_owner(
             logical_id = parent.get("id")
     if not isinstance(node, dict) or node.get("_type") not in VISUAL_TYPES:
         raise ValueError("retain this quiz owner until its visual constructor is verified")
+    if any(
+        ancestor.get("_type") == "StitchedMedia" and path.startswith(parent_path + "/")
+        for parent_path, ancestor in clips
+    ):
+        raise ValueError("select the stitched parent; capture independent child quiz ownership")
+    if node.get("_type") in {"ScreenIMFile", "StitchedMedia"} and logical_id != node.get("id"):
+        raise ValueError("capture the linked held/stitched quiz constructor before editing it")
     if not isinstance(node.get("parameters"), dict) or type(logical_id) is not int:
         raise ValueError("repair the native visual parameter owner and logical ID")
     return path, node, logical_id
@@ -643,10 +656,12 @@ def point_from_global(doc: dict[str, Any], logical_id: int | None, global_time: 
         scalar = project.number(node.get("scalar"))
         if scalar <= 0:
             raise ValueError("use a positive native owner clock scalar")
-        point = (
-            project.number(node.get("mediaStart"))
-            + (point - project.number(node.get("start"))) / scalar
+        media_start = (
+            project.number(0)
+            if node.get("_type") == "ScreenIMFile"
+            else project.number(node.get("mediaStart"))
         )
+        point = media_start + (point - project.number(node.get("start"))) / scalar
     if point.denominator != 1:
         raise ValueError("global target falls between owner ticks; choose an exact native point")
     result = point.numerator

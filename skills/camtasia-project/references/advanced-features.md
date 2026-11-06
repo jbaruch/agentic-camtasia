@@ -818,9 +818,12 @@ conversion that preserves global position. Inspect and select the new native
 IDs after saving; candidate IDs are not stable across a native normalization.
 
 Additional feedback destination clocks, other-edition/restart/failure resume,
-standalone audio, screen-still/stitched/placeholder quiz owners and multiple-scene clocks require further native
-cases. Preserve those existing representations; the tested owner mapping does
-not authorize guessing another container's clock.
+standalone audio, linked held/stitched variants, placeholder quiz owners and
+multiple-scene clocks require further native cases. The separate
+[frozen/stitched quiz contract](quiz-recording-owners.md) adds standalone held
+owners and stitched parents, with native pin/unpin and exported responses.
+Preserve other existing representations; the tested mapping does not authorize
+guessing another container's clock.
 
 ## Media and track mattes
 
