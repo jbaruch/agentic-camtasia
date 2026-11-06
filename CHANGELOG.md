@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.28.0 — 2026-11-06
+
+### Added
+
+- Typed-double visual-effect interval authoring and clearing on root linked
+  moving recordings. Wrapper/video mirrors retain exact trim/speed clocks,
+  stable identities, recorded stereo audio, source processing, reset data and
+  unrelated geometry. Nonlinear effect easing preserves matching shared visual
+  intervals; further linked variants and point forms retain separate contracts.
+- Native Spring and independent linear-position controls, a 27-second comparison
+  with identical complete decoded repeat exports, measured geometry, phase-frame
+  inspection and preserved background/system-audio tones. Effect-curve CLI help
+  now emits versioned JSON.
+
 ## 0.27.0 — 2026-11-06
 
 ### Added

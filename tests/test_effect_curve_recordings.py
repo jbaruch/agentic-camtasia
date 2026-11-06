@@ -134,8 +134,8 @@ class RecordingEffectCurveTests(unittest.TestCase):
         self.assertEqual(visual(result)["parameters"], owner["parameters"])
         self.assertEqual(doc, before)
 
-    def test_linked_recording_mirrors_are_refused_for_wrapper_and_visual_ids(self):
-        for kind in ("ScreenVMFile", "ScreenIMFile", "StitchedMedia"):
+    def test_linked_held_and_stitched_mirrors_are_refused_for_wrapper_and_visual_ids(self):
+        for kind in ("ScreenIMFile", "StitchedMedia"):
             doc = fixture(True)
             visual_owner = project.scene_tracks(doc)[0][0]["medias"][0]["video"]
             visual_owner["_type"] = kind

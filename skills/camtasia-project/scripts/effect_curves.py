@@ -35,14 +35,18 @@ Direct moving/frozen recordings and stitched parents use their existing effects.
 ScreenIMFile intervals have a local-zero origin, independent of the held source
 frame in mediaStart; other owners retain source-position clocks. Stitched edits
 retain descendants, virtual hold durations, cursor data and source processing.
-Linked recording mirrors are unverified and refused; ordinary linked AV keeps
-its existing mirror contract. No recording/freeze/stitch constructor is inferred.
+Root linked moving ScreenVMFile recordings use matching wrapper/video mirrors,
+complete shared clocks and the source/audio/token guard in effects.constructor_owners.
+Recorded audio is preserved. Linked held, stitched and nested variants retain
+separate contracts. Ordinary linked AV keeps its existing mirror contract.
+No recording/freeze/stitch constructor is inferred.
 
 No editor is launched and no input project/media is written. Output is exclusive
 or an identical no-op; use the project diff/validate/apply and native workflow.
 JSON stdout schema_version 1 owner camtasia-effect-curves reports hashes,
 inventory, changed/written and nativeVerified false. JSON diagnostics on stderr:
-exit 1 input/I/O refusal, 2 CLI syntax; exit 0 success. --help is plaintext stdout.
+exit 1 input/I/O refusal, 2 CLI syntax; exit 0 success. Help emits the same
+owner/version with ok true and a formatted help string.
 """
 
 from __future__ import annotations
@@ -64,6 +68,20 @@ OWNERS = frozenset({"VMFile", "IMFile", "Callout", "Group"}) | RECORDING_OWNERS
 
 
 class JsonArgumentParser(argparse.ArgumentParser):
+    def format_help(self) -> str:
+        return (
+            json.dumps(
+                dict(
+                    schema_version=1,
+                    owner="camtasia-effect-curves",
+                    ok=True,
+                    help=super().format_help(),
+                ),
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
+
     def error(self, message: str) -> NoReturn:
         self.exit(2, json.dumps(dict(ok=False, error=message), ensure_ascii=False) + "\n")
 
@@ -80,7 +98,7 @@ def selected(
     if visual.get("_type") not in OWNERS:
         raise ValueError("select a visual owner from OWNERS; capture other native clocks")
     if len(targets) > 1 and visual.get("_type") in RECORDING_OWNERS:
-        raise ValueError("capture native linked recording effect-curve mirrors before editing")
+        effects.constructor_owners(doc, clip_id, visual_types=OWNERS, linked_recordings=True)
     for field in effects.CLOCK_FIELDS:
         value = project.number(visual.get(field))
         if any(project.number(owner.get(field)) != value for owner, _ in targets):
