@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.25.0 — 2026-11-06
+
+### Added
+
+- A dedicated cursor click helper authors complete explicit left/right lists on
+  existing video cursor paths and replaces authored recording click edits.
+  Exact trim/speed clocks, linked mirrors, same-time metadata, captured deletion
+  entries, cursor geometry, source data and audio survive. Empty lists clear the
+  selected authored events; captured TREC clicks retain their separate ownership.
+- Twelve complete native replays cover insertion, button replacement, removal,
+  clearing and visible trim-start events on trimmed 2× video and recordings.
+  Two fresh-process 78-second exports repeat all decoded picture/audio; independent
+  controls retain original captured clicks and show authored green/yellow targets.
+
 ## 0.24.0 — 2026-11-06
 
 ### Added
