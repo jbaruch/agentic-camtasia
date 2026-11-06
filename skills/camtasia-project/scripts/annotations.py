@@ -9,7 +9,7 @@ single-scene Mac 2026.2.4 format 10 with equal edit rate and canvas dimensions.
 All clocks, opaque fields, native style IDs, animation tracks and drawing edge
 modifiers survive. One-sided Fade companions are copied with remapped media IDs.
 No retiming, group extraction, source/resource copying or effect rebinding is
-inferred. Capture a clean annotation without effects, markers or quizzes first.
+inferred. Capture a clean annotation without effects, hotspots, markers or quizzes first.
 An identical existing result is a no-op; occupied lanes and reused IDs refuse.
 
 set PROJECT --clip-id ID --spec SPEC --output CANDIDATE accepts schema_version 1
@@ -287,8 +287,12 @@ def add_annotation(
         )
         or not isinstance(source.get("parameters"), dict)
         or any(k in source["parameters"] for k in ("toc", "quiz", "interactiveHotspot"))
+        or not isinstance(source.get("attributes"), dict)
+        or "hotspot" in source["attributes"]
     ):
-        raise ValueError("use a clean source-free annotation without effects, markers or quizzes")
+        raise ValueError(
+            "use a clean source-free annotation without effects, hotspots, markers or quizzes"
+        )
     for field in ("start", "duration", "mediaStart", "mediaDuration", "scalar"):
         value = project.number(source.get(field))
         if value < 0 or (field in {"duration", "mediaDuration", "scalar"} and value <= 0):

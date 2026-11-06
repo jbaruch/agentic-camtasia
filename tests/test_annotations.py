@@ -325,6 +325,25 @@ class AnnotationTests(unittest.TestCase):
             with self.assertRaises(ValueError):
                 annotations.add_annotation(destination(), "0:0", 10, template, 3)
 
+    def test_constructor_rejects_native_attribute_hotspots_without_copying_targets(self):
+        for hotspot in (
+            {
+                "action": 3,
+                "markerParametricId": 999,
+                "markerTime": 2000,
+                "lastMarkerGlobalTime": 3000,
+                "pauseAtEnd": True,
+            },
+            {"action": 0, "pauseAtEnd": False},
+            None,
+        ):
+            template, doc = fixture(), destination()
+            clip(template)["attributes"]["hotspot"] = hotspot
+            before = copy.deepcopy(template), copy.deepcopy(doc)
+            with self.subTest(hotspot=hotspot), self.assertRaisesRegex(ValueError, "hotspots"):
+                annotations.add_annotation(doc, "0:0", 10, template, 3)
+            self.assertEqual((template, doc), before)
+
     def test_invalid_edits_and_signed_native_codes_refuse(self):
         invalid = [
             spec(text=None),

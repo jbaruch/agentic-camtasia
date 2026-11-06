@@ -177,7 +177,7 @@ python3 -B "{camtasia_skill_root}/scripts/annotations.py" set "<project>" --clip
 
 Construction uses an existing empty root lane in a single-scene destination.
 Match the template's build, canvas and edit rate. Capture the Callout alone on
-a root lane without lane parameters, effects, source references, markers or
+a root lane without lane parameters, effects, source references, hotspots, markers or
 quizzes. The complete clip keeps its existing clock and modifiers; standalone
 one-sided Fade companions remap to the requested fresh ID. Destination lane
 parameters and visibility remain unchanged. No retiming or external resources
