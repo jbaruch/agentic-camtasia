@@ -88,7 +88,10 @@ raw pinned schema; native saves pass the existing exact-build profile with its
 previously documented omitted-Callout-metadata correction. No new correction is
 needed. Completed probes, exports and measurement files are disposable.
 
-Root linked moving recordings have a separate [mirror/audio contract](matte-recording-owners.md#linked-moving-recordings).
+Root and Group-contained linked moving recordings have a separate
+[mirror/audio contract](matte-recording-owners.md#linked-moving-recordings).
+The Group controls retain independent media intensity/bypass and track mode,
+including nested Groups, while preserving recorded and lower-layer audio.
 Further linked variants and a working point-intensity representation retain
 separate investigation. Verify the actual consumer project's native output
 before delivery; this bounded arrangement does not cover every matte stack.

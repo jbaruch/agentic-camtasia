@@ -633,8 +633,9 @@ own the build, constructors, control units, edge preservation and ownership
 contract. The [native matte evidence](advanced-features.md#media-and-track-mattes)
 records the difference between intensity, bypass and track-level masking.
 [Recording-owner verification](matte-recording-owners.md) adds native moving,
-frozen and stitched ownership, clocks and lifecycle controls, plus root linked
-moving recordings with preserved recorded audio.
+frozen and stitched ownership, clocks and lifecycle controls, plus root and
+Group-contained linked moving recordings with preserved recorded audio. Group
+ancestors retain their timing, geometry and track arrangement.
 [Composition verification](matte-composition.md) compares media/track interactions
 and Group/root scope against independent visual controls.
 

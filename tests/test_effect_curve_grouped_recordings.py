@@ -14,7 +14,6 @@ from test_effect_curve_linked_recordings import fixture as root_fixture, spec
 from test_effect_grouped_recordings import grouped, node
 import behaviors
 import effect_curves
-import mattes
 import project
 
 
@@ -231,10 +230,7 @@ class GroupedRecordingCurveTests(unittest.TestCase):
 
     def test_other_feature_helpers_keep_their_group_scope(self):
         doc = fixture()
-        for action in (
-            lambda: behaviors.behavior_owners(doc, 3),
-            lambda: mattes.media_targets(doc, 3),
-        ):
+        for action in (lambda: behaviors.behavior_owners(doc, 3),):
             with self.assertRaises(ValueError):
                 action()
 
