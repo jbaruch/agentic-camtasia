@@ -83,6 +83,9 @@ chapter-player behavior still require their own output checks.
 Existing generated cursor point paths use the
 [created-path helper](helper.md#created-cursor-path-json-editing), with
 [native movement, trim/speed and hold controls](created-cursor-paths.md).
+Standalone moving recordings use the separate
+[recorded-path helper](helper.md#recorded-cursor-path-json-editing) for complete
+overrides and restoration, with [native controls](recorded-cursor-paths.md).
 Recorded pointer overrides retain their separate representation.
 
 Standalone annotation construction and existing shape/text edits use

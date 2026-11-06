@@ -205,6 +205,11 @@ events. Targets remain at the click location as the cursor continues moving.
 
 ## Editing and restoring recorded pointer paths
 
+The [recorded-path helper](helper.md#recorded-cursor-path-json-editing) stages
+explicit complete overrides and restoration on standalone moving recordings.
+[Native helper controls](recorded-cursor-paths.md) cover source-clock timing,
+point edits, a static hold and rendering on a trimmed 2× recording.
+
 For an actual recording, use Cursor Properties → Edit Cursor Path. The native
 dialog offers Simplify Existing Path and Create New Path. Cursor Path Creator
 in the effect menu is disabled for the exercised `ScreenVMFile`; use the

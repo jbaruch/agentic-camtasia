@@ -464,8 +464,10 @@ class CursorPathTests(unittest.TestCase):
             with patch("sys.stdout", new_callable=io.StringIO) as stream:
                 self.assertEqual(cursor_paths.main(["inspect", str(source)]), 0)
             report = json.loads(stream.getvalue())
+            self.assertEqual(report["schema_version"], 2)
             self.assertEqual(report["owner"], "camtasia-cursor-paths")
             self.assertEqual(len(report["paths"]), 2)
+            self.assertEqual(report["recordings"], [])
         with (
             patch("sys.stderr", new_callable=io.StringIO) as stream,
             self.assertRaises(SystemExit) as error,
