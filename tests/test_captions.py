@@ -389,6 +389,55 @@ class CaptionTests(unittest.TestCase):
             self.assertEqual(result, expected)
             self.assertEqual(captions.retime(result, 3, retime_spec()), result)
 
+    def test_retime_checks_both_asymmetric_linked_streams_in_their_own_clocks(self):
+        for short in ("video", "audio"):
+            doc = fixture()
+            for node in (root(doc), root(doc)["video"], audio(doc)):
+                node.update(duration=2 * R, mediaDuration=2 * R)
+            video, sound = doc["sourceBin"][0]["sourceTracks"]
+            video.update(editRate=240, range=[0, (4 if short == "video" else 8) * 240])
+            sound.update(editRate=48000, range=[0, (4 if short == "audio" else 8) * 48000])
+            before = copy.deepcopy(doc)
+            with (
+                self.subTest(short=short),
+                self.assertRaisesRegex(ValueError, "every selected stream"),
+            ):
+                captions.retime(doc, 3, retime_spec())
+            self.assertEqual(doc, before)
+            valid = captions.retime(doc, 3, spec(start=1, duration=1, media_start=1, scalar="1/2"))
+            self.assertEqual(root(valid)["video"]["mediaStart"], R)
+            self.assertEqual(root(valid)["video"]["mediaDuration"], 2 * R)
+            self.assertEqual(valid["sourceBin"], doc["sourceBin"])
+
+    def test_retime_resolves_video_source_and_rejects_unknown_selected_video_stream(self):
+        doc = fixture()
+        for node in (root(doc), root(doc)["video"], audio(doc)):
+            node.update(duration=2 * R, mediaDuration=2 * R)
+        doc["sourceBin"].append(
+            dict(
+                id=20,
+                src="separate-video-not-read.mp4",
+                sourceTracks=[dict(type=0, editRate=30000, range=[0, 90000])],
+            )
+        )
+        root(doc)["video"].update(src=20, trackNumber=0)
+        with self.assertRaisesRegex(ValueError, "every selected stream"):
+            captions.retime(doc, 3, retime_spec())
+        valid = captions.retime(doc, 3, spec(start=0, duration=1, media_start=1, scalar=1))
+        self.assertEqual(root(valid)["video"]["src"], 20)
+        for mutation in ("source", "track", "kind", "range"):
+            bad = copy.deepcopy(doc)
+            if mutation == "source":
+                root(bad)["video"]["src"] = 99
+            elif mutation == "track":
+                root(bad)["video"]["trackNumber"] = 1
+            elif mutation == "kind":
+                bad["sourceBin"][1]["sourceTracks"][0]["type"] = 2
+            else:
+                bad["sourceBin"][1]["sourceTracks"][0].pop("range")
+            with self.subTest(mutation=mutation), self.assertRaises(ValueError):
+                captions.retime(bad, 3, spec(start=0, duration=1, media_start=1, scalar=1))
+
     def test_timeline_clock_cues_invert_trim_offset_and_inverse_speed_exactly(self):
         doc = captions.retime(fixture(), 3, retime_spec())
         result = captions.set_cues(

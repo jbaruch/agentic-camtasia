@@ -214,15 +214,15 @@ def root_clock(
     return track, owner, audio
 
 
-def audio_stream(
-    doc: dict[str, Any], owner: dict[str, Any]
+def source_stream(
+    doc: dict[str, Any], owner: dict[str, Any], kind: int
 ) -> tuple[dict[str, Any], dict[str, Any]]:
     sources = doc.get("sourceBin", [])
     if not isinstance(sources, list) or type(owner.get("src")) is not int:
-        raise ValueError("inspect the audio source reference before caption clock mapping")
+        raise ValueError("inspect the selected source reference before caption clock mapping")
     matches = [s for s in sources if isinstance(s, dict) and s.get("id") == owner["src"]]
     if len(matches) != 1:
-        raise ValueError("repair missing/ambiguous audio source IDs")
+        raise ValueError("repair missing/ambiguous selected source IDs")
     source, index = matches[0], owner.get("trackNumber")
     tracks = source.get("sourceTracks")
     if (
@@ -230,17 +230,25 @@ def audio_stream(
         or not isinstance(tracks, list)
         or not 0 <= index < len(tracks)
         or not isinstance(tracks[index], dict)
-        or tracks[index].get("type") != 2
+        or tracks[index].get("type") != kind
     ):
-        raise ValueError("select the saved audio source stream by its native trackNumber")
+        raise ValueError("select the matching source stream kind by its saved native trackNumber")
     return source, tracks[index]
+
+
+def audio_stream(
+    doc: dict[str, Any], owner: dict[str, Any]
+) -> tuple[dict[str, Any], dict[str, Any]]:
+    return source_stream(doc, owner, 2)
 
 
 def capacity(doc: dict[str, Any], owner: dict[str, Any]) -> Fraction:
     if owner.get("_type") == "Caption":
         bound = project.number(owner.get("maxMediaDuration"))
     else:
-        _, stream = audio_stream(doc, owner)
+        if owner.get("_type") not in ("AMFile", "VMFile"):
+            raise ValueError("select a Caption or ordinary audio/video source owner for bounds")
+        _, stream = source_stream(doc, owner, 0 if owner["_type"] == "VMFile" else 2)
         span, rate = stream.get("range"), project.number(stream.get("editRate"))
         if (
             not isinstance(span, list)
@@ -410,13 +418,16 @@ def retime(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str,
         hotspots.ticks(result, spec[k]) for k in ("start", "duration", "media_start")
     )
     scalar = project.number(spec["scalar"])
+    streams = [audio] if owner is audio else [audio, owner["video"]]
     if (
         duration <= 0
         or scalar <= 0
-        or media_start + Fraction(duration) / scalar > capacity(result, audio)
+        or any(
+            media_start + Fraction(duration) / scalar > capacity(result, child) for child in streams
+        )
     ):
         raise ValueError(
-            "use positive duration/inverse speed and a consumed interval within source bounds"
+            "use positive duration/inverse speed and a consumed interval within every selected stream's source bounds"
         )
     nodes = [owner] if owner is audio else [owner, owner["video"], audio]
     for node in nodes:
