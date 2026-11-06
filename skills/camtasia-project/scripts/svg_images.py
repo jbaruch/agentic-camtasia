@@ -46,6 +46,7 @@ import lottie_images
 import project
 
 SVG = "http://www.w3.org/2000/svg}"
+XML_EVENTS = "http://www.w3.org/2001/xml-events}"
 XLINK_HREF = "http://www.w3.org/1999/xlink}href"
 XML_ID = "http://www.w3.org/XML/1998/namespace}id"
 HREFS = {"href", XLINK_HREF}
@@ -212,8 +213,11 @@ class Document:
         return [
             node.index
             for node in self.elements
-            if node.name == SVG + "script"
-            or any(name.startswith("on") and "}" not in name for name in node.attributes)
+            if node.name in {SVG + "script", SVG + "handler", XML_EVENTS + "listener"}
+            or any(
+                name.startswith(XML_EVENTS) or (name.startswith("on") and "}" not in name)
+                for name in node.attributes
+            )
         ]
 
     def namespace(self, node: Element, prefix: str) -> str | None:

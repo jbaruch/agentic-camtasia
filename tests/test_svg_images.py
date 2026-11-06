@@ -188,6 +188,39 @@ class SVGImageTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "active"):
                 svg_images.embed_png(document, png(), image_index=0)
 
+    def test_svg_handlers_and_xml_events_cannot_pass_the_static_image_gate(self) -> None:
+        for child in [
+            b'<s:handler xmlns:ev="http://www.w3.org/2001/xml-events" ev:event="load">'
+            b"changeImage()</s:handler>",
+            b'<s:handler l:href="https://example.test/handler.js"/>',
+            b'<e:listener xmlns:e="http://www.w3.org/2001/xml-events" '
+            b'event="load" observer="photo" handler="https://example.test/handler.svg#run"/>',
+            b'<s:g xmlns:events="http://www.w3.org/2001/xml-events" '
+            b'events:event="load" events:handler="https://example.test/handler.svg#run"/>',
+        ]:
+            with self.subTest(child=child):
+                raw = svg(uri(), children=child)
+                document = svg_images.Document(raw)
+                report = svg_images.inventory(document)
+                self.assertEqual(report["activeElementIndices"], [4])
+                self.assertFalse(report["imageAssetsEmbedded"])
+                with self.assertRaisesRegex(ValueError, "active"):
+                    svg_images.embed_png(document, png(), image_index=0)
+                self.assertEqual(document.raw, raw)
+
+    def test_unrelated_namespace_handlers_and_event_metadata_remain_opaque(self) -> None:
+        raw = svg(
+            uri(),
+            children=b'<q:handler xmlns:q="urn:metadata" q:event="load" q:onclick="data"/>'
+            b'<q:listener xmlns:q="urn:metadata" event="load" handler="opaque"/>',
+        )
+        document = svg_images.Document(raw)
+        report = svg_images.inventory(document)
+        self.assertEqual(report["activeElementIndices"], [])
+        self.assertTrue(report["imageAssetsEmbedded"])
+        candidate, _ = svg_images.embed_png(document, png(), image_index=0)
+        self.assertEqual(candidate, raw)
+
     def test_other_resource_and_stylesheet_declarations_remain_unresolved(self) -> None:
         raw = svg(uri()).replace(
             b"<?keep untouched?>", b'<?xml-stylesheet href="https://example.test/a.css"?>'
