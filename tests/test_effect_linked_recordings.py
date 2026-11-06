@@ -256,15 +256,10 @@ class LinkedRecordingEffectTests(unittest.TestCase):
                 self.assertEqual(doc, before)
 
     def test_unsupported_linked_variants_scenes_builds_and_default_resolver_refuse(self):
-        for change in ("held", "stitched", "nested", "scenes", "build"):
+        for change in ("held", "stitched", "scenes", "build"):
             doc = native_template()
             if change in ("held", "stitched"):
                 visual(doc)["_type"] = "ScreenIMFile" if change == "held" else "StitchedMedia"
-            elif change == "nested":
-                old = wrapper(doc)
-                project.scene_tracks(doc)[0][0]["medias"] = [
-                    dict(id=20, _type="Group", tracks=[dict(trackIndex=0, medias=[old])])
-                ]
             elif change == "scenes":
                 doc["timeline"]["sceneTrack"]["scenes"].append(dict(csml=dict(tracks=[])))
             else:

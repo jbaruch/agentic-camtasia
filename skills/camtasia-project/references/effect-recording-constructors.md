@@ -102,7 +102,8 @@ owners, source/audio bindings, complete clock checks and unique-token refusals.
 Generic visual-effect construction and lifecycle use this opt-in. Behavior and
 [effect-curve authoring](effect-recording-curves.md#linked-moving-recordings)
 retain their separate owner contracts.
-Further linked held, stitched and nested forms need their own evidence.
+Group-contained moving recordings have the additional evidence below. Further
+linked held, stitched and other containing forms need their own evidence.
 
 Five complete helper/native comparisons cover full and half construction,
 half-intensity editing, bypass and removal. Only thumbnail/command caches and
@@ -145,3 +146,56 @@ bundled AV hashes remain unchanged. Nine snapshots pass the existing exact-build
 profile and native hazard checks. The 43 raw errors are the known timeline
 metadata and wrapper Sepia-enum omissions; no new correction is needed.
 Completed comparison projects, media, exports and measurements are disposable.
+
+## Group-contained linked moving recordings
+
+The same Mac 2026.2.4 build saves an existing linked moving recording inside a
+native Group, including a second enclosing Group. Sepia still belongs to the
+recording wrapper/video pair, with the same token, scalar intensity, reset
+companion and bypass/removal payloads as the root form. The containing Groups
+remain independent owners. The helper's `constructor_owners` opt-in owns this
+extension; behavior, matte and effect-curve authoring retain separate scopes.
+No Group, recording or freeze constructor is supplied.
+
+The native outer Group starts at timeline second one, lasts four seconds and
+uses local media bounds zero–four seconds with scalar one. The recording inside
+starts at Group-local zero and retains source in-point `1411200000`, duration
+`5644800000` and inverse speed `"1/2"`. Native second-level grouping adds another
+Group without changing the recording's clock. A native Custom Sepia interval
+saves source bounds `1411200000`–`2822400000`, duration `1411200000`, on both
+effect mirrors. Its one-second visible ramp starts at the Group's visible
+beginning. Copying the complete template retains these child-source ticks;
+ancestor placement is preserved, with no Group retiming or curve authoring.
+
+Five full helper/native lifecycle comparisons cover construction, editing with
+the captured reset companion, half-template copying, bypass and removal. As on
+the root owner, a first native intensity edit adds the reset value; the helper
+preserves or copies it without inventing an absent default. Whole-document
+comparisons exclude thumbnail/command caches and the native Group-open and
+track-height/lock UI initialization. Audio and source-bin payloads match.
+
+Fourteen six-second cells compare native/helper half intensity, full editing,
+bypass, removal and complete timed-template copies in one and two Groups, plus
+independent bare-Group and background-only controls. Two exports in the same
+editor process, separated by close/reopen/save, repeat all 2,520 decoded RGB
+frames and complete stereo PCM exactly. Inspected contact sheets contain 126
+phase frames; 81 paired samples differ by at most 0.846 mean RGB byte levels per
+channel. Separate encoded cells are not a bitwise-equivalence claim.
+
+Color projection against independent full/bare controls measures approximately
+0.51 for half intensity and at the timed ramp's midpoint. Bypass/removal restore
+the original color. One hundred forty channel windows preserve the 440 Hz
+background tone; the 78 recording-active windows retain 660 Hz within 0.2% of
+the bare-Group amplitude. Outside the Group interval and in background-only
+controls, measured 660 Hz amplitude stays below 0.00007 on normalized PCM.
+The 84-second output is 640×360 H.264 at 30 fps, stereo 44.1 kHz AAC.
+
+The first save remaps 96 IDs, closes eight Group-open UI flags, reconstructs two
+missing visual intervals from copied effects and refreshes the duration label.
+Every other field matches, including ancestor geometry/clocks, recording/audio
+payloads and source processing. The second save is byte-identical. Original
+baseline/source and bundled AV hashes remain unchanged. Eleven snapshots pass
+the existing exact-build profile and native hazard checks; 47 raw errors are
+the known timeline-metadata and wrapper Sepia-enum omissions. No new schema
+correction is needed. Completed disposable artifacts are removed after these
+findings and tests are incorporated.

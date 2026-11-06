@@ -342,7 +342,9 @@ build, owner, parameter, reset and preservation contracts. Read the relevant
 [native effect contract](advanced-features.md) before selecting a template.
 [Recording-owner constructors](effect-recording-constructors.md) record native
 construction, lifecycle, reset companions, complete frozen-effect copying and
-root linked moving recordings with preserved recorded audio.
+root and Group-contained linked moving recordings with preserved recorded audio.
+Construction/lifecycle preserve Group ancestors and complete child-source
+payloads; Group retiming and the other feature helpers retain separate contracts.
 
 ```bash
 python3 -B "{camtasia_skill_root}/scripts/effects.py" inspect "<template-project>"
