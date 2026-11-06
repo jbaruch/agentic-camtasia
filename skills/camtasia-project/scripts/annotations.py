@@ -29,6 +29,17 @@ overlapping requests for the same property refuse. Whole-text rich edits in v2
 retain other properties' partitions. Changed text still requires uniform runs;
 an identical text value preserves mixed styles. Animated/partial/unfamiliar
 maps remain refused. Native font resolution and text fitting need output checks.
+Spec schema_version 3 additionally accepts text_edits. Each edit has original
+Unicode code-point start/end offsets, exact expected text, replacement text,
+and style_from for nonempty replacements. style_from selects an original
+character's complete per-property payload, not a byte offset or a caret guess.
+Nonoverlapping edits run in original-coordinate order; insertions at a shared
+boundary precede the replacement there. Repeated insertions at one point refuse.
+Whole text and text_edits are mutually exclusive. rich/rich_ranges run afterward
+against the resulting text. A fully deleted annotation retains its static frame
+with native null value. Inserting into a saved empty null frame requires explicit
+text_style, with EMPTY_STYLE_REQUIRED and optional kerning; no font defaults or
+cached typing styles are inferred. Text edits require static native rich data.
 Declared font names do not establish physical font availability or glyph coverage.
 No proprietary presets, SVGs or fonts are distributed by this helper.
 
@@ -76,6 +87,7 @@ RICH_TYPES = {
     "fgColor": "color",
     "kerning": "double",
 }
+EMPTY_STYLE_REQUIRED = frozenset(RICH_TYPES) - {"kerning"}
 ENUMS = {
     "horizontal-alignment": {"left", "center", "right"},
     "vertical-alignment": {"top", "center", "bottom"},
@@ -132,7 +144,7 @@ def target(doc: dict[str, Any], clip_id: int) -> dict[str, Any]:
     return clip
 
 
-def static_runs(definition: dict[str, Any]) -> list[dict[str, Any]]:
+def static_runs(definition: dict[str, Any], *, empty_null: bool = False) -> list[dict[str, Any]]:
     attributes = definition.get("textAttributes")
     if attributes is None:
         return []
@@ -151,6 +163,8 @@ def static_runs(definition: dict[str, Any]) -> list[dict[str, Any]]:
         raise ValueError("inspect the native annotation text string")
     size = len(text.encode("utf-8"))
     runs = frame.get("value")
+    if empty_null and text == "" and "value" in frame and runs is None:
+        return []
     if not isinstance(runs, list) or not runs:
         raise ValueError("capture nonempty uniform native rich properties")
     boundaries = {0}
@@ -204,6 +218,154 @@ def uniform_runs(definition: dict[str, Any]) -> list[dict[str, Any]]:
     return runs
 
 
+def coalesce_rich_runs(runs: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Merge adjacent equal property payloads without discarding opaque fields."""
+    merged: list[dict[str, Any]] = []
+    for run in sorted(runs, key=lambda r: r["rangeStart"]):
+        payload = {k: v for k, v in run.items() if k not in {"rangeStart", "rangeEnd"}}
+        prior = (
+            {k: v for k, v in merged[-1].items() if k not in {"rangeStart", "rangeEnd"}}
+            if merged
+            else None
+        )
+        if merged and merged[-1]["rangeEnd"] == run["rangeStart"] and payload == prior:
+            merged[-1]["rangeEnd"] = run["rangeEnd"]
+        else:
+            merged.append(copy.deepcopy(run))
+    return merged
+
+
+def edit_text(definition: dict[str, Any], edits: Any, text_style: Any = None) -> None:
+    old = definition["text"]
+    runs: list[dict[str, Any]] = static_runs(definition, empty_null=True)
+    attributes = definition.get("textAttributes")
+    if not isinstance(attributes, dict) or (not runs and old):
+        raise ValueError(
+            "capture static native rich data or a saved empty null text frame before text_edits"
+        )
+    frame = attributes["keyframes"][0]
+    if text_style is not None:
+        if (
+            runs
+            or old
+            or not isinstance(text_style, dict)
+            or not EMPTY_STYLE_REQUIRED <= text_style.keys()
+            or text_style.keys() - RICH_TYPES.keys()
+        ):
+            raise ValueError(
+                "use text_style only for a saved empty null frame; supply its complete required native properties"
+            )
+        runs = [
+            dict(
+                name=name,
+                valueType=RICH_TYPES[name],
+                value=rich_value(name, value),
+                rangeStart=0,
+                rangeEnd=0,
+            )
+            for name, value in text_style.items()
+        ]
+    if not isinstance(edits, list) or not edits:
+        raise ValueError(
+            "supply a nonempty text_edits list with original start/end, expected and text"
+        )
+    ordered = []
+    for edit in edits:
+        if (
+            not isinstance(edit, dict)
+            or not {"start", "end", "expected", "text"} <= edit.keys()
+            or edit.keys() - {"start", "end", "expected", "text", "style_from"}
+            or type(edit["start"]) is not int
+            or type(edit["end"]) is not int
+            or not 0 <= edit["start"] <= edit["end"] <= len(old)
+            or not isinstance(edit["expected"], str)
+            or edit["expected"] != old[edit["start"] : edit["end"]]
+            or not isinstance(edit["text"], str)
+            or "\x00" in edit["text"]
+        ):
+            raise ValueError(
+                "use original code-point bounds and matching expected text; replacement text must omit NUL"
+            )
+        if edit["text"] or "style_from" in edit:
+            anchor = edit.get("style_from")
+            if type(anchor) is not int or not (0 <= anchor < len(old) or anchor == 0 == len(old)):
+                raise ValueError(
+                    "select an original style_from character, or zero for explicitly styled empty text"
+                )
+        if edit["text"] and not runs:
+            raise ValueError(
+                "supply explicit text_style before inserting into a saved empty null frame"
+            )
+        ordered.append(edit)
+    ordered.sort(key=lambda e: (e["start"], e["end"]))
+    for before, after in zip(ordered, ordered[1:]):
+        if (
+            before["end"] > after["start"]
+            or before["start"] == before["end"] == after["start"] == after["end"]
+        ):
+            raise ValueError(
+                "use nonoverlapping text_edits and one insertion per original boundary"
+            )
+    offsets = [0]
+    for char in old:
+        offsets.append(offsets[-1] + len(char.encode("utf-8")))
+    # Each piece maps an unchanged source slice or an explicitly anchored insertion.
+    pieces: list[tuple[int, int, int, int | None, int]] = []
+    chunks = []
+    cursor = output = 0
+    for edit in [*ordered, dict(start=len(old), end=len(old), text="")]:
+        start, end, text = edit["start"], edit["end"], edit["text"]
+        if cursor < start:
+            chunks.append(old[cursor:start])
+            pieces.append((offsets[cursor], offsets[start], output, None, 0))
+            output += offsets[start] - offsets[cursor]
+        if text:
+            size = len(text.encode("utf-8"))
+            chunks.append(text)
+            pieces.append((0, size, output, edit["style_from"], size))
+            output += size
+        cursor = end
+    new_text = "".join(chunks)
+    if not new_text:
+        definition["text"] = ""
+        frame["value"] = None
+        return
+    by_name: dict[str, list[dict[str, Any]]] = {}
+    for run in runs:
+        by_name.setdefault(run["name"], []).append(run)
+    result = []
+    for candidates in by_name.values():
+        fragments = []
+        for a, b, destination, anchor, inserted_size in pieces:
+            for run in candidates:
+                if anchor is None:
+                    left, right = max(a, run["rangeStart"]), min(b, run["rangeEnd"])
+                    if left >= right:
+                        continue
+                    left, right = destination + left - a, destination + right - a
+                else:
+                    point = offsets[anchor]
+                    if not (
+                        run["rangeStart"] <= point < run["rangeEnd"]
+                        or point == run["rangeStart"] == run["rangeEnd"] == 0
+                        and not old
+                    ):
+                        continue
+                    left, right = destination, destination + inserted_size
+                fragment = copy.deepcopy(run)
+                fragment.update(rangeStart=left, rangeEnd=right)
+                fragments.append(fragment)
+        result.extend(coalesce_rich_runs(fragments))
+
+    def key(run: dict[str, Any]) -> tuple[str, int, int]:
+        return run["name"], run["rangeStart"], run["rangeEnd"]
+
+    frame["value"] = (
+        runs if new_text == old and sorted(result, key=key) == sorted(runs, key=key) else result
+    )
+    definition["text"] = new_text
+
+
 def patch_rich_range(
     runs: list[dict[str, Any]], name: str, start: int, end: int, value: Any
 ) -> None:
@@ -232,18 +394,7 @@ def patch_rich_range(
                 selected.append(piece)
     if not changed:
         return
-    merged: list[dict[str, Any]] = []
-    for run in sorted(selected, key=lambda r: r["rangeStart"]):
-        payload = {k: v for k, v in run.items() if k not in {"rangeStart", "rangeEnd"}}
-        prior = (
-            {k: v for k, v in merged[-1].items() if k not in {"rangeStart", "rangeEnd"}}
-            if merged
-            else None
-        )
-        if merged and merged[-1]["rangeEnd"] == run["rangeStart"] and payload == prior:
-            merged[-1]["rangeEnd"] = run["rangeEnd"]
-        else:
-            merged.append(copy.deepcopy(run))
+    merged = coalesce_rich_runs(selected)
     result = []
     inserted = False
     for run in runs:
@@ -323,24 +474,32 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
     if (
         not isinstance(spec, dict)
         or type(spec.get("schema_version")) is not int
-        or spec["schema_version"] not in {1, 2}
+        or spec["schema_version"] not in {1, 2, 3}
         or spec.keys()
         - (
             {"schema_version", "text", "rich", "definition"}
-            | ({"rich_ranges"} if spec["schema_version"] == 2 else set())
+            | ({"rich_ranges"} if spec["schema_version"] >= 2 else set())
+            | ({"text_edits", "text_style"} if spec["schema_version"] == 3 else set())
         )
         or len(spec) == 1
     ):
+        raise ValueError("use spec schema_version 1, 2 or 3 with supported annotation edits")
+    if "text_style" in spec and "text_edits" not in spec or "text_edits" in spec and "text" in spec:
         raise ValueError(
-            "use spec schema_version 1 or 2 with text, rich, definition or v2 rich_ranges"
+            "use text_style with text_edits only; choose whole text or text_edits, not both"
         )
+    if "text_style" in spec and not isinstance(spec["text_style"], dict):
+        raise ValueError("supply explicit native text_style properties as an object")
     result = copy.deepcopy(doc)
     definition = target(result, clip_id)["def"]
-    if any(key in spec for key in ("text", "rich", "rich_ranges")):
+    if any(key in spec for key in ("text", "rich", "rich_ranges", "text_edits")):
         if definition.get("kind") != "remix" or not isinstance(definition.get("text"), str):
             raise ValueError(
                 "select a remix text annotation; keystrokes and SVG text need separate contracts"
             )
+        if "text_edits" in spec:
+            edit_text(definition, spec["text_edits"], spec.get("text_style"))
+    if any(key in spec for key in ("text", "rich", "rich_ranges")):
         version = spec["schema_version"]
         if "text" in spec and (not isinstance(spec["text"], str) or "\x00" in spec["text"]):
             raise ValueError("use a Unicode text string without NUL")

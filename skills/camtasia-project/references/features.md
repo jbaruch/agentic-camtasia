@@ -82,7 +82,8 @@ chapter-player behavior still require their own output checks.
 
 Standalone annotation construction and existing shape/text edits use
 the [annotation helper](helper.md#annotation-json-editing), including
-[mixed rich ranges](annotation-rich-ranges.md). Preserve complete
+[mixed rich ranges](annotation-rich-ranges.md) and
+[substring edits](annotation-text-edits.md). Preserve complete
 native definitions, opaque fields, style IDs, drawing modifiers and Fade
 references. Read the helper's clean-template, unchanged-clock and UTF-8 limits.
 
