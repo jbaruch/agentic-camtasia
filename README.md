@@ -28,7 +28,7 @@ macOS. Schema auditing uses the optional pinned `jsonschema` dependency.
 | Effects and mattes | Create native-template effects and edit static controls or nonlinear typed curves on ordinary and moving/frozen/stitched recording owners; edit Color LUT resources, ranges and easing; author media/track mattes and linear/exponential/bounce/spring intensity curves on supported owners; stage media and root/Group track controls atomically. |
 | Transitions | Discover installed presets, construct from matching local metadata or same-build saved transitions, edit duration/scalar controls and remove transitions. Preserve endpoint clocks and audio. |
 | Interactivity | Author and edit supported hotspots and quizzes, including existing frozen recordings and stitched parents; surveys, feedback and owner/clock transfers. |
-| Behaviors | Create from native templates; edit phase timing/static controls, bypass and remove while preserving linked media. |
+| Behaviors | Create from native templates; edit phase timing/static controls, bypass and remove on ordinary media and direct moving/frozen recordings or stitched parents. |
 | Annotations | Copy standalone native templates with drawing/Fade companions; edit uniform Unicode rich text and existing static shape/text controls. |
 | Captions | Author plain closed cues, correct recognized source words, map trims/speed/offsets and edit existing dynamic display controls. |
 | Quick Properties | Edit Group bindings and shared text/colors; replace or clear bound native media with preserved fitting, clocks and source ownership. |

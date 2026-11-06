@@ -46,6 +46,7 @@ with sampled visual inspection and appropriate audio or player checks.
 | Transition presets, boundaries and JSON helper | [Transitions](../skills/camtasia-project/references/transitions.md) |
 | Effects, mattes, hotspots and quiz delivery | [Advanced features](../skills/camtasia-project/references/advanced-features.md), [recording effect curves](../skills/camtasia-project/references/effect-recording-curves.md), [recording effect constructors](../skills/camtasia-project/references/effect-recording-constructors.md) |
 | Captions and recognition/display clocks | [Captions](../skills/camtasia-project/references/captions.md) |
+| Behavior templates, phase controls and lifecycle | [Behaviors](../skills/camtasia-project/references/behaviors.md), [recording behaviors](../skills/camtasia-project/references/behavior-recordings.md) |
 | Audio processing and delivery | [Audio](../skills/camtasia-project/references/audio.md) |
 | Recorded pointer, clicks, keystrokes and windows | [Cursors](../skills/camtasia-project/references/cursors.md) |
 | Group bindings, themes and replacements | [Quick Properties](../skills/camtasia-project/references/quick-properties.md), [media properties](../skills/camtasia-project/references/media-quick-properties.md) |

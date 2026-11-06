@@ -25,8 +25,13 @@ Only named supported timing attributes and static scalar parameters are patched.
 Inactive none phases are preserved and cannot be edited into active phases.
 
 NAMES and PHASE_NAMES own the exact observed outer/phase identifiers, separately.
-Edits require Mac 2026.2.4/format 10 and ordinary owners in effects.CONSTRUCTOR_TYPES.
+Edits require Mac 2026.2.4/format 10 and visual owners in OWNERS.
 Mirrored controls/tokens and complete owner clocks must agree; audio is untouched.
+Direct moving/frozen recordings and stitched parents retain cursor data, child
+clocks, virtual holds and source selection. Their complete native behavior
+intervals are copied, not retimed: moving/stitched outer origins can follow
+source in-points, while held recordings use local zero. No recording/freeze/
+stitch constructor or linked recording behavior mirror is inferred.
 A redundant static-double zero-point frame reproduces a 2025 parser hazard;
 this helper also refuses that unsupported shape in a 2026 template, without
 claiming a 2026 crash. No vendor preset, shader, media or resource is copied.
@@ -57,6 +62,10 @@ from typing import Any, NoReturn
 import effects
 import hotspots
 import project
+
+OWNERS = frozenset(
+    {"VMFile", "IMFile", "Callout", "Group", "ScreenVMFile", "ScreenIMFile", "StitchedMedia"}
+)
 
 NAMES = frozenset(
     {
@@ -217,7 +226,7 @@ def targets(
         )
     if token is not None:
         effects.canonical_token(token)
-    owners = effects.constructor_owners(doc, clip_id)
+    owners = effects.constructor_owners(doc, clip_id, visual_types=OWNERS)
     found = [matching(owner, name, token) for owner in owners]
     if len({bool(values) for values in found}) != 1:
         raise ValueError("repair missing linked behavior mirrors before editing")
@@ -268,7 +277,7 @@ def add_behavior(
     if project.number(doc["editRate"]) != project.number(template["editRate"]):
         raise ValueError("select a native template with the destination project edit rate")
     result = copy.deepcopy(doc)
-    destination = effects.constructor_owners(result, clip_id)
+    destination = effects.constructor_owners(result, clip_id, visual_types=OWNERS)
     if len(source) != len(destination) or any(
         a.get("_type") != b.get("_type") for (a, _), b in zip(source, destination)
     ):

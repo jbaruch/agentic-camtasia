@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.20.0 — 2026-11-06
+
+### Added
+
+- Native-template behavior construction, phase timing/static edits, bypass and
+  removal on direct moving recordings, freeze frames and stitched parents.
+  Complete native intervals preserve source in-points, held frames, cursor data,
+  child clocks and captured reset companions without inferred retiming.
+- Native Fade lifecycle comparisons and independent phase/render controls cover
+  one- versus three-second entry timing and persistence across the stitched hold.
+  Linked recording mirrors retain their separate verification requirement.
+
 ## 0.19.0 — 2026-11-06
 
 ### Added
