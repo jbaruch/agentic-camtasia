@@ -220,9 +220,11 @@ Smart Player CC delivery requires its web package and toggle/playback checks.
 ## Annotation JSON editing
 
 Use `skills/camtasia-project/scripts/annotations.py` for construction from a standalone native Callout,
-Unicode text/rich properties, per-range styling, substring edits and existing static shape/text fields.
+Unicode text/rich properties, per-range styling, substring edits, timed rich-style
+steps and existing static shape/text fields.
 Its module docstring, `KINDS`, `NUMBERS`, `ENUMS`, `RICH_TYPES`, `static_runs`,
-`uniform_runs`, `edit_rich_ranges`, `edit_text`, `EMPTY_STYLE_REQUIRED` and
+`uniform_runs`, `edit_rich_ranges`, `edit_text`, `EMPTY_STYLE_REQUIRED`,
+`rich_step_frames`, `rich_source_time`, `set_rich_steps`, `clear_rich_steps` and
 `add_annotation` own the build, selector,
 value and preservation contracts.
 Read [annotation definitions](advanced-features.md#text-callout-presets) and
@@ -283,6 +285,22 @@ Read the helper's original-coordinate, overlap, explicit empty-frame `text_style
 and post-edit range contracts before combining edits. Read the independent
 [native text-edit controls](annotation-text-edits.md), including complete deletion
 and reinsertion after reopening. Default font objects do not establish typing style.
+
+Timed styles use separate commands and their own schema-1 spec:
+
+| Command | Required inputs | Output and side effects |
+| --- | --- | --- |
+| `set-rich-steps PROJECT --clip-id ID --spec SPEC --output CANDIDATE` | Root remix annotation, optional initial rich/range changes, ordered timed steps | Separate candidate; replaces the complete rich-state sequence with cumulative discrete style points. Text, geometry, visual intervals, default fonts and unrelated payload survive. |
+| `clear-rich-steps PROJECT --clip-id ID --at SECONDS --output CANDIDATE` | Timed annotation and visible clip-relative selection time | Separate candidate; retains the complete effective style as one static zero-time frame. Independent movement and intervals survive. |
+
+```json
+{"schema_version":1,"initial":{"rich":{"fontSize":32}},"steps":[{"at":1,"rich":{"fontSize":64}},{"at":2,"rich_ranges":[{"start":2,"end":6,"rich":{"fontWeight":700}}]}]}
+```
+
+The helper contract above owns clock conversion, timing/order, existing-frame
+validation and replacement behavior. These are discrete style changes. Read the
+[native timed-style verification](annotation-rich-ranges.md#timed-rich-style-steps)
+for Auto Animate's static result and the rendered source-clock controls.
 
 Inspection reports declared fonts with `fontFilesVerified: false`. Resolve actual
 fonts and glyph coverage on the rendering host. Staging reports hashes,

@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.36.0 — 2026-11-06
+
+### Added
+
+- Annotation `set-rich-steps` authors cumulative discrete rich-style changes
+  with whole-property or Unicode range edits on root remix text. Exact source
+  clocks preserve trim/speed. `clear-rich-steps` keeps the complete style active
+  at a chosen visible time while retaining text, geometry, intervals and fonts.
+  Existing static text-edit commands continue to refuse timed rich payloads.
+- Native save/readback and an 88-second reopen/export pair verify size, color,
+  bold range, underline, clearing and independent movement. Complete decoded
+  video/audio repeats exactly; 187 sampled frames, 68 paired samples, 88 inspected
+  contact-sheet frames and 132 audio-channel windows retain the contract.
+  Thirteen raw-schema/profile/hazard checks pass without a correction. Native
+  Auto Animate text-size edits remain static; accepted timed rich frames switch
+  discretely at their endpoint rather than interpolating font size.
+
 ## 0.35.0 — 2026-11-06
 
 ### Added

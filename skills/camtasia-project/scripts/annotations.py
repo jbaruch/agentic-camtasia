@@ -41,6 +41,21 @@ with native null value. Inserting into a saved empty null frame requires explici
 text_style, with EMPTY_STYLE_REQUIRED and optional kerning; no font defaults or
 cached typing styles are inferred. Text edits require static native rich data.
 Declared font names do not establish physical font availability or glyph coverage.
+set-rich-steps PROJECT --clip-id ID --spec SPEC --output CANDIDATE replaces
+rich states on a root remix text annotation. Schema 1 has optional initial
+rich/rich_ranges edits and nonempty steps, each with at (positive rational local
+seconds) and rich/rich_ranges. Changes accumulate from the initial complete
+zero-time state. Times increase strictly, remain inside the visible duration
+and map to exact source ticks through mediaStart/inverse speed. The initial
+zero-time fallback remains; later frames are discrete points, not interpolated
+font/color ramps. Native Auto Animate font-size edits remain static. Existing
+point states are explicitly replaced; interval/unknown frames refuse. Existing
+text, geometry/visual intervals, styles, fonts, resets and other payload survive.
+clear-rich-steps PROJECT --clip-id ID --at SECONDS --output CANDIDATE keeps the
+complete state effective at that visible local time as a static zero-time frame.
+Both commands validate complete per-property UTF-8 partitions. General set still
+refuses timed rich text; clear explicitly before changing its text. No text
+content, RTF, nested-owner clock or font-file closure is inferred.
 No proprietary presets, SVGs or fonts are distributed by this helper.
 
 No original, media or editor is written. Exclusive/identical candidate staging
@@ -565,6 +580,118 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
     return result
 
 
+def rich_step_frames(clip: dict[str, Any]) -> list[dict[str, Any]]:
+    """Validate saved discrete rich states without flattening their partitions."""
+    definition = clip["def"]
+    if definition.get("kind") != "remix" or not isinstance(definition.get("text"), str):
+        raise ValueError("select a remix text annotation for timed rich styles")
+    attributes = definition.get("textAttributes")
+    if not isinstance(attributes, dict) or attributes.get("type") != "textAttributeList":
+        raise ValueError("capture native textAttributeList states before timed editing")
+    frames = attributes.get("keyframes")
+    if not isinstance(frames, list) or not frames:
+        raise ValueError("capture a native zero-time initial rich state")
+    previous = -1
+    for frame in frames:
+        if (
+            not isinstance(frame, dict)
+            or type(frame.get("time")) is not int
+            or frame["time"] <= previous
+            or frame.get("endTime") != frame["time"]
+            or type(frame.get("endTime")) is not int
+            or type(frame.get("duration")) is not int
+            or frame["duration"] != 0
+        ):
+            raise ValueError(
+                "use ordered discrete rich point frames; inspect interval/unknown frames"
+            )
+        view = copy.deepcopy(definition)
+        point = copy.deepcopy(frame)
+        point.update(time=0, endTime=0, duration=0)
+        view["textAttributes"]["keyframes"] = [point]
+        static_runs(view)
+        previous = frame["time"]
+    if frames[0]["time"] != 0:
+        raise ValueError("retain the native zero-time initial rich state")
+    return frames
+
+
+def rich_source_time(doc: dict[str, Any], clip_id: int, at: Any) -> int:
+    clip = target(doc, clip_id)
+    path, _ = hotspots.visual_target(doc, clip_id, visual_types=frozenset({"Callout"}))
+    if len(project.scene_tracks(doc)) != 1 or any(
+        path.startswith(parent + "/") for parent, _ in hotspots.clips(doc) if parent != path
+    ):
+        raise ValueError("select a root annotation for the verified timed-rich source clock")
+    rate, scalar = project.number(doc.get("editRate")), project.number(clip.get("scalar"))
+    duration, start = project.number(clip.get("duration")), project.number(clip.get("mediaStart"))
+    point = project.number(at)
+    if rate <= 0 or scalar <= 0 or start < 0 or duration <= 0 or not 0 <= point * rate < duration:
+        raise ValueError(
+            "choose a visible clip-relative time with positive rate, speed and duration"
+        )
+    value = start + point * rate / scalar
+    if value.denominator != 1:
+        raise ValueError("choose a rich style time that maps to exact native project ticks")
+    return int(value)
+
+
+def set_rich_steps(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str, Any]:
+    """Replace discrete style states; each step patches the preceding complete state."""
+    if (
+        not isinstance(spec, dict)
+        or type(spec.get("schema_version")) is not int
+        or spec["schema_version"] != 1
+        or spec.keys() - {"schema_version", "initial", "steps"}
+        or not isinstance(spec.get("steps"), list)
+        or not spec["steps"]
+    ):
+        raise ValueError(
+            "supply rich-step schema_version 1 with nonempty steps and optional initial"
+        )
+    rich_source_time(doc, clip_id, 0)
+    frames = rich_step_frames(target(doc, clip_id))
+    state = copy.deepcopy(doc)
+    target(state, clip_id)["def"]["textAttributes"]["keyframes"] = [copy.deepcopy(frames[0])]
+
+    def apply(changes: Any) -> None:
+        nonlocal state
+        if not isinstance(changes, dict) or not changes or changes.keys() - {"rich", "rich_ranges"}:
+            raise ValueError("supply rich and/or rich_ranges only for each timed style state")
+        state = edit_annotation(state, clip_id, dict(schema_version=2, **changes))
+
+    if "initial" in spec:
+        apply(spec["initial"])
+    compiled = [copy.deepcopy(target(state, clip_id)["def"]["textAttributes"]["keyframes"][0])]
+    previous = project.number(0)
+    for step in spec["steps"]:
+        if not isinstance(step, dict) or "at" not in step:
+            raise ValueError("supply at and rich and/or rich_ranges for each style step")
+        point = project.number(step["at"])
+        if point <= previous:
+            raise ValueError("supply strictly increasing positive clip-relative style-step times")
+        time = rich_source_time(doc, clip_id, step["at"])
+        apply({k: v for k, v in step.items() if k != "at"})
+        value = target(state, clip_id)["def"]["textAttributes"]["keyframes"][0]["value"]
+        compiled.append(dict(time=time, endTime=time, duration=0, value=copy.deepcopy(value)))
+        previous = point
+    result = copy.deepcopy(doc)
+    target(result, clip_id)["def"]["textAttributes"]["keyframes"] = compiled
+    return result
+
+
+def clear_rich_steps(doc: dict[str, Any], clip_id: int, at: Any) -> dict[str, Any]:
+    """Keep the complete effective rich state at a visible local time as static text."""
+    time = rich_source_time(doc, clip_id, at)
+    frames = rich_step_frames(target(doc, clip_id))
+    selected = next(frame for frame in reversed(frames) if frame["time"] <= time)
+    result = copy.deepcopy(doc)
+    initial = copy.deepcopy(frames[0])
+    initial["value"] = copy.deepcopy(selected["value"])
+    target(result, clip_id)["def"]["textAttributes"]["keyframes"] = [initial]
+    return result
+
+
 def add_annotation(
     doc: dict[str, Any], track: str, new_id: int, template: dict[str, Any], template_id: int
 ) -> dict[str, Any]:
@@ -684,14 +811,17 @@ def inventory(doc: dict[str, Any]) -> list[dict[str, Any]]:
 def main(argv: list[str] | None = None) -> int:
     parser = JsonArgumentParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    for name in ("inspect", "add", "set"):
+    for name in ("inspect", "add", "set", "set-rich-steps", "clear-rich-steps"):
         command = commands.add_parser(name)
         command.add_argument("project", type=Path)
         if name != "inspect":
             command.add_argument("--output", type=Path, required=True)
-        if name == "set":
+        if name in {"set", "set-rich-steps", "clear-rich-steps"}:
             command.add_argument("--clip-id", type=int, required=True)
-            command.add_argument("--spec", type=Path, required=True)
+            if name == "clear-rich-steps":
+                command.add_argument("--at", required=True)
+            else:
+                command.add_argument("--spec", type=Path, required=True)
         if name == "add":
             command.add_argument("--track", required=True)
             command.add_argument("--new-clip-id", type=int, required=True)
@@ -709,17 +839,20 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "inspect":
             report["annotations"] = inventory(doc)
         else:
-            candidate = (
-                edit_annotation(doc, args.clip_id, project.load(args.spec)[0])
-                if args.command == "set"
-                else add_annotation(
+            if args.command == "set":
+                candidate = edit_annotation(doc, args.clip_id, project.load(args.spec)[0])
+            elif args.command == "set-rich-steps":
+                candidate = set_rich_steps(doc, args.clip_id, project.load(args.spec)[0])
+            elif args.command == "clear-rich-steps":
+                candidate = clear_rich_steps(doc, args.clip_id, args.at)
+            else:
+                candidate = add_annotation(
                     doc,
                     args.track,
                     args.new_clip_id,
                     project.load(args.template_project)[0],
                     args.template_clip_id,
                 )
-            )
             report.update(
                 annotations=inventory(candidate),
                 output=str(args.output),
