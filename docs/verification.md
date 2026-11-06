@@ -50,7 +50,7 @@ with sampled visual inspection and appropriate audio or player checks.
 | Recorded pointer, clicks, keystrokes and windows | [Cursors](../skills/camtasia-project/references/cursors.md) |
 | Group bindings, themes and replacements | [Quick Properties](../skills/camtasia-project/references/quick-properties.md), [media properties](../skills/camtasia-project/references/media-quick-properties.md) |
 | Library resources, identity and archive reuse | [Library](../skills/camtasia-project/references/library.md) |
-| Embedded/external animation resources | [Lottie](../skills/camtasia-project/references/lottie.md), [media](../skills/camtasia-project/references/media.md) |
+| Embedded/external animation resources | [Lottie](../skills/camtasia-project/references/lottie.md), [image embedding](../skills/camtasia-project/references/lottie-images.md), [media](../skills/camtasia-project/references/media.md) |
 | Current builds and output formats | [Mac versions](../skills/camtasia-project/references/mac-versions.md), [delivery](../skills/camtasia-project/references/delivery.md) |
 
 Use the [native verification procedure](../skills/camtasia-project/references/native-verification.md)

@@ -144,6 +144,10 @@ native verification media are not part of the distributed plugin.
 
 ## Internal images, glyphs and project relocation
 
+For the executable image inventory and explicit PNG embedding workflow, read
+[Lottie images](lottie-images.md). Its image-only gate does not establish font
+or complete render-resource closure.
+
 Twelve additional four-second animations use the accepted same-build source
 and `VMFile` constructor. They are template-derived sources, rather than twelve
 new UI-import constructors. All retain 640×360 geometry, `fr: 30`, frames

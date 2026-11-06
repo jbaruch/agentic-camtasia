@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.16.0 — 2026-11-06
+
+### Added
+
+- Lottie image inventory and explicit PNG embedding into a separate candidate.
+  Image identities, physical dimensions and byte hashes remain distinct from
+  Camtasia source IDs and clocks. Stored resource paths are never followed;
+  original inputs, geometry, layers, colors, fonts and unfamiliar data survive.
+- Native present/relocated save-and-render pairs compare the helper-produced
+  image with an absolute-path image and direct PNG. Embedded images survive
+  with the original location absent; linked images disappear. Font/glyph
+  coverage, other render resources and general project packing remain outside
+  this image-only feature.
+
 ## 0.15.0 — 2026-11-05
 
 ### Added

@@ -21,6 +21,10 @@ source is still external to a portable bundle. Source-file containment does not
 resolve installation assets or certify archive/symlink transport. Native standalone
 save, close/reopen, and rendering must establish the delivered project's behavior.
 
+For internal Lottie image inventory and explicitly selected PNG embedding, use
+[Lottie images](lottie-images.md). Its image-only report leaves fonts, glyph
+coverage and other render resources unresolved.
+
 ## Standalone bundle verification
 
 A copied two-source native format-9 bundle was converted by Mac 2026.2.4 using
