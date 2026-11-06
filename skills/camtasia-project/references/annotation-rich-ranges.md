@@ -126,3 +126,60 @@ Reopened saves change only the thumbnail. Original baseline and bundled AV
 hashes remain unchanged. Thirteen snapshots pass raw schema, exact-build profile
 and native hazard checks without a correction. Completed disposable projects,
 movies, screenshots and measurements are deleted after incorporation.
+
+## Text layout switches
+
+Locally observed in Camtasia Mac 2026.2.4 (2026.132), format 10. Annotation
+`set` definition edits support the native automatic-sizing choice and ligature
+flag. Layout-only edits can retain timed rich states; they do not run the static text-replacement
+path. Other text content edits retain their existing static-state requirement.
+
+Native **Auto-resize text** stores `resize-behavior: "resizeText"` when enabled
+and `"resizeCallout"` when disabled. Native **Font Ligatures** stores numeric
+`enable-ligatures: 1.0` or `0.0`. Use the native numeric flag in definition specs,
+not a JSON boolean. First native edits add owner reset companions
+`default-callout-resize-behavior: "resizeText"` and
+`default-callout-enable-ligatures: "1"`. The helper preserves existing reset
+metadata without inventing missing defaults.
+
+A 320×90 Georgia text box contains `office ffi fi fl waffle`, with rich fontSize
+64. Automatic sizing displays 39 in the native property panel while the saved
+rich value remains 64. Disabling automatic sizing displays 64 and clips text to
+the retained box; it does not guarantee that the complete text fits. Restoring
+automatic sizing returns the smaller fitted text. Native character-spacing
+controls retain their own rich values; layout switches change neither those
+values nor text/range partitions, default fonts or geometry.
+
+Six whole-document native/helper comparisons cover disabling/restoring sizing,
+ligatures off/on and a combined edit. Only thumbnail/command caches and the two
+observed first-edit reset additions are normalized. A 128-second sequence pairs
+those controls and adds a seventh pair retaining discrete size/color states and
+independent translation. Timed helper readback shows orange size 32; the two
+static helper readbacks show size 64 with both switches off, then fitted size 39
+with both on. The timed-rich property panel does not expose the automatic-sizing
+checkbox in this capture; its saved choice and output remain under comparison.
+
+Four inspected contact sheets contain 128 unique phase frames; six full-size
+views verify clipping, fitted text, spacing and timed colors. Across 192 sampled
+frames, 84 native/reference-helper comparisons differ by at most 1.034 mean RGB
+byte levels per channel. The fixed unspaced control occupies a 283×90 bright-pixel bounding box;
+the automatic control occupies 205×74. Native and helper bounds agree. The
+Georgia ligature variants retain the same visible layout in these controls;
+this establishes native flag parity, not a visible glyph-substitution result
+for arbitrary fonts. Verify the requested font, text and fitting on its host.
+
+Two same-process exports separated by saved close/reopen are 128-second
+640×360 H.264 at 30 fps with stereo 44.1 kHz AAC. Complete decoded PCM is
+identical. RGB is not bitwise-identical: 3830 of 3840 frames have nonzero pixel
+differences, with maximum per-frame mean difference 0.848 byte levels. All
+192 audio-channel windows retain the 440 Hz background tone with RMS amplitude
+0.09559–0.09654. The paired layout states and independent movement remain visible
+across this measured repeat-video variation.
+
+Strict whole-document sequence comparison permits only 63 remapped clip IDs,
+duration text and thumbnail. Rich frames/partitions, all definition fields,
+geometry, intervals, reset metadata, sources and audio otherwise remain equal.
+Reopened saves change only the thumbnail. Source and original baseline hashes
+remain unchanged. Twenty-three snapshots pass raw schema, exact-build profile
+and native hazard checks without a correction. Completed disposable projects,
+movies, screenshots and measurements are deleted after incorporation.

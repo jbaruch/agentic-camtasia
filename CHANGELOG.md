@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.37.0 — 2026-11-06
+
+### Added
+
+- Annotation definition edits accept native `resize-behavior` choices and the
+  numeric `enable-ligatures` flag while preserving rich styles, including timed
+  states, geometry and reset metadata. Native fitted font size remains distinct
+  from its saved rich value; fixed sizing can clip text to retained bounds.
+- Six whole-document native comparisons and a 128-second save/reopen sequence
+  verify native/helper parity and retained timed styles/movement. Across 192
+  measured phase frames, 84 paired samples, 128 inspected contact-sheet frames
+  and 192 audio-channel windows, controls retain their expected states. Repeat
+  PCM matches; repeat RGB has measured differences up to 0.848 mean byte levels.
+  The Georgia controls establish ligature flag parity without demonstrating a
+  visible glyph substitution. Twenty-three schema/profile/hazard checks pass
+  without a new correction.
+
 ## 0.36.0 — 2026-11-06
 
 ### Added

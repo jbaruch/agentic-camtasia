@@ -14,7 +14,11 @@ An identical existing result is a no-op; occupied lanes and reused IDs refuse.
 
 set PROJECT --clip-id ID --spec SPEC --output CANDIDATE accepts schema_version 1
 with text, rich (existing property names), and/or definition (existing supported
-static fields). Shape/style replacement is not a constructor. Uniform static
+static fields). resize-behavior accepts the native resizeText (automatic text
+sizing) or resizeCallout choice; enable-ligatures accepts native numeric 0/1.
+Both require the existing field. They preserve rich values/ranges, default fonts,
+geometry and reset metadata. Automatic fitting can display a smaller size while
+the saved rich fontSize remains unchanged. Shape/style replacement is not a constructor. Uniform static
 rich runs use UTF-8 byte offsets; text replacement updates every range end.
 In version 1, mixed, partial, duplicate, animated and unfamiliar runs refuse rather than
 guessing a new styling map. Rich values retain native valueType and signed codes;
@@ -107,6 +111,7 @@ ENUMS = {
     "horizontal-alignment": {"left", "center", "right"},
     "vertical-alignment": {"top", "center", "bottom"},
     "stroke-style": {"solid", "dot", "dash"},
+    "resize-behavior": {"resizeText", "resizeCallout"},
     "shape-anchor": {"none", "arrow", "circle", "diamond"},
     "shape-tail": {"none", "arrow", "circle", "diamond"},
 }
@@ -121,6 +126,7 @@ NUMBERS = frozenset(
         "tail-x",
         "tail-y",
         "numCtrlPts",
+        "enable-ligatures",
         "ctrlPt0-x",
         "ctrlPt0-y",
         "ctrlPt1-x",
@@ -574,6 +580,7 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
                 or ("color-" in name and not 0 <= number <= 1)
                 or (name == "line-spacing" and not 0 <= number <= 3)
                 or (name == "numCtrlPts" and number != 2)
+                or (name == "enable-ligatures" and number not in {0, 1})
             ):
                 raise ValueError("use the observed numeric range for " + name)
             effects.patch_parameter(definition, name, value)

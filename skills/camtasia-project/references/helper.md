@@ -259,6 +259,18 @@ opaque style IDs and default fonts survive. Shape/style identifiers are not
 editable substitutes for full preset definitions. Numeric definition edits
 retain static typed descriptors and refuse animated parameters.
 
+Definition edits also expose the existing native text-layout switches:
+
+```json
+{"schema_version":1,"definition":{"resize-behavior":"resizeCallout","enable-ligatures":0}}
+```
+
+The helper contract above owns sizing choices and numeric flag values. Layout
+edits preserve static or timed rich states and independent geometry. Read the
+[native layout controls](annotation-rich-ranges.md#text-layout-switches) for
+fitted versus saved font size, retained-box clipping and the observed ligature
+limit. No font dependency or automatic full-text fitting guarantee is inferred.
+
 Version 2 adds `rich_ranges`, with `start`, exclusive `end` and `rich` changes
 for each selected range. Offsets count Unicode code points in the resulting
 text. For example, styling `café` in `Alpha café`:
