@@ -1,11 +1,11 @@
 # Mac feature coverage
 
-Feature scope is frozen for v0.1 at the user's request. This summary distinguishes
-reusable JSON editing from broader native feature knowledge. Missing capabilities
-are [post-release issues](https://github.com/jbaruch/agentic-camtasia/issues);
-they are added when a real project needs them.
+This summary distinguishes reusable JSON editing from broader native feature
+knowledge. Version 0.1 has shipped. Continued work follows the
+[release plan](release-plan.md); the operator's feature-complete 1.0 requirement
+includes all remaining gaps in the [completion plan](feature-completion-plan.md).
 
-## Initial package
+## Current coverage
 
 | Family | Reusable editing or documented native support |
 | --- | --- |
@@ -13,7 +13,7 @@ they are added when a real project needs them.
 | Animation | Visual intervals, easing, removal and empty markers; explicit Motion Path points, orientation, bypass and removal on verified visual owners, including frozen/stitched forms. |
 | Transitions | Root-track Fade construction and existing scalar/duration/removal editing. Native references cover all 179 current palette presets, one/shared edges, short clips, source skips, gaps, retiming and preroll. |
 | Effects and mattes | Native-template visual effect creation, static edits and typed effect curves on ordinary and moving/frozen/stitched recording owners; LUT resource/range/easing controls; supported track/media mattes including moving/frozen recordings and stitched parents, modes, linear/nonlinear intensity curves and lifecycle. Native references cover current visual, LUT and gesture families. |
-| Annotations and behaviors | Native specimens for all 134 annotation entries and thirteen behaviors. Annotation template construction preserves clocks, drawing modifiers and one-sided Fades; root or Group-contained Sketch Motion drawing-time/thickness/RGB controls include trimmed/speed-adjusted clips; existing shape controls, Unicode text, static mixed rich-style ranges and styled substring edits are editable. Behavior template construction, phase timing/static edits, bypass and removal include direct moving/frozen recordings and stitched parents; [recording controls](../skills/camtasia-project/references/behavior-recordings.md) retain native clock origins. |
+| Annotations and behaviors | Native specimens for all 134 annotation entries and thirteen behaviors. Annotation template construction preserves clocks, drawing modifiers and one-sided Fades; root or Group-contained Sketch Motion drawing-time/thickness/RGB controls include trimmed/speed-adjusted clips; existing shape controls, text wrapping/outline placement, Unicode text, static mixed rich-style ranges and styled substring edits are editable. Behavior template construction, phase timing/static edits, bypass and removal include direct moving/frozen recordings and stitched parents; [recording controls](../skills/camtasia-project/references/behavior-recordings.md) retain native clock origins. |
 | Captions and audio | Closed cue authoring and text corrections, recognized-word edits, root clock mapping/retiming and existing dynamic display controls. Native interchange and current audio processing, alignment, fades, ducking and outputs remain separately documented. |
 | Cursors and input | Explicit generated cursor point editing on root ordinary/linked video and complete path overrides/restoration on standalone moving recordings, including trimmed 2× clocks and static holds. Explicit left/right authored clicks support generated paths and standalone recordings. Smoothing, click presets, keystroke styles and Window Spotlight retain separate source clocks and output controls. |
 | Hotspots | JSON action editing and observed single-scene nested/retimed marker clocks, with actual browser click/seek tests and the Group reload-drift guard. |

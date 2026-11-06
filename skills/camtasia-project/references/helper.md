@@ -223,7 +223,7 @@ Use `skills/camtasia-project/scripts/annotations.py` for construction from a sta
 Unicode text/rich properties, per-range styling, substring edits, timed rich-style
 steps and existing static shape/text/region fields.
 Its module docstring, `KINDS`, `NUMBERS`, `ENUMS`, `REGION_PARAMETERS`,
-`KEYSTROKE_PARAMETERS`, `SKETCH_PARAMETERS`, `sketch_target`, `RICH_TYPES`, `static_runs`,
+`KEYSTROKE_PARAMETERS`, `TEXT_LAYOUT_PARAMETERS`, `SKETCH_PARAMETERS`, `sketch_target`, `RICH_TYPES`, `static_runs`,
 `uniform_runs`, `edit_rich_ranges`, `edit_text`, `EMPTY_STYLE_REQUIRED`,
 `rich_step_frames`, `rich_source_time`, `set_rich_steps`, `clear_rich_steps` and
 `add_annotation` own the build, selector,
@@ -271,6 +271,19 @@ edits preserve static or timed rich states and independent geometry. Read the
 [native layout controls](annotation-rich-ranges.md#text-layout-switches) for
 fitted versus saved font size, retained-box clipping and the observed ligature
 limit. No font dependency or automatic full-text fitting guarantee is inferred.
+
+Existing root or Group-contained remix text annotations also accept wrapping
+and outline placement:
+
+```json
+{"schema_version":1,"definition":{"word-wrap":0,"text-stroke-alignment":2}}
+```
+
+The helper contract above owns choices, numeric flag types, owner restrictions
+and static-parameter refusals. Read [wrapping and outline placement](annotation-rich-ranges.md#wrapping-and-outline-placement)
+for resource-backed fields, retained hard newlines, fixed-box clipping, stroke
+coverage and timed-rich/Group output comparisons. Layout edits preserve text,
+rich states, fonts, geometry and ancestor payload.
 
 Existing region annotations also accept static definition edits, for example:
 

@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.43.0 — 2026-11-06
+
+### Added
+
+- Existing remix text definitions accept native wrapping flags and center/inside/
+  outside outline placement on root or Group-contained Callouts. Static typed
+  descriptors, complete text/rich states, fonts, geometry, bindings and all
+  ancestor payload survive. Unknown containers, missing fields, boolean flags
+  and animated/default-less parameter flattening remain refused. Wrapping off
+  preserves hard newlines and can clip long fixed-box lines; thick center/inside
+  outlines can consume glyph fill.
+- Sixteen independently prepared candidates and two decoded-identical 136-second
+  native exports verify all placements, wrapped/clipped lines, explicit newlines,
+  Groups and retained timed rich font changes. All 136 phase frames, 56 paired
+  root/Group samples, twelve full-size views and 272 audio-channel windows retain
+  the exercised behavior. Independent glyph masks establish outline placement;
+  wrapped size 44→32 text reflows from three lines to two. Thirty-eight raw/
+  profile/hazard checks pass without a correction.
+
 ## 0.42.0 — 2026-11-06
 
 ### Added

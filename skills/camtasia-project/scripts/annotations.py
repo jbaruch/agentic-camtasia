@@ -27,6 +27,14 @@ percentages or a promise of sufficient obscuration. Layout controls preserve ric
 values/ranges, default fonts, geometry and reset metadata. Automatic fitting can display a smaller size while
 the saved rich fontSize remains unchanged. Shape/style replacement is not a constructor. Uniform static
 rich runs use UTF-8 byte offsets; text replacement updates every range end.
+TEXT_LAYOUT_PARAMETERS admits existing remix text word-wrap (numeric 0/1) and
+text-stroke-alignment (0 center, 1 inside, 2 outside) on root Callouts or beneath
+Group-only clip ancestors. No UI aliases, missing-field insertion, boolean flags,
+automatic fitting or bounds changes are inferred. Hard newlines survive wrapping
+off; long fixed-box lines can clip. Thick center/inside strokes can consume the
+glyph fill. Static typed descriptors survive; animated/default-less fields
+refuse. Rich frames, including timed states, and every ancestor's geometry,
+bindings, clocks, metadata, effects and audio remain unchanged.
 KEYSTROKE_PARAMETERS admits existing root or Group-contained MacKey keys,
 keyStyle, showKeyBackg and showKeyHint. All clip ancestors must be Groups;
 other containers refuse. Selected child edits preserve every ancestor's bounds,
@@ -151,6 +159,7 @@ REGION_PARAMETERS = {
     ),
 }
 KEYSTROKE_PARAMETERS = frozenset({"keys", "keyStyle", "showKeyBackg", "showKeyHint"})
+TEXT_LAYOUT_PARAMETERS = frozenset({"word-wrap", "text-stroke-alignment"})
 SKETCH_PARAMETERS = frozenset(
     {"borderWidth", "borderColorRed", "borderColorGreen", "borderColorBlue"}
 )
@@ -667,19 +676,24 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
                 | REGION_PARAMETERS.get(definition["kind"], frozenset())
                 | (KEYSTROKE_PARAMETERS if definition["kind"] == "MacKey" else frozenset())
                 | (SKETCH_PARAMETERS if definition["kind"] == "TypeWinSVG" else frozenset())
+                | (TEXT_LAYOUT_PARAMETERS if definition["kind"] == "remix" else frozenset())
             )
         ):
             raise ValueError("name supported existing static annotation definition fields")
         if changes.keys() & SKETCH_PARAMETERS:
             sketch_target(result, clip_id)
-        if changes.keys() & KEYSTROKE_PARAMETERS:
+        if changes.keys() & TEXT_LAYOUT_PARAMETERS and not isinstance(definition.get("text"), str):
+            raise ValueError("select a remix text annotation for wrapping and outline placement")
+        if changes.keys() & (KEYSTROKE_PARAMETERS | TEXT_LAYOUT_PARAMETERS):
             path, _ = hotspots.visual_target(result, clip_id, visual_types=frozenset({"Callout"}))
             if any(
                 node.get("_type") != "Group"
                 for parent, node in hotspots.clips(result)
                 if path.startswith(parent + "/")
             ):
-                raise ValueError("select a root MacKey or a child with Group-only clip ancestors")
+                raise ValueError(
+                    "select a root annotation or a child with Group-only clip ancestors"
+                )
         for name, value in changes.items():
             if name not in definition:
                 raise ValueError("capture the native field before editing: " + name)
@@ -710,6 +724,8 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
                 or (name == "line-spacing" and not 0 <= number <= 3)
                 or (name == "numCtrlPts" and number != 2)
                 or (name == "enable-ligatures" and number not in {0, 1})
+                or (name == "word-wrap" and number not in {0, 1})
+                or (name == "text-stroke-alignment" and number not in {0, 1, 2})
                 or (name in REGION_PARAMETERS.get(definition["kind"], ()) and not 0 <= number <= 1)
                 or (name in {"blur-invert", "fill-invert"} and number not in {0, 1})
                 or (name == "keyStyle" and number not in {0, 1, 2, 3, 4})

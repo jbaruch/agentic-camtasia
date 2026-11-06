@@ -183,3 +183,61 @@ Reopened saves change only the thumbnail. Source and original baseline hashes
 remain unchanged. Twenty-three snapshots pass raw schema, exact-build profile
 and native hazard checks without a correction. Completed disposable projects,
 movies, screenshots and measurements are deleted after incorporation.
+
+## Wrapping and outline placement
+
+Mac 2026.2.4 (2026.132), format 10, installed text presets carry numeric
+`word-wrap` and `text-stroke-alignment` fields. The exercised native text panel
+has no explicit switch for either. Their saved-definition controls were tested
+through native save/reopen and composited output, rather than inferred from UI
+labels. The [helper contract](helper.md#annotation-json-editing) defines editing
+existing fields without replacing the preset or inserting missing defaults.
+
+A native outlined Basic text callout supplies the complete definition and font
+payload. Controlled copies use rich Arial, fixed callout sizing, black glyphs
+and red outlines over generated gray video with stereo 440-Hz audio. A native
+canvas-sized Group supplies independent grouped copies and its Text binding.
+No vendor definition or font file is distributed.
+
+For rich size 120, bold `HB`, and outline width 20, the measured results at one
+second establish the native alignment values:
+
+| Saved value | Observed placement | Ink bounds, inclusive pixels | Red pixels inside the no-outline glyph mask |
+| --- | --- | --- | --- |
+| No outline | Black glyph control | 242,135–400,221 | Not applicable |
+| 0 | Centered stroke | 232,125–411,231 | 44.5% |
+| 1 | Inside stroke | 241,135–401,221 | 96.5% |
+| 2 | Outside stroke | 222,115–421,241 | 0.75% |
+
+Bounds and mask coverage distinguish the placements independently of their saved
+numbers. The thick centered and inside examples consume almost all black glyph
+fill; an accepted outline value does not guarantee legibility. Outside retains
+7455 dark pixels beside the no-outline control's 7584, with codec/edge variation.
+Check the requested weight, font and contrast in output.
+
+A fixed 220×230 text box contains `ALPHA BETA GAMMA` at rich size 44. Wrapping on
+renders three lines. Wrapping off renders one clipped line, with measured ink
+width 220 pixels and missing beginning/ending letters; the saved complete text
+and rich ranges remain unchanged. With wrapping off, `ALPHA\nBETA GAMMA` still
+renders two lines and clips the long second line. Disabling wrapping neither
+expands the box nor removes explicit newlines. Timed rich size 44→32 at 2.5 seconds
+reflows wrapped text from three lines to two; unwrapped text stays on one clipped
+line. The root and Group specimens retain those same states and geometry.
+
+Sixteen complete helper candidates match independently prepared field changes
+byte-for-byte. A seventeen-cell 136-second sequence compares all three outline
+placements, both wrapping states, explicit newlines, timed rich styles, native
+Groups and background. Native save preserves every payload after a verified
+74-ID bijection including the Group Text bindings, duration label and thumbnail.
+Reopened save changes only the thumbnail; no layout repair or unsupported-feature
+warning appears. All static and timed rich frames, defaults, reset metadata,
+source definitions and audio remain intact.
+
+Two independent exports reproduce all 4080 decoded 640×360, 30-fps RGB frames
+and stereo PCM. All 136 sampled phase frames and twelve full-size views were
+inspected. Across 56 matched root/Group samples, maximum mean difference is
+0.060 byte levels. All 272 channel-specific audio windows retain the 440-Hz tone.
+Raw schema, exact-build profile and native hazard checks pass without a new
+correction. Other containers, arbitrary fonts/text/bounds and additional style
+animation remain separate verification work. Completed disposable test media,
+projects, screenshots and audits are deleted after incorporation.
