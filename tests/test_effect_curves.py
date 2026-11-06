@@ -205,7 +205,7 @@ class EffectCurveTests(unittest.TestCase):
         node(doc)["video"]["effects"][0]["parameters"]["intensity"]["defaultValue"] = 0.5
         with self.assertRaisesRegex(ValueError, "conflicting.*controls"):
             effect_curves.edit_curve(doc, 10, "Sepia", "intensity", spec())
-        for field, value in [("_type", "ScreenVMFile"), ("scalar", 0)]:
+        for field, value in [("_type", "PlaceholderMedia"), ("scalar", 0)]:
             doc = fixture()
             node(doc)[field] = value
             with self.subTest(field=field), self.assertRaises(ValueError):

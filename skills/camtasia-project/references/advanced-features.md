@@ -92,8 +92,10 @@ bare JSON number or silently flatten other animated parameters.
 
 [Nonlinear interval verification](effect-nonlinear-curves.md) adds native easing
 captures, independent geometry, linked/Group clocks, clearing and bypass controls.
+[Recording-owner verification](effect-recording-curves.md) adds moving/frozen
+recordings and stitched-parent clocks, clearing and independent native controls.
 This interval-double contract does not establish arbitrary parameter combinations,
-point curves, recorded/frozen owners or companion-resource behavior. Each edited
+point curves or companion-resource behavior. Each edited
 consumer project still requires native output checks.
 
 ## Placeholder replacement

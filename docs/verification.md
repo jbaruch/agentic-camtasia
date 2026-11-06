@@ -44,7 +44,7 @@ with sampled visual inspection and appropriate audio or player checks.
 | --- | --- |
 | Curves, animation markers, easing and Motion Paths | [Animations](../skills/camtasia-project/references/animations.md) |
 | Transition presets, boundaries and JSON helper | [Transitions](../skills/camtasia-project/references/transitions.md) |
-| Effects, mattes, hotspots and quiz delivery | [Advanced features](../skills/camtasia-project/references/advanced-features.md) |
+| Effects, mattes, hotspots and quiz delivery | [Advanced features](../skills/camtasia-project/references/advanced-features.md), [recording effect curves](../skills/camtasia-project/references/effect-recording-curves.md) |
 | Captions and recognition/display clocks | [Captions](../skills/camtasia-project/references/captions.md) |
 | Audio processing and delivery | [Audio](../skills/camtasia-project/references/audio.md) |
 | Recorded pointer, clicks, keystrokes and windows | [Cursors](../skills/camtasia-project/references/cursors.md) |

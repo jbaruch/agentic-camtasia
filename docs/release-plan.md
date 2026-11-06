@@ -29,7 +29,7 @@ All fourteen issues are enhancements and explicitly do not block v0.1.
 | Issue | Capability |
 | --- | --- |
 | [#1](https://github.com/jbaruch/agentic-camtasia/issues/1) | Transition preset constructors shipped in 0.2.0. |
-| [#2](https://github.com/jbaruch/agentic-camtasia/issues/2) | Native-template constructors in 0.3.0 and LUT resource/range/easing controls in 0.4.0; linear typed-double effect curves in 0.5.0 and nonlinear intervals in 0.13.0; point and other effect-specific controls remain. |
+| [#2](https://github.com/jbaruch/agentic-camtasia/issues/2) | Native-template constructors in 0.3.0 and LUT resource/range/easing controls in 0.4.0; linear typed-double effect curves in 0.5.0 and nonlinear intervals in 0.13.0; recording/frozen/stitched effect curves in 0.18.0; point and other effect-specific controls remain. |
 | [#3](https://github.com/jbaruch/agentic-camtasia/issues/3) | Native-template behavior construction, phase timing/static edits, bypass and removal shipped in 0.6.0. |
 | [#4](https://github.com/jbaruch/agentic-camtasia/issues/4) | Standalone native-template constructors and existing shape/uniform text controls shipped in 0.7.0. |
 | [#5](https://github.com/jbaruch/agentic-camtasia/issues/5) | Closed cue authoring, recognized-word corrections, root clock mapping/retiming and existing dynamic display controls shipped in 0.8.0. |

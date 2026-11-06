@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.18.0 — 2026-11-06
+
+### Added
+
+- Animated typed visual-effect parameters on existing moving recordings, freeze
+  frames and stitched parents. Native source-position and frozen local clocks
+  retain selected frames, cursor data, child timing and virtual holds.
+- Exact native curve replays and independent retimed Sepia controls verify
+  Spring easing, clearing and geometry preservation across the moving/held join.
+  Linked recording mirrors and new constructors keep separate contracts.
+
 ## 0.17.0 — 2026-11-06
 
 ### Added
