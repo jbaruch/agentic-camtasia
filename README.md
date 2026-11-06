@@ -29,7 +29,7 @@ macOS. Schema auditing uses the optional pinned `jsonschema` dependency.
 | Transitions | Discover installed presets, construct from matching local metadata or same-build saved transitions, edit duration/scalar controls and remove transitions. Preserve endpoint clocks and audio. |
 | Interactivity | Author and edit supported hotspots and quizzes, including existing frozen recordings and stitched parents; surveys, feedback and owner/clock transfers. |
 | Behaviors | Create from native templates; copy a selected saved phase; edit phase timing/static controls, bypass and remove on ordinary media, direct moving/frozen recordings, stitched parents and root or Group-contained linked moving recordings. |
-| Annotations | Copy standalone native templates with drawing/Fade companions; edit Unicode text, mixed rich-style ranges, styled substrings, discrete timed rich styles with clearing, and existing static shape/text controls. |
+| Annotations | Copy standalone native templates with drawing/Fade companions; edit Unicode text, mixed rich-style ranges, styled substrings, discrete timed rich styles with clearing, and existing static shape/text controls, including native sizing and ligature switches. |
 | Captions | Author plain closed cues, correct recognized source words, map trims/speed/offsets and edit existing dynamic display controls. |
 | Created cursors | Edit existing video cursor point lists, explicit Bézier handles and timing, including trimmed 2× clocks and static holds. |
 | Recorded cursors | Create or replace standalone recording path overrides with explicit points and handles; restore the original captured path while preserving clicks and TREC data. |
