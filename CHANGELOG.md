@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.42.0 — 2026-11-06
+
+### Added
+
+- Sketch Motion drawing-time and stroke edits support trimmed/speed-adjusted
+  Callouts beneath Group-only ancestor chains or on root lanes. Missing drawing
+  companions can be recreated using the observed native shape; stroke-only
+  edits preserve their absence. Drawing time follows the selected clip's local
+  timeline while source clocks, all ancestor payload, SVG and Fade remain intact.
+- Six whole-document comparisons and two independent 264-second native exports
+  verify trimmed 2× and slowed nested children, typed stroke fields, color
+  bindings and preserved parent cropping. Complete decoded RGB/PCM repeat
+  identically; 308 inspected phase frames, 105 paired native/helper/root samples,
+  twelve full-size views and 616 audio-channel windows retain the exercised
+  behavior. Native UI time rounding, static-descriptor serialization and Group
+  duration limits are documented. Twenty-two profile/hazard checks pass with
+  the two known raw-schema omissions.
+
 ## 0.41.0 — 2026-11-06
 
 ### Added

@@ -116,7 +116,6 @@ class AnnotationSketchTests(unittest.TestCase):
         valid = clip(document())["leftEdgeMods"]
         for mods in [
             None,
-            [],
             valid * 2,
             [{**valid[0], "duration": True}],
             [{**valid[0], "duration": -1}],
@@ -137,30 +136,30 @@ class AnnotationSketchTests(unittest.TestCase):
                     annotations.edit_annotation(doc, 3, dict(schema_version=1, **change))
                 self.assertEqual(doc, before)
 
-    def test_unobserved_owners_clocks_and_other_kinds_refuse(self):
+    def test_invalid_clocks_other_containers_and_other_kinds_refuse(self):
         for modification in [
-            {"mediaStart": 500},
-            {"scalar": "1/2"},
+            {"mediaStart": -1},
+            {"scalar": 0},
             {"duration": 0},
         ]:
             doc = document()
             clip(doc).update(modification)
             with (
                 self.subTest(modification=modification),
-                self.assertRaisesRegex(ValueError, "root"),
+                self.assertRaisesRegex(ValueError, "Sketch Motion"),
             ):
                 annotations.edit_annotation(doc, 3, dict(schema_version=1, draw_time=2))
         doc = document()
         node = copy.deepcopy(clip(doc))
         clip(doc).clear()
-        clip(doc).update(id=9, _type="Group", tracks=[dict(medias=[node])])
-        with self.assertRaisesRegex(ValueError, "root"):
+        clip(doc).update(id=9, _type="StitchedMedia", medias=[node])
+        with self.assertRaisesRegex(ValueError, "Group-only"):
             annotations.edit_annotation(
                 doc, 3, dict(schema_version=1, definition={"borderWidth": 7})
             )
         doc = document()
         clip(doc)["def"]["kind"] = "remix"
-        with self.assertRaisesRegex(ValueError, "root"):
+        with self.assertRaisesRegex(ValueError, "Sketch Motion"):
             annotations.edit_annotation(doc, 3, dict(schema_version=1, draw_time=2))
         with self.assertRaisesRegex(ValueError, "supported existing"):
             annotations.edit_annotation(

@@ -42,14 +42,19 @@ same-build native geometry when staging a matching layout, then verify output.
 The helper preserves omitted width; native reopening does not repair a stale
 width, and output can omit the final key. No automatic fitting is promised.
 Sketch Motion set accepts draw_time (rational seconds) and existing
-SKETCH_PARAMETERS stroke fields on root, untrimmed, unit-speed TypeWinSVG
-Callouts. draw_time changes only the existing single DrawPercentageFade
-duration in exact project ticks, including zero for instant drawing and the
-complete clip duration. def.DrawTime stays unchanged. Missing or unfamiliar
-modifiers, nested owners, trimmed/speed-adjusted clocks and out-of-clip times
-refuse; no clamp, modifier construction or SVG rewrite is inferred. Stroke
+SKETCH_PARAMETERS stroke fields on root or Group-contained TypeWinSVG Callouts,
+including trimmed and speed-adjusted children. All clip ancestors must be Groups.
+draw_time uses selected-clip timeline seconds in its immediate owner's clock,
+not source time or elapsed root time through parent transforms. It changes the
+single DrawPercentageFade duration in exact project ticks, including zero and
+the complete clip duration. An absent/empty drawing list receives the observed
+native drawing companion; stroke-only edits preserve that absence. def.DrawTime
+stays unchanged. Unfamiliar modifiers and out-of-clip times refuse; no UI rounding,
+clamp, retiming, parent expansion or SVG rewrite is inferred. Stroke
 width is nonnegative; separate RGB components use native 0..1 values. Geometry,
-reset metadata, animation tracks, ending Fade and unrelated payload survive.
+reset metadata, animation tracks, ending Fade and every ancestor's bounds,
+clocks, transforms, bindings and metadata survive. Parent duration/bounds can
+crop a longer child; inspect the complete composite, not only the child preview.
 In version 1, mixed, partial, duplicate, animated and unfamiliar runs refuse rather than
 guessing a new styling map. Rich values retain native valueType and signed codes;
 fgColor is a native '(R,G,B,A)' byte tuple string. Default fonts are preserved.
@@ -534,30 +539,43 @@ def rich_value(name: str, value: Any) -> Any:
 
 
 def sketch_target(doc: dict[str, Any], clip_id: int) -> dict[str, Any]:
-    """Resolve the observed root Sketch Motion clock and drawing companion."""
+    """Resolve the selected Sketch Motion clip's immediate-owner drawing clock."""
     clip = target(doc, clip_id)
     path, _ = hotspots.visual_target(doc, clip_id, visual_types=frozenset({"Callout"}))
     if (
         clip["def"]["kind"] != "TypeWinSVG"
         or len(project.scene_tracks(doc)) != 1
-        or any(path.startswith(parent + "/") for parent, _ in hotspots.clips(doc))
-        or project.number(clip.get("mediaStart")) != 0
-        or project.number(clip.get("scalar")) != 1
+        or any(
+            node.get("_type") != "Group"
+            for parent, node in hotspots.clips(doc)
+            if path.startswith(parent + "/")
+        )
+        or project.number(clip.get("mediaStart")) < 0
+        or project.number(clip.get("scalar")) <= 0
+        or project.number(clip.get("mediaDuration")) <= 0
+        or type(clip.get("duration")) is not int
         or project.number(clip.get("duration")) <= 0
     ):
-        raise ValueError("select a root, untrimmed, unit-speed native Sketch Motion Callout")
-    mods = clip.get("leftEdgeMods")
+        raise ValueError(
+            "select a native Sketch Motion Callout with positive clocks and Group-only ancestors"
+        )
+    mods = clip.get("leftEdgeMods", [])
     if (
         not isinstance(mods, list)
-        or len(mods) != 1
-        or not isinstance(mods[0], dict)
-        or mods[0].keys() != {"group", "duration", "parameters"}
-        or mods[0]["group"] != "DrawPercentageFade"
-        or mods[0]["parameters"] != [{"name": "DrawTime", "func": "FadeInFunc"}]
-        or type(mods[0]["duration"]) is not int
-        or not 0 <= mods[0]["duration"] <= project.number(clip["duration"])
+        or len(mods) > 1
+        or mods
+        and (
+            not isinstance(mods[0], dict)
+            or mods[0].keys() != {"group", "duration", "parameters"}
+            or mods[0]["group"] != "DrawPercentageFade"
+            or mods[0]["parameters"] != [{"name": "DrawTime", "func": "FadeInFunc"}]
+            or type(mods[0]["duration"]) is not int
+            or not 0 <= mods[0]["duration"] <= project.number(clip["duration"])
+        )
     ):
-        raise ValueError("capture the native single DrawPercentageFade drawing modifier")
+        raise ValueError(
+            "retain no drawing modifier or the native single DrawPercentageFade drawing modifier"
+        )
     return clip
 
 
@@ -588,6 +606,14 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
         ticks = project.number(spec["draw_time"]) * project.number(result["editRate"])
         if ticks.denominator != 1 or not 0 <= ticks <= project.number(clip["duration"]):
             raise ValueError("choose a draw_time inside the clip mapping to exact project ticks")
+        if not clip.get("leftEdgeMods"):
+            clip["leftEdgeMods"] = [
+                dict(
+                    group="DrawPercentageFade",
+                    duration=0,
+                    parameters=[dict(name="DrawTime", func="FadeInFunc")],
+                )
+            ]
         clip["leftEdgeMods"][0]["duration"] = int(ticks)
     if any(key in spec for key in ("text", "rich", "rich_ranges", "text_edits")):
         if definition.get("kind") != "remix" or not isinstance(definition.get("text"), str):
