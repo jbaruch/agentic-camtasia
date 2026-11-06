@@ -522,7 +522,8 @@ profile with no compatibility errors. Raw community schema still rejects the
 known octagon shape, SVG kind and Callout drawing modifier; those upstream
 errors remain separate from the existing profile corrections. This verifies
 copying and the exercised edits, not new palette matrices, arbitrary SVG layout,
-mixed rich styles or physical font-file selection. Definitions, fonts and test
+physical font-file selection. Separate [mixed rich-range controls](annotation-rich-ranges.md)
+establish static property partitions and native output. Definitions, fonts and test
 media stay outside the package; completed disposable evidence is deleted after
 incorporating these findings and generated-fixture tests.
 

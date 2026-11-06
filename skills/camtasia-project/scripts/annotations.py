@@ -16,9 +16,19 @@ set PROJECT --clip-id ID --spec SPEC --output CANDIDATE accepts schema_version 1
 with text, rich (existing property names), and/or definition (existing supported
 static fields). Shape/style replacement is not a constructor. Uniform static
 rich runs use UTF-8 byte offsets; text replacement updates every range end.
-Mixed, partial, duplicate, animated and unfamiliar runs refuse rather than
+In version 1, mixed, partial, duplicate, animated and unfamiliar runs refuse rather than
 guessing a new styling map. Rich values retain native valueType and signed codes;
 fgColor is a native '(R,G,B,A)' byte tuple string. Default fonts are preserved.
+Spec schema_version 2 additionally accepts rich_ranges: nonempty objects with
+start/end Unicode code-point offsets (end exclusive) and rich property changes.
+Offsets index the resulting text, not UTF-8 bytes, UTF-16 units or graphemes.
+The helper compiles them to native UTF-8 boundaries, splits only selected
+property runs and merges adjacent equal payloads without losing opaque fields.
+Static mixed inputs need complete, nonoverlapping coverage per present property;
+overlapping requests for the same property refuse. Whole-text rich edits in v2
+retain other properties' partitions. Changed text still requires uniform runs;
+an identical text value preserves mixed styles. Animated/partial/unfamiliar
+maps remain refused. Native font resolution and text fitting need output checks.
 Declared font names do not establish physical font availability or glyph coverage.
 No proprietary presets, SVGs or fonts are distributed by this helper.
 
@@ -122,7 +132,7 @@ def target(doc: dict[str, Any], clip_id: int) -> dict[str, Any]:
     return clip
 
 
-def uniform_runs(definition: dict[str, Any]) -> list[dict[str, Any]]:
+def static_runs(definition: dict[str, Any]) -> list[dict[str, Any]]:
     attributes = definition.get("textAttributes")
     if attributes is None:
         return []
@@ -140,9 +150,15 @@ def uniform_runs(definition: dict[str, Any]) -> list[dict[str, Any]]:
     if not isinstance(text, str):
         raise ValueError("inspect the native annotation text string")
     size = len(text.encode("utf-8"))
-    runs, seen = frame.get("value"), set()
+    runs = frame.get("value")
     if not isinstance(runs, list) or not runs:
         raise ValueError("capture nonempty uniform native rich properties")
+    boundaries = {0}
+    offset = 0
+    for character in text:
+        offset += len(character.encode("utf-8"))
+        boundaries.add(offset)
+    properties: dict[str, list[dict[str, Any]]] = {}
     for run in runs:
         if not isinstance(run, dict):
             raise ValueError("inspect native rich property objects")
@@ -150,18 +166,126 @@ def uniform_runs(definition: dict[str, Any]) -> list[dict[str, Any]]:
         if (
             not isinstance(name, str)
             or name not in RICH_TYPES
-            or name in seen
             or run.get("valueType") != RICH_TYPES[name]
             or type(run.get("rangeStart")) is not int
-            or run["rangeStart"] != 0
             or type(run.get("rangeEnd")) is not int
-            or run["rangeEnd"] != size
+            or run["rangeStart"] not in boundaries
+            or run["rangeEnd"] not in boundaries
+            or not 0 <= run["rangeStart"] <= run["rangeEnd"] <= size
+            or (size > 0 and run["rangeStart"] == run["rangeEnd"])
+            or "value" not in run
         ):
             raise ValueError(
-                "preserve mixed, partial, duplicate or unfamiliar rich runs; capture a uniform template"
+                "capture supported rich properties with complete native UTF-8 boundary ranges"
             )
-        seen.add(name)
+        properties.setdefault(name, []).append(run)
+    for values in properties.values():
+        end = 0
+        for run in sorted(values, key=lambda r: r["rangeStart"]):
+            if run["rangeStart"] != end:
+                raise ValueError("repair partial or overlapping native rich property coverage")
+            end = run["rangeEnd"]
+        if end != size or (size == 0 and len(values) != 1):
+            raise ValueError(
+                "repair partial or duplicate native rich property coverage; capture complete ranges"
+            )
     return runs
+
+
+def uniform_runs(definition: dict[str, Any]) -> list[dict[str, Any]]:
+    runs = static_runs(definition)
+    if any(
+        run["rangeStart"] != 0 or run["rangeEnd"] != len(definition["text"].encode("utf-8"))
+        for run in runs
+    ):
+        raise ValueError(
+            "preserve mixed rich styles; capture a uniform template before replacing text"
+        )
+    return runs
+
+
+def patch_rich_range(
+    runs: list[dict[str, Any]], name: str, start: int, end: int, value: Any
+) -> None:
+    if not any(run["name"] == name for run in runs):
+        raise ValueError("capture the existing rich property before editing: " + name)
+    value = rich_value(name, value)
+    selected = []
+    changed = False
+    for run in runs:
+        if run["name"] != name:
+            continue
+        left, right = run["rangeStart"], run["rangeEnd"]
+        overlap = max(left, start) < min(right, end) or left == right == start == end
+        if not overlap or run["value"] == value:
+            selected.append(run)
+            continue
+        changed = True
+        for a, b, v in (
+            (left, min(right, start), run["value"]),
+            (max(left, start), min(right, end), value),
+            (max(left, end), right, run["value"]),
+        ):
+            if a < b or (left == right == start == end and v == value):
+                piece = copy.deepcopy(run)
+                piece.update(rangeStart=a, rangeEnd=b, value=v)
+                selected.append(piece)
+    if not changed:
+        return
+    merged: list[dict[str, Any]] = []
+    for run in sorted(selected, key=lambda r: r["rangeStart"]):
+        payload = {k: v for k, v in run.items() if k not in {"rangeStart", "rangeEnd"}}
+        prior = (
+            {k: v for k, v in merged[-1].items() if k not in {"rangeStart", "rangeEnd"}}
+            if merged
+            else None
+        )
+        if merged and merged[-1]["rangeEnd"] == run["rangeStart"] and payload == prior:
+            merged[-1]["rangeEnd"] = run["rangeEnd"]
+        else:
+            merged.append(copy.deepcopy(run))
+    result = []
+    inserted = False
+    for run in runs:
+        if run["name"] != name:
+            result.append(run)
+        elif not inserted:
+            result.extend(merged)
+            inserted = True
+    runs[:] = result
+
+
+def edit_rich_ranges(definition: dict[str, Any], runs: list[dict[str, Any]], changes: Any) -> None:
+    if not isinstance(changes, list) or not changes:
+        raise ValueError("supply a nonempty rich_ranges list with start, end and rich")
+    text = definition["text"]
+    requested: dict[str, list[tuple[int, int]]] = {}
+    for change in changes:
+        if (
+            not isinstance(change, dict)
+            or change.keys() != {"start", "end", "rich"}
+            or type(change["start"]) is not int
+            or type(change["end"]) is not int
+            or not 0 <= change["start"] < change["end"] <= len(text)
+            or not isinstance(change["rich"], dict)
+            or not change["rich"]
+            or change["rich"].keys() - RICH_TYPES.keys()
+        ):
+            raise ValueError(
+                "use nonempty rich changes and code-point start/end within the resulting text"
+            )
+        start, end = change["start"], change["end"]
+        for name, value in change["rich"].items():
+            if any(start < b and a < end for a, b in requested.get(name, [])):
+                raise ValueError("use non-overlapping rich_ranges requests for each property")
+            requested.setdefault(name, []).append((start, end))
+            patch_rich_range(
+                runs,
+                name,
+                len(text[:start].encode("utf-8")),
+                len(text[:end].encode("utf-8")),
+                value,
+            )
 
 
 def rich_value(name: str, value: Any) -> Any:
@@ -197,27 +321,38 @@ def rich_value(name: str, value: Any) -> Any:
 
 def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str, Any]:
     if (
-        type(spec.get("schema_version")) is not int
-        or spec["schema_version"] != 1
-        or spec.keys() - {"schema_version", "text", "rich", "definition"}
+        not isinstance(spec, dict)
+        or type(spec.get("schema_version")) is not int
+        or spec["schema_version"] not in {1, 2}
+        or spec.keys()
+        - (
+            {"schema_version", "text", "rich", "definition"}
+            | ({"rich_ranges"} if spec["schema_version"] == 2 else set())
+        )
         or len(spec) == 1
     ):
-        raise ValueError("use spec schema_version 1 with text, rich and/or definition")
+        raise ValueError(
+            "use spec schema_version 1 or 2 with text, rich, definition or v2 rich_ranges"
+        )
     result = copy.deepcopy(doc)
     definition = target(result, clip_id)["def"]
-    if "text" in spec or "rich" in spec:
+    if any(key in spec for key in ("text", "rich", "rich_ranges")):
         if definition.get("kind") != "remix" or not isinstance(definition.get("text"), str):
             raise ValueError(
                 "select a remix text annotation; keystrokes and SVG text need separate contracts"
             )
-        runs = uniform_runs(definition)
+        version = spec["schema_version"]
+        if "text" in spec and (not isinstance(spec["text"], str) or "\x00" in spec["text"]):
+            raise ValueError("use a Unicode text string without NUL")
+        replacing = "text" in spec and spec["text"] != definition["text"]
+        runs = uniform_runs(definition) if version == 1 or replacing else static_runs(definition)
         if "text" in spec:
             text = spec["text"]
-            if not isinstance(text, str) or "\x00" in text:
-                raise ValueError("use a Unicode text string without NUL")
             definition["text"] = text
-            for run in runs:
-                run["rangeEnd"] = len(text.encode("utf-8"))
+            if replacing:
+                for run in runs:
+                    run["rangeEnd"] = len(text.encode("utf-8"))
+        prior_runs = copy.deepcopy(runs)
         if "rich" in spec:
             changes = spec["rich"]
             if not isinstance(changes, dict) or not changes or changes.keys() - RICH_TYPES.keys():
@@ -226,7 +361,18 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
             for name, value in changes.items():
                 if name not in by_name:
                     raise ValueError("capture the existing rich property before editing: " + name)
-                by_name[name]["value"] = rich_value(name, value)
+                if version == 1:
+                    by_name[name]["value"] = rich_value(name, value)
+                else:
+                    patch_rich_range(runs, name, 0, len(definition["text"].encode("utf-8")), value)
+        if "rich_ranges" in spec:
+            edit_rich_ranges(definition, runs, spec["rich_ranges"])
+
+        def key(run: dict[str, Any]) -> tuple[str, int, int]:
+            return run["name"], run["rangeStart"], run["rangeEnd"]
+
+        if sorted(prior_runs, key=key) == sorted(runs, key=key):
+            runs[:] = prior_runs
     if "definition" in spec:
         changes = spec["definition"]
         if (
