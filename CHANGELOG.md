@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.10.0 — 2026-11-05
+
+### Added
+
+- Version-2 matte intensity curves with per-segment exponential, bounce and
+  spring easing. Linear version-1 inputs retain their contract. Exact source
+  clocks, linked visual mirrors, audio and unrelated animation payload survive.
+- A native guard for the reproduced positive-time linear matte point form that
+  passes the community schema but fails Mac 2026.2.4 project opening.
+- Native save/reopen/render evidence for nonlinear curves, trimmed 2× linked AV
+  and a 2× Group retaining an independent linear geometry curve.
+
 ## 0.9.1 — 2026-11-05
 
 ### Fixed

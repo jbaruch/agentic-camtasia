@@ -25,10 +25,13 @@ CLI: inspect PROJECT; set-media PROJECT --clip-id ID --output CANDIDATE
 set-track PROJECT --track INDEX [--group-id ID] --mode MODE --output CANDIDATE.
 set-intensity-curve PROJECT --clip-id ID --curve SPEC --output CANDIDATE;
 clear-intensity-curve PROJECT --clip-id ID --intensity SCALAR --output CANDIDATE.
-Curve input schema_version 1 has defaultValue and nonempty segments, each with
+Curve input schema_version 1 or 2 has defaultValue and nonempty segments, each with
 start/end rational clip-relative timeline seconds and value in [0,1]. Segments
 have positive duration, retain input order and must not overlap. Negative starts
-remain legal source-position bounds. Linear keyframes convert through mediaStart
+remain legal source-position bounds. Version 1 stays linear; version 2 accepts
+optional segment easing: linear (default), exponential, bounce or spring.
+Defaults and targets stay in [0,1]; native spring interpolation can overshoot.
+Keyframes convert through mediaStart
 and scalar to source positions in project ticks. Linked mirrors share the visual
 clock; mismatched clocks are refused. Curves replace only intensity's timing and
 default, preserving unrelated parameters/animations. Clear removes only intensity
@@ -52,6 +55,7 @@ from pathlib import Path
 import sys
 from typing import Any
 
+import animations
 import hotspots
 import project
 
@@ -308,14 +312,14 @@ def edit_media(
 def curve_parameter(
     doc: dict[str, Any], visual: dict[str, Any], spec: dict[str, Any]
 ) -> dict[str, Any]:
-    """Compile the observed linear interval curve from clip-local seconds."""
+    """Compile the observed intensity interval curve from clip-local seconds."""
     if (
         not isinstance(spec, dict)
         or set(spec) != {"schema_version", "defaultValue", "segments"}
         or type(spec["schema_version"]) is not int
-        or spec["schema_version"] != 1
+        or spec["schema_version"] not in (1, 2)
     ):
-        raise ValueError("supply curve schema_version 1 with defaultValue and segments")
+        raise ValueError("supply curve schema_version 1 or 2 with defaultValue and segments")
     segments = spec["segments"]
     if not isinstance(segments, list) or not segments:
         raise ValueError("supply nonempty curve segments; use clear-intensity-curve to clear")
@@ -330,8 +334,24 @@ def curve_parameter(
     frames = []
     previous_end = None
     for segment in segments:
-        if not isinstance(segment, dict) or set(segment) != {"start", "end", "value"}:
-            raise ValueError("supply each curve segment with start, end and value")
+        required = {"start", "end", "value"}
+        optional = {"easing"} if spec["schema_version"] == 2 else set()
+        if (
+            not isinstance(segment, dict)
+            or not required <= set(segment)
+            or set(segment) - required - optional
+        ):
+            raise ValueError(
+                "supply each curve segment with start, end, value and optional v2 easing"
+            )
+        easing = segment.get("easing", "linear")
+        if not isinstance(easing, str) or easing not in {
+            "linear",
+            "exponential",
+            "bounce",
+            "spring",
+        }:
+            raise ValueError("choose intensity easing linear, exponential, bounce or spring")
         if any(isinstance(segment[key], bool) for key in ("start", "end")):
             raise ValueError("supply rational curve seconds, not booleans")
         start, end = (project.number(segment[key]) for key in ("start", "end"))
@@ -347,7 +367,7 @@ def curve_parameter(
                 "endTime": end_time,
                 "duration": end_time - time,
                 "value": scalar(segment["value"]),
-                "interp": "linr",
+                "interp": animations.EASINGS[easing],
             }
         )
         previous_end = end

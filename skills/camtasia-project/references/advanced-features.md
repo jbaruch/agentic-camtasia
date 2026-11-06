@@ -919,8 +919,10 @@ reopens byte-identically; the clear pair has only those six known companions.
 Both 44-second native pairs repeat complete decoded AV. Four contact sheets contain
 204 inspected samples; 44 stereo windows
 verify unchanged source audio, including the linked clip's second contribution.
-Evidence is `matte-curves-native-checks.json`. Nonlinear/point intensity curves,
-recording owners and interacting media/track mattes retain separate cases.
+Evidence is `matte-curves-native-checks.json`.
+[Nonlinear intensity editing](matte-nonlinear-curves.md) adds exponential, bounce
+and spring intervals, independent geometry preservation and a rejected point
+form. Recording owners and interacting media/track mattes retain separate cases.
 
 ## Companion apps and connected imports
 
