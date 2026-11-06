@@ -223,7 +223,7 @@ Use `skills/camtasia-project/scripts/annotations.py` for construction from a sta
 Unicode text/rich properties, per-range styling, substring edits, timed rich-style
 steps and existing static shape/text/region fields.
 Its module docstring, `KINDS`, `NUMBERS`, `ENUMS`, `REGION_PARAMETERS`,
-`KEYSTROKE_PARAMETERS`, `RICH_TYPES`, `static_runs`,
+`KEYSTROKE_PARAMETERS`, `SKETCH_PARAMETERS`, `sketch_target`, `RICH_TYPES`, `static_runs`,
 `uniform_runs`, `edit_rich_ranges`, `edit_text`, `EMPTY_STYLE_REQUIRED`,
 `rich_step_frames`, `rich_source_time`, `set_rich_steps`, `clear_rich_steps` and
 `add_annotation` own the build, selector,
@@ -297,6 +297,19 @@ Read [Group-contained editing](advanced-features.md#group-contained-keystroke-ed
 for ancestor preservation, native Group sizing and the independent composite control.
 Inspect the complete chord in native output. Recorded keyboard events retain
 their separate [recording-effect contract](cursors.md#recorded-keystrokes-and-active-windows).
+
+Existing standalone Sketch Motion callouts accept `draw_time` in rational seconds
+and definition stroke edits:
+
+```json
+{"schema_version":1,"draw_time":"5/2","definition":{"borderWidth":7,"borderColorRed":1,"borderColorGreen":"128/255","borderColorBlue":0}}
+```
+
+Inspection includes the saved `leftEdgeMods` separately from the definition.
+The helper contract above owns supported clocks, modifier shape, native units
+and refusals. Read [Sketch Motion controls](advanced-features.md#sketch-motion-drawing-and-stroke-controls)
+for the effective drawing duration, native reset/precision observations and
+independent output checks. Inspect drawing and ending Fade together.
 
 Version 2 adds `rich_ranges`, with `start`, exclusive `end` and `rich` changes
 for each selected range. Offsets count Unicode code points in the resulting

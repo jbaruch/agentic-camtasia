@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Stage native-template annotations and bounded shape/text edits as JSON.
 
-inspect PROJECT lists Callouts, complete definitions and declared font names.
+inspect PROJECT lists Callouts, complete definitions, leftEdgeMods and declared font names.
 add PROJECT --track SCENE:TRACK --new-clip-id ID --template-project TEMPLATE
 --template-clip-id ID --output CANDIDATE copies a complete standalone Callout
 from its own root lane into an existing empty root lane. Both projects must be
@@ -41,6 +41,15 @@ clip ident remain unchanged. Native key/style edits can recompute width; use
 same-build native geometry when staging a matching layout, then verify output.
 The helper preserves omitted width; native reopening does not repair a stale
 width, and output can omit the final key. No automatic fitting is promised.
+Sketch Motion set accepts draw_time (rational seconds) and existing
+SKETCH_PARAMETERS stroke fields on root, untrimmed, unit-speed TypeWinSVG
+Callouts. draw_time changes only the existing single DrawPercentageFade
+duration in exact project ticks, including zero for instant drawing and the
+complete clip duration. def.DrawTime stays unchanged. Missing or unfamiliar
+modifiers, nested owners, trimmed/speed-adjusted clocks and out-of-clip times
+refuse; no clamp, modifier construction or SVG rewrite is inferred. Stroke
+width is nonnegative; separate RGB components use native 0..1 values. Geometry,
+reset metadata, animation tracks, ending Fade and unrelated payload survive.
 In version 1, mixed, partial, duplicate, animated and unfamiliar runs refuse rather than
 guessing a new styling map. Rich values retain native valueType and signed codes;
 fgColor is a native '(R,G,B,A)' byte tuple string. Default fonts are preserved.
@@ -137,6 +146,9 @@ REGION_PARAMETERS = {
     ),
 }
 KEYSTROKE_PARAMETERS = frozenset({"keys", "keyStyle", "showKeyBackg", "showKeyHint"})
+SKETCH_PARAMETERS = frozenset(
+    {"borderWidth", "borderColorRed", "borderColorGreen", "borderColorBlue"}
+)
 ENUMS = {
     "horizontal-alignment": {"left", "center", "right"},
     "vertical-alignment": {"top", "center", "bottom"},
@@ -521,6 +533,34 @@ def rich_value(name: str, value: Any) -> Any:
     return effects.scalar_like(float, value)
 
 
+def sketch_target(doc: dict[str, Any], clip_id: int) -> dict[str, Any]:
+    """Resolve the observed root Sketch Motion clock and drawing companion."""
+    clip = target(doc, clip_id)
+    path, _ = hotspots.visual_target(doc, clip_id, visual_types=frozenset({"Callout"}))
+    if (
+        clip["def"]["kind"] != "TypeWinSVG"
+        or len(project.scene_tracks(doc)) != 1
+        or any(path.startswith(parent + "/") for parent, _ in hotspots.clips(doc))
+        or project.number(clip.get("mediaStart")) != 0
+        or project.number(clip.get("scalar")) != 1
+        or project.number(clip.get("duration")) <= 0
+    ):
+        raise ValueError("select a root, untrimmed, unit-speed native Sketch Motion Callout")
+    mods = clip.get("leftEdgeMods")
+    if (
+        not isinstance(mods, list)
+        or len(mods) != 1
+        or not isinstance(mods[0], dict)
+        or mods[0].keys() != {"group", "duration", "parameters"}
+        or mods[0]["group"] != "DrawPercentageFade"
+        or mods[0]["parameters"] != [{"name": "DrawTime", "func": "FadeInFunc"}]
+        or type(mods[0]["duration"]) is not int
+        or not 0 <= mods[0]["duration"] <= project.number(clip["duration"])
+    ):
+        raise ValueError("capture the native single DrawPercentageFade drawing modifier")
+    return clip
+
+
 def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str, Any]:
     if (
         not isinstance(spec, dict)
@@ -528,7 +568,7 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
         or spec["schema_version"] not in {1, 2, 3}
         or spec.keys()
         - (
-            {"schema_version", "text", "rich", "definition"}
+            {"schema_version", "text", "rich", "definition", "draw_time"}
             | ({"rich_ranges"} if spec["schema_version"] >= 2 else set())
             | ({"text_edits", "text_style"} if spec["schema_version"] == 3 else set())
         )
@@ -543,6 +583,12 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
         raise ValueError("supply explicit native text_style properties as an object")
     result = copy.deepcopy(doc)
     definition = target(result, clip_id)["def"]
+    if "draw_time" in spec:
+        clip = sketch_target(result, clip_id)
+        ticks = project.number(spec["draw_time"]) * project.number(result["editRate"])
+        if ticks.denominator != 1 or not 0 <= ticks <= project.number(clip["duration"]):
+            raise ValueError("choose a draw_time inside the clip mapping to exact project ticks")
+        clip["leftEdgeMods"][0]["duration"] = int(ticks)
     if any(key in spec for key in ("text", "rich", "rich_ranges", "text_edits")):
         if definition.get("kind") != "remix" or not isinstance(definition.get("text"), str):
             raise ValueError(
@@ -594,9 +640,12 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
                 | ENUMS.keys()
                 | REGION_PARAMETERS.get(definition["kind"], frozenset())
                 | (KEYSTROKE_PARAMETERS if definition["kind"] == "MacKey" else frozenset())
+                | (SKETCH_PARAMETERS if definition["kind"] == "TypeWinSVG" else frozenset())
             )
         ):
             raise ValueError("name supported existing static annotation definition fields")
+        if changes.keys() & SKETCH_PARAMETERS:
+            sketch_target(result, clip_id)
         if changes.keys() & KEYSTROKE_PARAMETERS:
             path, _ = hotspots.visual_target(result, clip_id, visual_types=frozenset({"Callout"}))
             if any(
@@ -639,6 +688,8 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
                 or (name in {"blur-invert", "fill-invert"} and number not in {0, 1})
                 or (name == "keyStyle" and number not in {0, 1, 2, 3, 4})
                 or (name in {"showKeyBackg", "showKeyHint"} and number not in {0, 1})
+                or (name == "borderWidth" and number < 0)
+                or (name.startswith("borderColor") and not 0 <= number <= 1)
             ):
                 raise ValueError("use the observed numeric range for " + name)
             effects.patch_parameter(definition, name, value)
@@ -854,6 +905,7 @@ def inventory(doc: dict[str, Any]) -> list[dict[str, Any]]:
             clipId=n.get("id"),
             path=p,
             definition=n.get("def"),
+            leftEdgeMods=copy.deepcopy(n.get("leftEdgeMods", [])),
             declaredFonts=sorted(
                 {
                     str(v["name"])

@@ -659,6 +659,45 @@ checks that bijection and retains all other payload, with observed duration-labe
 and track-height bookkeeping recorded separately. Do not strip IDs or metadata
 wholesale to make a preservation check pass.
 
+## Sketch Motion drawing and stroke controls
+
+Mac 2026.2.4 (2026.132), format 10, native Sketch Motion rectangle edits establish
+the effective drawing-time field. Changing Draw Time from 1 to 2.5 seconds changes
+only `leftEdgeMods[0].duration` from 705600000 to 1764000000 ticks, apart from
+command count. `def.DrawTime` stays 1.0. Zero saves duration 0 and renders the
+complete shape immediately. Entering 6 seconds on a five-second clip displays
+5.0 and saves 3528000000 ticks. This UI clamp does not retime the separate ending
+Fade: a full-clip drawing is still incomplete when that Fade begins.
+
+Thickness 3→7 changes `def.borderWidth` and adds native reset metadata
+`default-callout-stroke-width: "3"`. Zero saves 0.0 and the inspected output
+has no visible stroke. Yellow→orange changes only `borderColorGreen` to
+0.501960784313725 and adds `default-callout-stroke-color: "(255,255,0,255)"`.
+That saved UI precision differs slightly from the exact 128/255 helper input.
+The SVG XML, fractional geometry, scale and unrelated fields remain intact.
+The [helper contract](helper.md#annotation-json-editing) exposes the exercised
+standalone edits while preserving omitted reset metadata.
+
+Seven whole-document comparisons cover the individual timing, thickness and
+color edits plus a compound reconstruction from the initial native specimen.
+They allow only command count, thumbnail and the two observed reset additions.
+A 120-second sequence contains fifteen eight-second cells: native/helper pairs,
+the initial native drawing, a compound helper result and a background control.
+Native save retains all payload after a verified 59-ID bijection, 28 linked
+background-child start mirrors and the duration-label update. Save/reopen changes
+only the thumbnail; no feature repair or unsupported-feature dialog appears.
+
+Two independent MP4 exports reproduce all 3600 decoded 640×360, 30-fps RGB frames
+and stereo 44.1-kHz PCM. Across 180 sampled phase frames, 84 paired comparisons
+have maximum mean absolute difference 0.441 byte levels. All 180 contact-sheet
+frames and eight full-size views were inspected for slower drawing, thicker
+yellow/orange strokes, instant drawing, zero thickness, Fade and disappearance.
+Audio checks retain the generated 440-Hz tone. The matching exact-build profile
+and native hazard checks pass; the raw schema retains its known SVG-kind and
+drawing-modifier omissions without a new profile correction. Other owner clocks
+and arbitrary SVG/style animation remain separate work. Vendor SVGs, generated
+media and disposable verification artifacts remain outside the package.
+
 ## Reusable annotation helper verification
 
 The [annotation helper](helper.md#annotation-json-editing) was exercised on Mac
