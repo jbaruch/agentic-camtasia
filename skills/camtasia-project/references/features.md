@@ -80,6 +80,11 @@ chapter-player behavior still require their own output checks.
 
 ## Effects and behaviors
 
+Standalone annotation construction and existing shape/uniform text edits use
+the [annotation helper](helper.md#annotation-json-editing). Preserve complete
+native definitions, opaque fields, style IDs, drawing modifiers and Fade
+references. Read the helper's clean-template, unchanged-clock and UTF-8 limits.
+
 Effects can have defaults, animated values, edge modifiers, opaque state, and
 version-specific category strings. A UI name is not an effect identifier.
 Behaviors use a different phase structure from ordinary visual effects. The
