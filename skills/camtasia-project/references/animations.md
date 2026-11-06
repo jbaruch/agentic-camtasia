@@ -568,3 +568,80 @@ shows perspective with the other three corners retained. Preserve the complete
 transform, including tiny shear components; changing only the displayed skew
 or scale cannot reproduce the native corner-pin result. Restore Edit mode and
 check all corners in the exported picture.
+
+## Continuous text-outline intervals
+
+Version 0.44.0 extends interval authoring to existing `text-stroke-width` and
+`text-stroke-color-red/green/blue/alpha` fields in remix text Callouts. Schema 2
+adds `definition` targets alongside optional geometry `values`; the
+[central helper contract](helper.md#animation-json-editing) owns commands and
+script anchors. Root and Group-only descendants use the selected Callout's
+source clock. Width endpoints are nonnegative; channel endpoints use 0..1.
+Missing fields, non-double descriptors, point-shaped outline curves and
+unverified annotation/container forms are refused. Font/rich-style steps,
+wrapping/alignment enums, fill/shape controls and Quick Property animation
+editing retain separate contracts.
+
+Native Basic plain text already saves all outline fields, with width zero,
+black RGB, alpha one and outside placement. No outline constructor or inferred
+style defaults are required. Auto Animate at two seconds creates a one–two-second
+visual interval and a typed-double definition parameter, using the existing
+scalar as `defaultValue`. At project rate 705600000, width 0→10 saves:
+
+```json
+{
+  "type": "double",
+  "defaultValue": 0.0,
+  "keyframes": [{
+    "time": 705600000,
+    "endTime": 1411200000,
+    "duration": 705600000,
+    "value": 10.0
+  }]
+}
+```
+
+Changing black to #FF8000 at 50% outline opacity adds red 0→1, green
+0→0.501960784313725 and alpha 1→0.5 on that same interval. Blue stays a static
+zero when the native edit does not change it. Adding X position 0→80 couples a
+geometry frame to the same marker. Explicit helper targets author explicit
+curves, including constant endpoints. Native reset metadata remains untouched.
+
+Native None easing writes `linr` on the marker and every coupled geometry and
+outline frame. Native Bounce inside a trimmed, double-speed Group child writes
+`bnce` at those same owners. The helper's existing global easing and removal
+commands now include these definition curves, even with schema-1 easing input.
+Unknown nested definition/effect coupling refuses the operation. Discrete
+rich-text points, including native null states, remain unchanged. Inventory
+reports direct `definitionCurves`; a rich point alone does not imply motion.
+
+Native Remove Animation restores initial outline scalars, removes matching
+geometry targets and retains the unrelated rich-text state. Outline zeroes stay
+explicit. The helper retains other intervals and typed parameter metadata;
+removing a final frame never discards opaque fields or parameter interpolation.
+An absent marker with orphaned definition frames requires repair before an
+empty marker can be added or an absent interval removed.
+
+Doubling clip speed keeps native source-position integers while halving visible
+duration. After native grouping, resizing to canvas and trimming seven frames,
+the exercised child has `mediaStart: 329280000`, `scalar: "1/2"` and
+`start: 164640000`. Its existing source bounds 705600000–1411200000 map to
+clip-relative timeline bounds 4/15–23/30 seconds. Parent placement does not
+enter that conversion. Editing the child preserves all ancestor clocks,
+bindings, geometry and bounds; Group resizing is an explicit native operation.
+
+Seven whole-document helper/native comparisons cover creation, compound edits,
+easing and removal, allowing only observed UI counters, thumbnail caches,
+reset-property metadata and the explicit Group-tab close. A fifteen-cell,
+120-second montage includes native/helper pairs, all five easings with a second
+return interval, removed outlines, trimmed 2× text and three Group levels.
+Independent save/close/reopen exports repeat all 3,600 decoded RGB frames and
+stereo PCM samples identically. The native save retains all payload after a
+65-clip ID bijection, three integer binding remaps and a duration-label update;
+the independent reopen is byte-stable. All 120 inspected phase frames and five
+full-size views retain the expected outline growth, color/alpha change, movement,
+return, clip end and removal. Ninety-five paired samples have maximum RGB MAE
+0.086/255; 120 stereo-channel windows retain 440 Hz at RMS 0.06787–0.06808.
+Fourteen raw/profile/hazard checks pass without a schema correction. These
+observations cover Mac 2026.2.4, format 10.0; completed disposable artifacts are
+removed after the findings enter the plugin and tests.
