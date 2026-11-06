@@ -283,7 +283,7 @@ refusals. Read the [native region controls](advanced-features.md#static-region-c
 for UI precision, inversion, strength and color observations. Stage the candidate,
 reopen it and inspect the requested region in native output.
 
-Existing standalone keystroke callouts accept literal saved key strings and
+Existing root or Group-contained keystroke callouts accept literal saved key strings and
 native style/background/modifier-name fields. For an exercised compound edit:
 
 ```json
@@ -293,6 +293,8 @@ native style/background/modifier-name fields. For an exercised compound edit:
 The helper contract above owns choices, types and refusals. Read the
 [native keystroke edits](advanced-features.md#static-keystroke-edits) before
 changing keys or style; matching geometry is part of the requested layout.
+Read [Group-contained editing](advanced-features.md#group-contained-keystroke-edits)
+for ancestor preservation, native Group sizing and the independent composite control.
 Inspect the complete chord in native output. Recorded keyboard events retain
 their separate [recording-effect contract](cursors.md#recorded-keystrokes-and-active-windows).
 

@@ -287,6 +287,62 @@ Fourteen snapshots pass the exact-build profile and native hazard checks, with
 No new correction or external font dependency is introduced. Native definitions,
 generated sources and test exports remain local disposable inputs.
 
+### Group-contained keystroke edits
+
+Version 0.40.0 adds existing keystroke children within native Groups to the
+[annotation edit contract](helper.md#annotation-json-editing). Select the child
+ID rather than a Group ID. The helper edits the child's static definition and
+preserves all ancestors, including their bounds, transforms, clocks, effects,
+tracks and metadata. Construction, extraction, retiming and non-Group containers
+retain separate scopes.
+
+Mac Camtasia 2026.2.4 (2026.132), format 10, groups a scale-1.5 `⌘ A` callout
+into a 136×96 Group. Changing its keys to `⇧ ⌘ K` saves child width
+130.182454427083 but leaves Group bounds unchanged. The native composite crops
+both ends of that wider callout. **Edit → Resize Group → To Canvas Size** changes
+only the Group's `widthAttr`/`heightAttr` to this project's 640×360 canvas. The
+same child then renders complete. The helper does not infer Group sizing from
+key strings; prepare the required parent bounds through the native workflow.
+
+A second native Group wraps that canvas-size Group and retains its child.
+The outer Group translates X by 60. Inside both Groups, native edits capture
+`⌘ B` with child width 85.3540581597222, Traditional with width 128, modifier
+names enabled and background disabled. Ancestor bounds and transforms remain
+unchanged. Native readback of the helper's two-level child shows Traditional,
+background off and modifier names on.
+
+Five definition-edit whole-document comparisons plus one comparison incorporating
+the separately measured native resize workflow match helper candidates. The
+normalization is limited to thumbnail/command-count UI state, observed first-edit
+reset additions on the selected child and the exact new display record on the
+selected Group's child track (`IsLocked: "False"`, `trackHeight: "78"`). Other
+source, child, ancestor, track and audio fields remain compared. Existing resets
+survive; the helper invents no reset or parent-bounds values.
+
+A sixteen-cell, 128-second sequence includes six native/helper pairs, an
+independent root final-state control, a background-only control and the original
+single/nested Group controls. Each cell repeats an eight-second source; its
+annotation lasts five seconds. Both native exports contain 3,840 frames at
+640×360, 30 fps H.264 and stereo 44.1 kHz AAC. Complete decoded video/audio
+repeat exactly. Across 192 sampled phase frames, all 84 pair comparisons,
+including nested-versus-root placement, stay below 0.985 mean byte levels.
+Inspection covers 96 contact-sheet frames and ten full-size views.
+
+At local 1.5 seconds, narrow stripes outside the original Group bounds differ
+from background by 0.099 mean byte levels with the tight Group and 110.78 after
+the native resize. This independently establishes parent cropping and the
+complete resized chord. All 192 audio-channel windows retain the 440 Hz source
+tone, with amplitudes 0.09600–0.09647 and deviations within 0.33% of the matching
+background-only windows.
+
+The first native sequence save remaps 86 clip IDs and updates duration/thumbnail
+UI state, with every other field unchanged. Later save/readback/reopen results
+change only the thumbnail or remain identical. Source bytes and the baseline
+project remain unchanged. Twenty snapshots pass the exact-build profile and
+native hazard checks; 76 raw-schema errors refer only to the known missing
+`MacKey` enum. No new correction is introduced. Native templates, movies and
+diagnostics remain local disposable inputs.
+
 ## Themes
 
 Mac 2026.2.4's native **Default** theme has ID

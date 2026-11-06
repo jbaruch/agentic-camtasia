@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.40.0 — 2026-11-06
+
+### Added
+
+- Static keystroke definition edits now accept existing children beneath
+  Group-only ancestor chains. Child fields change while Group bounds, transforms,
+  clocks, tracks, effects and metadata remain intact. Other containers remain
+  refused. Native Resize Group → To Canvas Size is verified independently:
+  parent bounds can crop a wider chord even when its child width is correct.
+- Five definition comparisons plus a measured resize-workflow comparison and
+  two independent 128-second exports verify single/two-level Groups, translated
+  placement, style, modifier names and background visibility. Complete decoded
+  video/audio repeat exactly; 192 sampled phase frames, 84 paired comparisons,
+  96 inspected contact-sheet frames, ten full-size views and 192 audio-channel
+  windows retain native/helper and independent-root parity. Twenty profile/hazard
+  checks retain only the known raw-schema MacKey omission. The key-capture save
+  stall and verified recovery are documented without treating the failure as a
+  format rejection or a permanent editor fix.
+
 ## 0.39.0 — 2026-11-06
 
 ### Added
