@@ -491,9 +491,11 @@ documented in [frozen and stitched owners](animations.md#frozen-and-stitched-own
 
 Use `skills/camtasia-project/scripts/cursor_paths.py` for existing native
 `CursorPath.cursorLocation` point lists on root ordinary video or its linked AV
-wrapper/video IDs. Its module docstring, `OWNERS`, `TIMINGS`, `selected`,
-`curve_of` and shared `motion_paths.point_frames` own selectors, exact source
-clocks, explicit interpolation shapes, preservation and refusals. Read the
+wrapper/video IDs, or complete path overrides on standalone moving recordings.
+Its module docstring, `OWNERS`, `RECORDING_OWNERS`, `TIMINGS`, `selected`,
+`curve_of`, `recording_target`, `recorded_frames` and shared
+`motion_paths.point_frames` own selectors, exact source clocks, explicit
+interpolation shapes, preservation and refusals. Read the
 [native cursor controls](created-cursor-paths.md) before editing.
 
 ```bash
@@ -510,10 +512,35 @@ A version-one spec supplies the complete explicit point list:
 Point times use clip-relative timeline seconds; positions and handles use the
 unscaled source image plane. Supply new handles explicitly when changing points.
 The helper preserves cursor image resources, clicks, smoothing, scale/opacity,
-media transforms and audio. It does not create an effect or recording override.
+media transforms and audio. `set-path` requires an existing native effect.
 Follow ordinary staging, diff/apply, native save/reopen and rendering checks.
 Use the existing visual-effect workflow for its separate bypass/removal and
 matching-template contract. Native resources still require the target host.
+
+## Recorded cursor path JSON editing
+
+Read the [recorded-path evidence](recorded-cursor-paths.md) before staging a
+complete recording override or restoring its captured path. Use the cursor
+helper contract above for selectors, points, clocks, preservation and refusals.
+
+```bash
+python3 -B "{camtasia_skill_root}/scripts/cursor_paths.py" set-recorded-path "<project>" --clip-id 3 --spec "<cursor-path-spec.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/cursor_paths.py" restore-recorded-path "<project>" --clip-id 3 --output "<restored.json>"
+```
+
+The version-one point specification is shared with created paths. Supply the
+entire desired list, including explicit handles, for every replacement. Restore
+requires no spec; an absent override produces an identical no-op. Commands stage
+separate candidates and never modify the TREC. Follow the project diff/validate/
+apply workflow and verify native save/reopen and rendering before delivery.
+
+All cursor helper reports use `schema_version: 2`, owner
+`camtasia-cursor-paths`. Version-one fields keep their meanings; `recordings`
+adds each physical recording's clip ID, type, document path and raw override
+or null when absent. Inspection includes unsupported owners without promising
+editability. Input specs remain version 1. Edit reports include hashes,
+`changed`, `written` and `nativeVerified: false`. JSON diagnostics go to stderr;
+exit 1 refuses input/I/O and exit 2 reports CLI syntax. `--help` is plaintext.
 
 ## Motion Path JSON editing
 

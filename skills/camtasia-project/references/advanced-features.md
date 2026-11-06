@@ -574,6 +574,9 @@ Other native parameters include `cursorImagePath` (`Mac/pointer` here),
 the target installation; preserve it instead of distributing native assets.
 The separate [created-path helper controls](created-cursor-paths.md) establish
 explicit point editing and trimmed 2× source clocks on ordinary video.
+The [recorded-path controls](recorded-cursor-paths.md) establish complete
+recording overrides, explicit point editing and restoration on a standalone
+moving recording, preserving its captured clicks and TREC source.
 
 The native highlight effect is spelled **`CursorHilight`**. Its typed doubles
 include `radius`, four `color-*` components, and `blur`. Radius 50, yellow with

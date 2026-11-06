@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.24.0 — 2026-11-06
+
+### Added
+
+- Explicit recorded-cursor path creation, replacement and restoration on standalone
+  moving recordings. Native source-clock edits preserve captured clicks, cursor
+  styling, smoothing, media geometry, sources and independent audio; restoring
+  removes only the complete override and returns to the original TREC path.
+- Six complete native edit replays cover creation, movement, insertion, deletion,
+  one-point hold and restoration on a trimmed 2× recording. Two fresh-process
+  42-second exports verify persistence and decoded picture/audio repeatability.
+- Cursor helper reports now use schema version 2, retaining the version-one
+  fields and adding the physical recording override inventory. Input point
+  specifications remain version 1; created-path commands retain their contract.
+
 ## 0.23.0 — 2026-11-06
 
 ### Added
