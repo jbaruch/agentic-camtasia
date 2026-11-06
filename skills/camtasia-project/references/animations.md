@@ -579,8 +579,8 @@ script anchors. Root and Group-only descendants use the selected Callout's
 source clock. Width endpoints are nonnegative; channel endpoints use 0..1.
 Missing fields, non-double descriptors, point-shaped outline curves and
 unverified annotation/container forms are refused. Font/rich-style steps,
-wrapping/alignment enums, fill/shape controls and Quick Property animation
-editing retain separate contracts.
+wrapping/alignment enums and Quick Property animation editing retain separate
+contracts. Fill/stroke intervals extend this support below.
 
 Native Basic plain text already saves all outline fields, with width zero,
 black RGB, alpha one and outside placement. No outline constructor or inferred
@@ -645,3 +645,78 @@ return, clip end and removal. Ninety-five paired samples have maximum RGB MAE
 Fourteen raw/profile/hazard checks pass without a schema correction. These
 observations cover Mac 2026.2.4, format 10.0; completed disposable artifacts are
 removed after the findings enter the plugin and tests.
+
+## Continuous fill and shape-stroke intervals
+
+Version 0.45.0 extends schema-2 `definition` targets to existing remix fill and
+shape-stroke RGB/opacity fields, plus `stroke-width`. Shape-only and text-bearing
+Callouts on root lanes or beneath Group-only ancestors share the existing
+interval/easing/removal workflow. The [central helper contract](helper.md#animation-json-editing)
+owns the script anchors and commands. Positive intervals use the selected
+Callout's source clock; trimmed or retimed child edits preserve every ancestor.
+All fields must exist. Width endpoints are nonnegative finite doubles; channel
+endpoints use 0..1. Typed descriptors, interpolation, opaque data and other
+intervals survive. Fill/stroke style switches, corner radius, shape geometry
+controls and Quick Property animation editing retain separate contracts.
+
+Native Basic white Rectangle saves `kind: remix`, `shape: shape-rectangle`,
+width 240, height 180, corner radius 8, white fill/stroke RGB, opacity one,
+solid styles and stroke width zero. No text field or rich-text state is required.
+Auto Animate at two seconds creates one–two-second typed-double curves inside
+`def`, coupled to the same `animationTracks.visual` marker as geometry:
+
+| Native edit | Default → interval target |
+| --- | --- |
+| Fill opacity 50% | `fill-color-opacity`: 1 → 0.5 |
+| Fill white → #0080FF | `fill-color-red`: 1 → 0; green: 1 → 0.501960784313725; unchanged blue stays static one. |
+| Outline thickness 12 | `stroke-width`: 0 → 12 |
+| Outline opacity 75% | `stroke-color-opacity`: 1 → 0.75 |
+| Outline white → #FF4000 | `stroke-color-green`: 1 → 0.250980392156863; blue: 1 → 0; unchanged red stays static one. |
+| X position 60 | Geometry `translation0`: 0 → 60 on the same marker. |
+
+These fill/stroke channels use `opacity`, distinct from text outline's `alpha`.
+Targets use the supplied native numeric value. A native speech-bubble fill edit
+of 30% saves 0.300000011920929; replay that observed value when exact native/UI
+comparison is needed. The helper does not convert percentages or round channels.
+Native UI reset-property metadata remains unchanged during helper edits.
+
+Exponential easing writes `eioe` on the arrow and every coupled geometry and
+style frame. Native Remove Animation restores initial scalars, retaining explicit
+style zeroes and unrelated fields. Grouping a 2× rectangle, resizing the Group
+to canvas and trimming seven frames retains the original style-frame source
+bounds. The exercised child has source in-point 329280000 and inverse speed
+`"1/2"`; source bounds 705600000–1411200000 map to local bounds 4/15–23/30
+seconds. Spring easing and removal operate on all coupled child frames while
+preserving Group bindings and clocks. Parent bounds remain explicit.
+
+A native `speech-bubble2` Callout additionally couples fill opacity, shape-stroke
+width and text-stroke width in one interval, retaining its null rich-text point
+and default font. Native auto-resize can change fitted glyph size as the glyph
+outline grows; the helper preserves the existing sizing flag and shape/tail
+geometry. On independent loading, its existing static 0.9 scales acquire constant
+typed-double companions over the style interval. Those frames retain default
+and target 0.9; the helper's geometry lifecycle already eases/removes them while
+retaining the nondefault initial scale.
+
+Eleven whole-document native/helper comparisons verify construction, compound
+controls, easing, removal and grouped reconstruction. Allowed differences are
+observed UI counters/thumbnail caches, reset-property metadata and the explicit
+Group-tab close. A 21-cell, 168-second sequence includes native/helper controls,
+all five easings with a second palette interval, native removals, trimmed 2×
+shapes, three Group levels and combined text/fill/shape/glyph outlines. Two
+independent save/close/reopen exports repeat all 5,040 decoded RGB frames and
+stereo PCM samples identically. Whole-project comparison retains an 89-clip ID
+bijection, three integer binding remaps, the four observed constant scale
+companions and the duration label; the independent reopen is byte-identical.
+
+All 168 inspected phase frames and ten full-size views show the expected color,
+opacity, border growth, movement, palette changes, text fitting, clip ends and
+restored initial styles. Across 152 paired samples, maximum RGB MAE is
+0.086/255. The 50% white-fill center measures RGB 190/190/190; the exercised
+half-opacity blue fill measures 60/122/190; the second opaque yellow palette
+measures 254/254/0. All 168 stereo-channel windows retain 440 Hz at RMS
+0.06787–0.06808. Seventeen exact-build profile/hazard checks pass unchanged;
+strict upstream reports fifteen occurrences of its known `speech-bubble2` enum
+omission. No new schema correction is needed. Target build is Mac 2026.2.4,
+format 10.0. Completed disposable evidence is removed after incorporation into
+the plugin and tests.

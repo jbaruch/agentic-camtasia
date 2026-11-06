@@ -542,7 +542,7 @@ Use the feature workflow for new keyframe shapes or effect-specific retiming.
 ## Animation JSON editing
 
 Use `scripts/animations.py` to inspect curves or stage a coupled visual interval.
-Its module docstring, `OWNERS`, `PROPERTIES`, `TEXT_OUTLINE`, `EASINGS`, `source_bounds`,
+Its module docstring, `OWNERS`, `PROPERTIES`, `TEXT_OUTLINE`, `REMIX_STYLE`, `EASINGS`, `source_bounds`,
 `edit_interval`, `remove_interval`, `interval_properties`, `definition_properties`
 and `REMOVAL_DEFAULTS` own the build,
 geometry fields, easing/removal owners, timing and preservation contract.
@@ -552,9 +552,9 @@ the tested constructors, visual owners and source-position clocks.
 | Command | Required inputs | Output and side effects |
 | --- | --- | --- |
 | `inspect PROJECT` | Bundle or project JSON | Read-only physical owners, visual intervals, parameter curves and direct definition curves, including unfamiliar owners and discrete rich-text states. |
-| `set-interval PROJECT --clip-id ID --spec SPEC --output CANDIDATE` | Verified visual-owner ID and schema-1/2 interval input | Separate candidate; adds or updates the interval and requested geometry/outline targets. Missing geometry parameters require explicit initial values; outline fields must already exist. Linked IDs resolve to video; audio, wrapper, Group children and sources survive. |
-| `ease-interval PROJECT --clip-id ID --start SECONDS --end SECONDS --easing CHOICE --output CANDIDATE` | Existing interval and easing choice | Separate candidate; updates the interval and matching geometry/outline frames together. Other intervals and parameter-level interpolation survive. Unknown/effect-owned coupled curves require native investigation. |
-| `remove-interval PROJECT --clip-id ID --start SECONDS --end SECONDS --output CANDIDATE` | Exact clip-relative bounds of the selected interval | Separate candidate; removes the interval and its coupled geometry/outline frames, retaining initial values, other intervals, audio and sources. An already absent interval is a no-op without orphaned coupled frames. |
+| `set-interval PROJECT --clip-id ID --spec SPEC --output CANDIDATE` | Verified visual-owner ID and schema-1/2 interval input | Separate candidate; adds or updates the interval and requested geometry/style targets. Missing geometry parameters require explicit initial values; definition fields must already exist. Linked IDs resolve to video; audio, wrapper, Group children and sources survive. |
+| `ease-interval PROJECT --clip-id ID --start SECONDS --end SECONDS --easing CHOICE --output CANDIDATE` | Existing interval and easing choice | Separate candidate; updates the interval and matching geometry/style frames together. Other intervals and parameter-level interpolation survive. Unknown/effect-owned coupled curves require native investigation. |
+| `remove-interval PROJECT --clip-id ID --start SECONDS --end SECONDS --output CANDIDATE` | Exact clip-relative bounds of the selected interval | Separate candidate; removes the interval and its coupled geometry/style frames, retaining initial values, other intervals, audio and sources. An already absent interval is a no-op without orphaned coupled frames. |
 
 Example interval input:
 
@@ -601,6 +601,13 @@ optional geometry `values` in the same interval:
 Read [continuous text-outline intervals](animations.md#continuous-text-outline-intervals)
 for native representation, Group/trim/speed clocks and remaining style limits.
 Rich-text points remain separate from these continuous curves.
+
+Schema 2 also accepts existing remix fill/stroke RGB and opacity fields, plus
+shape `stroke-width`, through the same `definition` object. Use `opacity` for
+fill/stroke channels and `alpha` for text outlines. Read
+[continuous fill and shape-stroke intervals](animations.md#continuous-fill-and-shape-stroke-intervals)
+for native values, combined text controls and scale companions.
+
 
 Stdout uses schema 1, owner `camtasia-animations`, hashes and the physical
 animation inventory. Staging reports `changed`, `written` and

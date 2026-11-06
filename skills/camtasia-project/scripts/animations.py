@@ -4,9 +4,9 @@
 inspect PROJECT is read-only. set-interval PROJECT --clip-id ID --spec SPEC
 --output CANDIDATE stages one coupled interval. ease-interval PROJECT --clip-id
 ID --start SECONDS --end SECONDS --easing CHOICE --output CANDIDATE changes an
-existing interval's easing and its matching geometry/outline keyframes together.
+existing interval's easing and its matching geometry/style keyframes together.
 remove-interval PROJECT --clip-id ID --start SECONDS --end SECONDS --output
-CANDIDATE removes a coupled visual interval and its known geometry/outline frames.
+CANDIDATE removes a coupled visual interval and its known geometry/style frames.
 
 Spec schema_version 1 requires start/end rational clip-relative timeline seconds
 and values (property-to-target object); optional initial supplies missing
@@ -16,12 +16,15 @@ the saved codes; auto omits that field without resetting other interpolation
 owners. set-interval accepts empty values for a native Custom interval marker;
 ease-interval still requires an existing interval. The Python API uses the
 explicit allow_empty keyword for marker creation.
-Schema 2 also accepts definition targets from TEXT_OUTLINE on existing remix
-text Callouts with root or Group-only ancestry; values becomes optional. These
-continuous width/RGBA curves share geometry's interval, source clock and global
-easing. Outline fields must already exist; widths are nonnegative and color
-channels lie in 0..1. No font, rich-point, layout-enum or shape-style animation
-is inferred. Rich text, including null/discrete point states, stays unchanged.
+Schema 2 also accepts definition targets from REMIX_STYLE on existing remix
+shape/text Callouts with root or Group-only ancestry, plus TEXT_OUTLINE on text
+Callouts; values becomes optional. These continuous stroke-width/color/opacity
+curves share geometry's interval, source clock and global easing. Definition
+fields must already exist; widths are nonnegative and channels lie in 0..1.
+Fill/stroke style switches, corner radii, fonts, rich points and layout enums
+retain separate contracts. Existing styles and rich text, including null/
+discrete point states, stay unchanged. Fill/stroke channels use opacity; text
+outline uses alpha. Targets use native values, not UI percentage conversion.
 PROPERTIES and OWNERS define the verified geometric parameters/visual owners.
 Linked IDs resolve to the video child; wrapper, audio, effects and sources stay
 unchanged. New missing parameters require explicit initial values; existing
@@ -33,15 +36,16 @@ Negative starts and exact subframe bounds are legal.
 New intervals cannot overlap existing intervals. Matching intervals/frames are
 updated in place, retaining opaque fields. Existing parameter-level easing and
 all unrelated curves survive. An explicit global easing change updates every
-matching known geometry/outline frame; unknown/effect-owned coupled curves,
+matching known geometry/style frame; unknown/effect-owned coupled curves,
 including nested definition curves, are refused.
 This is curve authoring/editing, not SmartFocus subject detection or a preset
 framing formula. Removal retains other intervals, their frames and initial
-geometry. Last-frame removal collapses plain parameters to their initial values;
+values. Last-frame removal collapses plain parameters to their initial values;
 REMOVAL_DEFAULTS identifies omitted native defaults, while crop zeroes stay
-explicit, as do outline defaults. Extra parameter fields remain typed and survive
-without their removed frames. Absent intervals are no-ops only without orphaned coupled frames.
-Unknown/effect-owned coupling, overlaps and geometry point frames are refused.
+explicit, as do annotation style defaults. Extra parameter fields remain typed
+and survive without their removed frames. Absent intervals are no-ops only
+without orphaned coupled frames. Unknown/effect-owned coupling, overlaps and
+point-shaped target curves are refused.
 Images, Callouts and Groups retain their own source clocks and child data;
 Group descendant transforms are not rewritten when editing the parent.
 Frozen ScreenIMFile and StitchedMedia retain source selection, virtual hold
@@ -93,6 +97,14 @@ TEXT_OUTLINE = frozenset(
     {"text-stroke-width"}
     | {"text-stroke-color-" + channel for channel in ("red", "green", "blue", "alpha")}
 )
+REMIX_STYLE = frozenset(
+    {"stroke-width"}
+    | {
+        prefix + channel
+        for prefix in ("fill-color-", "stroke-color-")
+        for channel in ("red", "green", "blue", "opacity")
+    }
+)
 EASINGS = {
     "auto": None,
     "linear": "linr",
@@ -117,16 +129,19 @@ def value_number(name: str, value: Any) -> float:
     try:
         result = float(project.number(value))
     except OverflowError as exc:
-        raise ValueError("supply geometry values representable as native finite doubles") from exc
+        raise ValueError("supply animation values representable as native finite doubles") from exc
     if name == "opacity" and not 0 <= result <= 1:
         raise ValueError("supply opacity between 0 and 1")
-    if name.startswith("text-stroke-color-") and not 0 <= result <= 1:
-        raise ValueError("supply outline color channels between 0 and 1")
-    if name == "text-stroke-width" and result < 0:
-        raise ValueError("supply a nonnegative outline width")
-    # Fraction accepts arbitrarily large integers; native geometry is binary64.
+    if (
+        name.startswith(("text-stroke-color-", "fill-color-", "stroke-color-"))
+        and not 0 <= result <= 1
+    ):
+        raise ValueError("supply annotation color channels between 0 and 1")
+    if name in {"text-stroke-width", "stroke-width"} and result < 0:
+        raise ValueError("supply a nonnegative annotation stroke width")
+    # Fraction accepts arbitrarily large integers; native numeric curves are binary64.
     if not (-sys.float_info.max <= result <= sys.float_info.max):
-        raise ValueError("supply finite native geometry values")
+        raise ValueError("supply finite native animation values")
     return result
 
 
@@ -188,7 +203,7 @@ def overlaps(first: tuple[int, int], second: tuple[int, int]) -> bool:
 def parameter_frames(parameter: dict[str, Any]) -> list[dict[str, Any]]:
     frames = parameter.get("keyframes", [])
     if not isinstance(frames, list):
-        raise ValueError("inspect the native geometry keyframe array")
+        raise ValueError("inspect the native animation keyframe array")
     return frames
 
 
@@ -246,16 +261,17 @@ def definition_properties(
         owner.get("_type") == "Callout"
         and isinstance(definition, dict)
         and definition.get("kind") == "remix"
-        and isinstance(definition.get("text"), str)
         and all(
             node.get("_type") == "Group"
             for parent, node in hotspots.clips(doc)
             if path.startswith(parent + "/")
         )
     ):
-        return TEXT_OUTLINE
+        return REMIX_STYLE | (
+            TEXT_OUTLINE if isinstance(definition.get("text"), str) else frozenset()
+        )
     if requested:
-        raise ValueError("select a remix text Callout with Group-only clip ancestors")
+        raise ValueError("select a remix Callout with Group-only clip ancestors")
     return frozenset()
 
 
@@ -293,7 +309,7 @@ def edit_parameter(
         parameters[name] = {"type": "double", "defaultValue": value_number(name, parameters[name])}
     parameter = parameters[name]
     if not isinstance(parameter, dict) or parameter.get("type") != "double":
-        raise ValueError("preserve unfamiliar geometry parameter types: " + name)
+        raise ValueError("preserve unfamiliar animation parameter types: " + name)
     default = value_number(name, parameter.get("defaultValue"))
     if name in initial and default != value_number(name, initial[name]):
         raise ValueError("preserve the existing initial value before editing an interval: " + name)
@@ -302,7 +318,7 @@ def edit_parameter(
     if len(hits) > 1 or any(
         frame_bounds(frame) != bounds and overlaps(frame_bounds(frame), bounds) for frame in frames
     ):
-        raise ValueError("preserve ambiguous or overlapping geometry curves: " + name)
+        raise ValueError("preserve ambiguous or overlapping animation curves: " + name)
     frame: dict[str, Any]
     if hits:
         frame = hits[0]
@@ -343,8 +359,10 @@ def edit_interval(
         spec.get("parameterEasing", {}),
     )
     definition_values = spec.get("definition", {})
-    if not isinstance(definition_values, dict) or set(definition_values) - TEXT_OUTLINE:
-        raise ValueError("name verified existing text outline definition fields")
+    if not isinstance(definition_values, dict) or set(definition_values) - (
+        TEXT_OUTLINE | REMIX_STYLE
+    ):
+        raise ValueError("name verified existing annotation style definition fields")
     if (
         not all(isinstance(item, dict) for item in (values, initial, parameter_easing))
         or set(values) - PROPERTIES
@@ -381,6 +399,8 @@ def edit_interval(
         raise ValueError("inspect the visual owner's native parameters")
     coupled_properties = interval_properties(owner, bounds)
     known_definition = definition_properties(result, path, owner, requested=bool(definition_values))
+    if set(definition_values) - known_definition:
+        raise ValueError("select a remix text Callout for text-outline fields")
     definition = owner.get("def", {})
     if not matched and not values and not definition_values:
         for _, parameter in project.objects([parameters, definition, owner.get("effects", [])]):
@@ -407,7 +427,9 @@ def edit_interval(
     ):
         for name, target in targets.items():
             if mapping is definition and name not in mapping:
-                raise ValueError("capture the native outline field before animating: " + name)
+                raise ValueError(
+                    "capture the native annotation style field before animating: " + name
+                )
             edit_parameter(
                 mapping, name, target, defaults, easings, bounds, matched, "easing" in spec
             )
@@ -433,7 +455,7 @@ def edit_interval(
 
 
 def remove_interval(doc: dict[str, Any], clip_id: int, start: Any, end: Any) -> dict[str, Any]:
-    """Remove one native interval without changing the retained initial/target geometry."""
+    """Remove one native interval, retaining initial values and other interval targets."""
     if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
         raise ValueError("use the verified Mac 2026.2.4 format-10 animation contract")
     result = copy.deepcopy(doc)
@@ -475,15 +497,15 @@ def remove_interval(doc: dict[str, Any], clip_id: int, start: Any, end: Any) -> 
                 frame_bounds(frame) != bounds and overlaps(frame_bounds(frame), bounds)
                 for frame in frames
             ):
-                raise ValueError("preserve ambiguous or overlapping geometry curves: " + name)
+                raise ValueError("preserve ambiguous or overlapping animation curves: " + name)
             if not hits:
                 continue
             if not matched:
                 raise ValueError(
-                    "repair orphaned geometry frames before removing an absent interval"
+                    "repair orphaned animation frames before removing an absent interval"
                 )
             if parameter.get("type") != "double":
-                raise ValueError("preserve unfamiliar geometry parameter types: " + name)
+                raise ValueError("preserve unfamiliar animation parameter types: " + name)
             default = value_number(name, parameter.get("defaultValue"))
             kept = [frame for frame in frames if frame_bounds(frame) != bounds]
             if kept:
