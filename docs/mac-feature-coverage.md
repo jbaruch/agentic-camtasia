@@ -18,7 +18,7 @@ they are added when a real project needs them.
 | Cursors and input | Native recorded/generated paths, smoothing, click presets, keystroke styles and Window Spotlight, with source clocks and output controls. |
 | Hotspots | JSON action editing and observed single-scene nested/retimed marker clocks, with actual browser click/seek tests and the Group reload-drift guard. |
 | Quizzes and surveys | JSON question/answer/feedback editing, supported owner transfers, four question/survey kinds, SCORM 1.2 and three 2004 edition outputs; fourth-edition session resume. |
-| Quick Properties and themes | Native color/text/typography/media binding lifecycles, linking, replacement/clear, theme application and resource/package contracts. |
+| Quick Properties and themes | Reusable Group binding, text/color and media replacement/clear helpers, with native lifecycle, theme application and resource/package contracts. |
 | Library and resources | Native archive reuse, names, sorting and copy/move identities; hard-link hazards, collision-safe intake and isolated rendering. Lottie/SVG dependency and relocation findings remain explicit. |
 | Delivery | Native MP4, MOV codecs, WebM, GIF and audio outputs; Smart Player interactions, captions and quiz packages. Resource and codec limits are documented per specimen. |
 
@@ -29,7 +29,7 @@ references define each supported representation; the
 
 ## Known follow-ups
 
-- Further effect/behavior controls, mixed annotation text styles, RTF/nested caption clocks and Quick Property authoring.
+- Further effect/behavior controls, mixed annotation text styles, RTF/nested caption clocks and additional themed/animated Quick Property controls.
 - Theme duplication and additional requested Library lifecycle operations.
 - Further owner/container/scene clocks in matte, hotspot and quiz editing.
 - Further requested SCORM interrupted-session and resume behavior.

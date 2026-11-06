@@ -33,7 +33,7 @@ All fourteen issues are enhancements and explicitly do not block v0.1.
 | [#3](https://github.com/jbaruch/agentic-camtasia/issues/3) | Native-template behavior construction, phase timing/static edits, bypass and removal shipped in 0.6.0. |
 | [#4](https://github.com/jbaruch/agentic-camtasia/issues/4) | Standalone native-template constructors and existing shape/uniform text controls shipped in 0.7.0. |
 | [#5](https://github.com/jbaruch/agentic-camtasia/issues/5) | Closed cue authoring, recognized-word corrections, root clock mapping/retiming and existing dynamic display controls shipped in 0.8.0. |
-| [#6](https://github.com/jbaruch/agentic-camtasia/issues/6) | Quick Property bindings and media replacement |
+| [#6](https://github.com/jbaruch/agentic-camtasia/issues/6) | Group binding/value edits, linked text/color/media controls and native media replacement/clear shipped in 0.9.0. |
 | [#7](https://github.com/jbaruch/agentic-camtasia/issues/7) | Independent theme duplication |
 | [#8](https://github.com/jbaruch/agentic-camtasia/issues/8) | Additional matte owners and curves |
 | [#9](https://github.com/jbaruch/agentic-camtasia/issues/9) | Additional hotspot owners and scene clocks |

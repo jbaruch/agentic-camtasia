@@ -1,5 +1,8 @@
 # Group Quick Properties
 
+For reusable binding, value and media commands, read the
+[helper contract](helper.md#quick-property-json-editing).
+
 These native contracts apply to Camtasia Mac 2026.2.4, format `10.0`, with a
 grouped [Lottie source](lottie.md) and a native Basic text box. TechSmith describes
 [Quick Property assets](https://support.techsmith.com/hc/en-us/articles/360032837791-Customize-the-Intros-Lower-thirds-and-Outros-in-Camtasia-Editor-Video)
@@ -7,6 +10,45 @@ as reusable assets with editable text, colors, fonts, and other controls. These
 probes establish color, text/typography, font-theme application and linked text
 controls below. [Media Quick Properties](media-quick-properties.md) have a separate
 native AV replacement/clear contract and additional image/linking dependencies.
+
+## Helper verification
+
+The reusable helper candidate was exercised on Mac 2026.2.4 / format 10 with
+nine four-second Group cases: trimmed AV, a short portrait replacement, longer
+replacement, fitted image, transparent clear, restored AV, separate texts,
+linked Unicode text and an independent edit after unlink. The three bundled
+inputs are synthetic; no vendor definitions or media are distributed.
+
+The editor-created media binding selects the AV wrapper. A helper-generated
+clear matches the independently editor-saved clear specimen except bookkeeping.
+The combined candidate's native save uses an explicit bijective 33-ID map,
+including sources, timeline, every Group/clip and property binding. Complete
+payloads of all six media Groups remain equal after that map and the seven
+demonstrated cleared-definition static collapses plus zero corner radius.
+The three text Groups separately initialize their installed Basic text preset;
+all text, rich runs, binding IDs and clocks survive that initialization.
+
+Further edits start from those fully native text definitions. Binding reorder
+and rename, linked `Together café → Go`, and independent
+`Only First café → Go` preserve the entire native document except its command
+counter during save. Uniform rich ranges track the new UTF-8 byte lengths;
+the second unlinked text retains its previous string.
+
+Two independent native exports separated by close/reopen reproduce the complete
+decoded video and audio exactly. All 18 actual sampled frames are inspected:
+timecodes distinguish the original trim from reset source zero, the short
+portrait disappears before its Group ends, the square stays fitted, clearing is
+empty, and all Unicode text states remain visible. Thirty-six both-channel
+audio windows distinguish the source tones and silence; restored unity gain is
+4.0014 times the original quarter-gain use. This is a bounded native regression,
+not a general color/audio calibration. All three bundled source hashes remain
+unchanged. Completed projects, movies, contacts and probe scripts are deleted
+after incorporating these findings into the helpers and fixed tests.
+
+The pinned community schema requires Callout `metadata` even when this native
+save omits it. Six raw errors remain reported separately; the exact format-10
+profile permits that omission only on Callouts and retains object typing,
+required definitions, known identifiers and unknown-field restrictions.
 
 ## Bindings and ownership
 

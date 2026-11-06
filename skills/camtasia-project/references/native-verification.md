@@ -33,6 +33,11 @@ The profile is restricted to the exact authoring-client identity and format.
 It retains type checks, other enums, required fields, and unknown-property
 rejections. It does not set `additionalProperties: true` across the schema.
 
+The separate format-10 Mac 2026.2.4 profile also permits omitted Callout
+`metadata`, as observed in the [Quick Property helper verification](quick-properties.md#helper-verification).
+Present metadata retains its object type; other required fields and unknown
+properties keep their original checks. Raw community errors remain visible.
+
 Resolve this skill directory to absolute `camtasia_skill_root`, then run:
 
 ```bash

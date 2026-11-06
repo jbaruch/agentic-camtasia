@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.9.0 — 2026-11-05
+
+### Added
+
+- Group Quick Property inspection, guarded binding labels/order/visibility,
+  native text/color values and link/unlink operations. Unknown entry descriptors
+  and uniform rich-text styles survive; text ranges follow UTF-8 bytes.
+- Native-template AV/image replacement and transparent clearing. Source starts
+  reset, finite AV use clamps to both selected streams, fitting retains the
+  original box, and longer replacement restores remembered duration. AV gain
+  survives AV replacement; restoring audio after image/clear creates unity gain.
+- Stable bound root IDs, fresh children across the full ID namespace on type
+  changes, source-bin preservation and refusal of unsupported coupled processing.
+  Theme application remains a native operation; changing mappings under an
+  active theme requires its resource contract.
+
 ## 0.8.0 — 2026-11-05
 
 ### Added

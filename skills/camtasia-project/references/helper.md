@@ -560,6 +560,49 @@ Run the ordinary `project.py diff`, validation and guarded `apply` workflow on
 the staged candidate. Staging does not establish native acceptance, valid nested
 clock mapping, portable dependencies or working exported interactions.
 
+## Quick Property JSON editing
+
+Use `skills/camtasia-project/scripts/quick_properties.py` — its module docstring,
+`bindings`, `set_bindings`, `set_value` and `link_rows` own the binding/value
+contract. Media operations use `skills/camtasia-project/scripts/media_replacement.py`
+— its module docstring, `REPLACEMENT_FIELDS`, `clean` and `replace_child` own the
+constructor, preservation, fitting and clock contracts. The
+[native Quick Property reference](quick-properties.md#helper-verification)
+records editor verification and dependencies.
+
+```bash
+python3 -B "{camtasia_skill_root}/scripts/quick_properties.py" inspect "<project>"
+python3 -B "{camtasia_skill_root}/scripts/quick_properties.py" bindings "<project>" --group-id ID --spec "<bindings.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/quick_properties.py" value "<project>" --group-id ID --index N --spec "<value.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/quick_properties.py" link "<project>" --group-id ID --index N --spec "<link.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/quick_properties.py" unlink "<project>" --group-id ID --index N --spec "<unlink.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/media_replacement.py" replace "<project>" --group-id ID --index N --source-clip-id ID --spec "<media.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/media_replacement.py" clear "<project>" --group-id ID --index N --template-project "<native-clear-project>" --template-clip-id ID --spec "<media.json>" --output "<candidate.json>"
+```
+
+All specs carry `schema_version: 1`. Inspection returns Group paths, IDs, raw
+`properties` arrays and descendant identities. Copy the inspected descriptor
+into `expected`; stale selections refuse. Property indices are zero-based.
+
+| Command | Spec fields after `schema_version` |
+| --- | --- |
+| `bindings` | `expected`: complete old property array; `properties`: complete desired array. Omitted rows are hidden without clearing content. |
+| `value` | `expected`: selected entry; requested `text`, `rich`, `definition` or `color` value. |
+| `link` / `unlink` | `expected`: complete old array; dynamic-color linking also takes an explicit `color` value. |
+| `replace` / `clear` | `expected`: selected media entry. Replacement uses a saved donor clip in the same document; clear uses a native cleared-media template. |
+
+Media operations change concrete picture/audio content and native replacement
+metadata. Clearing or changing media kind can remove audio. Native theme
+application and file imports remain separate editor operations; a stored mapping
+alone does not apply a theme resource.
+
+Both helpers emit JSON hashes, `changed`, `written`, Group inventories and
+`nativeVerified: false`. Their owners are `camtasia-quick-properties` and
+`camtasia-media-replacement`. Only a separate exclusive candidate is written;
+an identical existing output is a no-op. Input projects, source entries and media
+bytes remain unchanged. Exit codes: 0 success, 1 input/I/O refusal, 2 CLI syntax;
+errors are JSON on stderr. Follow ordinary diff/validate/apply and native checks.
+
 ## Quiz JSON editing
 
 Use `scripts/quizzes.py` for quiz inspection, authoring, retiming, owner transfer
