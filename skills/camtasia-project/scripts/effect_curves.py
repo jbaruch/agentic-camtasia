@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage linear curves on existing typed native visual-effect double parameters.
+"""Stage interval curves on existing typed native visual-effect double parameters.
 
 inspect PROJECT inventories effects. set PROJECT --clip-id ID --effect NAME
 [--effect-token TOKEN] --parameter NAME --spec SPEC --output CANDIDATE replaces
@@ -9,6 +9,9 @@ only the selected parameter's default and complete interval curve. clear uses
 Spec schema_version 1 requires defaultValue and nonempty segments, each with
 start/end rational clip-relative timeline seconds and target value. Gaps hold
 the preceding value. Raw native units are required; existing valueBounds apply.
+Version 1 stays linear. Version 2 adds optional per-segment easing: linear
+(default), exponential, bounce or spring, using animations.EASINGS codes.
+Default/target bounds remain enforced; native spring interpolation can overshoot.
 Exact project ticks use the visual source clock (mediaStart/inverse speed).
 OWNERS names ordinary visual owners verified for these clocks; linked wrapper
 and video clocks must agree. Only Mac 2026.2.4/format 10 is admitted. Existing
@@ -17,9 +20,12 @@ integer, boolean, missing parameter or effect constructor is inferred. MediaPath
 retains its dedicated motion_paths.py coupling and is refused here.
 
 Existing interval-shaped selected frames are explicitly replaced; unknown or
-point frames are refused. Parameter/frame interpolation becomes linear. Matching
-native visual intervals remain unchanged; new nonoverlapping intervals are
-added only to the visual owner. Conflicting interval easing or overlap refuses.
+point frames are refused. Version 1 sets parameter/frame interpolation linear
+and refuses conflicting interval easing. Version 2 removes parameter-level
+interpolation and selects each frame's easing explicitly; existing matching
+visual intervals retain their known easing and unrelated geometry. New
+nonoverlapping intervals use the requested easing on the visual owner only.
+Unknown interval easing and overlapping bounds refuse.
 Clear preserves descriptors, parameter interpolation, all visual intervals and
 other curves. Native save can regenerate constant frames from retained visual
 intervals. Reset metadata, stable effect tokens, edges, audio and sources survive.
@@ -128,11 +134,13 @@ def edit_curve(
         not isinstance(spec, dict)
         or set(spec) != {"schema_version", "defaultValue", "segments"}
         or type(spec["schema_version"]) is not int
-        or spec["schema_version"] != 1
+        or spec["schema_version"] not in (1, 2)
         or not isinstance(spec["segments"], list)
         or not spec["segments"]
     ):
-        raise ValueError("supply curve schema_version 1 with defaultValue and nonempty segments")
+        raise ValueError(
+            "supply curve schema_version 1 or 2 with defaultValue and nonempty segments"
+        )
     result = copy.deepcopy(doc)
     targets = selected(result, clip_id, name, token)
     visual = targets[-1][0]
@@ -143,8 +151,20 @@ def edit_curve(
     intervals = visual_intervals(visual)
     duration = project.number(visual["duration"]) / project.number(result["editRate"])
     for segment in spec["segments"]:
-        if not isinstance(segment, dict) or set(segment) != {"start", "end", "value"}:
-            raise ValueError("supply each curve segment with start, end and value")
+        required = {"start", "end", "value"}
+        optional = {"easing"} if spec["schema_version"] == 2 else set()
+        if (
+            not isinstance(segment, dict)
+            or not required <= set(segment)
+            or set(segment) - required - optional
+        ):
+            raise ValueError(
+                "supply each curve segment with start, end, value and optional v2 easing"
+            )
+        easing = segment.get("easing", "linear")
+        if not isinstance(easing, str) or easing == "auto" or easing not in animations.EASINGS:
+            raise ValueError("choose effect easing linear, exponential, bounce or spring")
+        code = animations.EASINGS[easing]
         if any(isinstance(segment[key], bool) for key in ("start", "end")):
             raise ValueError("supply rational timeline seconds, not booleans")
         start, end = (project.number(segment[key]) for key in ("start", "end"))
@@ -167,23 +187,28 @@ def edit_curve(
             for interval in intervals
         ):
             raise ValueError("preserve overlapping visual intervals; select their existing bounds")
-        if matched and matched[0].get("interp") not in (None, "linr"):
-            raise ValueError("preserve shared interval easing; use a native linear interval")
+        accepted = (None, "linr") if spec["schema_version"] == 1 else animations.EASINGS.values()
+        if matched and matched[0].get("interp") not in accepted:
+            raise ValueError("preserve shared interval easing; select a compatible native interval")
         if not matched:
-            intervals.append(dict(endTime=bounds[1], duration=bounds[1] - bounds[0], interp="linr"))
+            intervals.append(dict(endTime=bounds[1], duration=bounds[1] - bounds[0], interp=code))
         frames.append(
             dict(
                 time=bounds[0],
                 endTime=bounds[1],
                 duration=bounds[1] - bounds[0],
                 value=scalar_value(old, segment["value"]),
-                interp="linr",
+                interp=code,
             )
         )
         previous_end = end
     for _, effect in targets:
         descriptor = parameter_of(effect, parameter)
-        descriptor.update(defaultValue=default, keyframes=copy.deepcopy(frames), interp="linr")
+        descriptor.update(defaultValue=default, keyframes=copy.deepcopy(frames))
+        if spec["schema_version"] == 1:
+            descriptor["interp"] = "linr"
+        else:
+            descriptor.pop("interp", None)
     return result
 
 

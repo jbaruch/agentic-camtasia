@@ -90,10 +90,11 @@ Preserve the observed constant representation and original typed descriptor
 when planning later edits. Do not infer integer/enum kinds from a
 bare JSON number or silently flatten other animated parameters.
 
-This is an interval-double authoring contract, not an assertion that arbitrary
-parameter combinations, point curves, nonlinear easing, recorded/frozen owners
-or companion-resource behavior have been verified. Each edited consumer project
-still requires native output checks.
+[Nonlinear interval verification](effect-nonlinear-curves.md) adds native easing
+captures, independent geometry, linked/Group clocks, clearing and bypass controls.
+This interval-double contract does not establish arbitrary parameter combinations,
+point curves, recorded/frozen owners or companion-resource behavior. Each edited
+consumer project still requires native output checks.
 
 ## Placeholder replacement
 
