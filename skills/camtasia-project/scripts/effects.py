@@ -21,8 +21,13 @@ MediaPath construction uses motion_paths.py to preserve its clip-rotation coupli
 Its editing/removal also use that dedicated helper.
 Direct moving recordings, frozen recordings and stitched parents support native
 template construction and lifecycle edits. FROZEN_STITCHED_TYPES is restricted to Mac
-2026.2.4/format 10 for all mutations. Linked recording mirrors remain unverified
-and are refused. Stitched parent edits preserve descendants and virtual holds;
+2026.2.4/format 10 for all mutations. Root linked moving recordings support
+matching wrapper/video mirrors with complete equal clocks, positive project
+rate/inverse speed and a same-source AMFile audio child. Their visual effects
+require unique canonical tokens; recorded audio is preserved. Linked held,
+stitched and nested owners retain separate contracts. Other feature callers
+must explicitly opt into their own verified linked-recording scope.
+Stitched parent edits preserve descendants and virtual holds;
 no recording/freeze/stitch constructor is inferred. Timed templates retain the
 complete matching-clock requirement, including held source-frame selection.
 
@@ -48,7 +53,8 @@ is exclusive or an identical no-op; use project diff/validate/apply and native
 verification afterward. Stdout schema_version 1 owner camtasia-effects includes
 hashes, inventory, changed/written and nativeVerified false. Exit 0 success,
 1 input/I/O refusal, 2 CLI syntax. Errors are JSON on stderr. Structural/type
-checks do not prove a new scalar combination renders as intended.
+checks do not prove a new scalar combination renders as intended. Help emits
+the same owner/version with ok true and a formatted help string.
 """
 
 from __future__ import annotations
@@ -78,9 +84,23 @@ MIRRORED_CONTROLS = (
 )
 FROZEN_STITCHED_TYPES = frozenset({"ScreenIMFile", "StitchedMedia"})
 RECORDING_TYPES = FROZEN_STITCHED_TYPES | {"ScreenVMFile"}
+LINKED_RECORDING_TYPES = frozenset({"ScreenVMFile"})
 CONSTRUCTOR_TYPES = frozenset({"VMFile", "IMFile", "Callout", "Group"})
 EFFECT_TYPES = CONSTRUCTOR_TYPES | RECORDING_TYPES
 CLOCK_FIELDS = ("start", "duration", "mediaStart", "mediaDuration", "scalar")
+
+
+class JsonHelpParser(argparse.ArgumentParser):
+    def format_help(self) -> str:
+        return (
+            json.dumps(
+                dict(
+                    schema_version=1, owner="camtasia-effects", ok=True, help=super().format_help()
+                ),
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
 
 
 def require_native(doc: dict[str, Any]) -> None:
@@ -265,7 +285,7 @@ def edit_effect(
     if "bypassed" in spec and type(spec["bypassed"]) is not bool:
         raise ValueError("supply a boolean effect bypass")
     result = copy.deepcopy(doc)
-    constructor_owners(result, clip_id, visual_types=EFFECT_TYPES)
+    constructor_owners(result, clip_id, visual_types=EFFECT_TYPES, linked_recordings=True)
     for _, effect in targets(result, clip_id, name, token, visual_types=EFFECT_TYPES):
         for key, value in parameters.items():
             patch_parameter(effect["parameters"], key, value)
@@ -283,7 +303,7 @@ def remove_effect(
     if name == "MediaPath":
         raise ValueError("remove Motion Path with motion_paths.py to preserve rotation coupling")
     result = copy.deepcopy(doc)
-    constructor_owners(result, clip_id, visual_types=EFFECT_TYPES)
+    constructor_owners(result, clip_id, visual_types=EFFECT_TYPES, linked_recordings=True)
     for owner, effect in targets(
         result, clip_id, name, token, absent_ok=True, visual_types=EFFECT_TYPES
     ):
@@ -296,6 +316,7 @@ def constructor_owners(
     clip_id: int,
     *,
     visual_types: frozenset[str] = CONSTRUCTOR_TYPES,
+    linked_recordings: bool = False,
 ) -> list[dict[str, Any]]:
     """Select general-operation owners; other feature callers retain their own scope."""
     path, visual = hotspots.visual_target(doc, clip_id, visual_types=visual_types)
@@ -304,15 +325,45 @@ def constructor_owners(
     ):
         raise ValueError("edit frozen/stitched effects with Mac 2026.2.4 format-10 native evidence")
     wrappers = [
-        node
+        (parent, node)
         for parent, node in hotspots.clips(doc)
         if node.get("_type") == "UnifiedMedia" and path == parent + "/video"
     ]
     if len(wrappers) > 1:
         raise ValueError("repair ambiguous linked visual ownership before construction")
     if wrappers and visual.get("_type") in RECORDING_TYPES:
-        raise ValueError("capture native linked recording effect mirrors before editing")
-    return [*wrappers, visual]
+        if not linked_recordings or visual.get("_type") not in LINKED_RECORDING_TYPES:
+            raise ValueError("capture native linked recording effect mirrors before editing")
+        wrapper_path, wrapper = wrappers[0]
+        if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
+            raise ValueError("use Mac 2026.2.4 format-10 linked recording effect evidence")
+        if len(project.scene_tracks(doc)) != 1 or any(
+            wrapper_path.startswith(parent + "/") for parent, _ in hotspots.clips(doc)
+        ):
+            raise ValueError("select a root linked moving recording; capture nested effect clocks")
+        audio = wrapper.get("audio")
+        if (
+            not isinstance(audio, dict)
+            or audio.get("_type") != "AMFile"
+            or type(visual.get("src")) is not int
+            or type(audio.get("src")) is not int
+            or audio["src"] != visual["src"]
+        ):
+            raise ValueError("capture native linked recording AMFile audio with a shared source")
+        if any(field not in owner for field in CLOCK_FIELDS for owner in (wrapper, visual)):
+            raise ValueError("capture complete linked recording wrapper/video clocks")
+        if any(
+            project.number(wrapper[field]) != project.number(visual[field])
+            for field in CLOCK_FIELDS
+        ):
+            raise ValueError("repair conflicting linked recording wrapper/video clocks")
+        if project.number(doc.get("editRate")) <= 0 or project.number(visual["scalar"]) <= 0:
+            raise ValueError("repair positive project rate and linked recording inverse speed")
+        for owner in (wrapper, visual):
+            tokens = [token_of(effect) for effect in effects_of(owner)]
+            if None in tokens or len(tokens) != len(set(tokens)):
+                raise ValueError("capture unique native linked recording visual effectIndex tokens")
+    return [*(node for _, node in wrappers), visual]
 
 
 def timed_payload(value: Any) -> bool:
@@ -388,10 +439,14 @@ def add_effect(
         doc.get("editRate")
     ) != project.number(template.get("editRate")):
         raise ValueError("select a same-build template with the destination project edit rate")
-    source_owners = constructor_owners(template, template_clip_id, visual_types=EFFECT_TYPES)
+    source_owners = constructor_owners(
+        template, template_clip_id, visual_types=EFFECT_TYPES, linked_recordings=True
+    )
     source = targets(template, template_clip_id, name, template_token, visual_types=EFFECT_TYPES)
     result = copy.deepcopy(doc)
-    destination = constructor_owners(result, clip_id, visual_types=EFFECT_TYPES)
+    destination = constructor_owners(
+        result, clip_id, visual_types=EFFECT_TYPES, linked_recordings=True
+    )
     if len(source_owners) != len(destination) or any(
         a.get("_type") != b.get("_type") for a, b in zip(source_owners, destination)
     ):
@@ -450,7 +505,7 @@ def inventory(doc: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = JsonHelpParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     inspect = commands.add_parser("inspect")
     inspect.add_argument("project", type=Path)

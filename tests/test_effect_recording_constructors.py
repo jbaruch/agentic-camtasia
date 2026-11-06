@@ -180,8 +180,8 @@ class RecordingEffectConstructorTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "matching native visual owner"):
                 effects.add_effect(dest, 3, source, 3, "Sepia")
 
-    def test_linked_recordings_refuse_as_donors_recipients_and_lifecycle_targets(self):
-        for kind in KINDS:
+    def test_linked_held_and_stitched_refuse_as_donors_recipients_and_lifecycle_targets(self):
+        for kind in ("ScreenIMFile", "StitchedMedia"):
             linked = linked_template(True)
             linked["editRate"] = RATE
             wrapper = project.scene_tracks(linked)[0][0]["medias"][0]

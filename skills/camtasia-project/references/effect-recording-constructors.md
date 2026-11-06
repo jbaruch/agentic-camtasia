@@ -80,7 +80,67 @@ Eighteen capture/candidate/save snapshots pass the existing exact-build schema
 profile; no new correction is required.
 
 Motion Path lifecycle operations retain their dedicated rotation contract.
-Linked recording mirrors, other resource closure and unfamiliar effect-specific
-companions require separate evidence. Verify each consumer project's native
+Root linked moving recordings have the additional contract below. Other linked
+variants, resource closure and unfamiliar effect-specific companions require
+separate evidence. Verify each consumer project's native
 output. Completed projects, movies, screenshots and measurements are deleted
 after their findings and deterministic tests are incorporated.
+
+## Root linked moving recordings
+
+Locally observed in Camtasia Mac 2026.2.4 (2026.132), project format 10. A root
+`UnifiedMedia` contains `ScreenVMFile` video and same-source stereo `AMFile`
+system audio. Native Sepia creates matching `categoryVisualEffects` instances
+on wrapper and video, with shared `effectIndex: "0"`. Static intensity saves as
+a numeric scalar. The native half-intensity edit adds the wrapper reset value
+`default-Sepia-intensity: "1"`; bypass changes both flags, and removal retains
+the reset value. Audio, source definitions and all owner clocks remain equal
+through these native edits.
+
+The helper's linked-recording constants and `constructor_owners` own accepted
+owners, source/audio bindings, complete clock checks and unique-token refusals.
+This opt-in applies to generic visual-effect construction and lifecycle paths.
+Behavior and effect-curve authoring retain their separate owner contracts.
+Further linked held, stitched and nested forms need their own evidence.
+
+Five complete helper/native comparisons cover full and half construction,
+half-intensity editing, bypass and removal. Only thumbnail/command caches and
+the native first-edit reset addition are excluded. Construction from the native
+half template copies that reset companion; editing preserves existing companions
+without inferring an absent default. Existing unrelated effects and audio tokens
+participate in fresh-token allocation, without reordering or renumbering them.
+
+A native Custom interval also supplies a complete animated Sepia template.
+On the trimmed 2× owner, local zero–one second becomes source positions
+`1411200000`–`2822400000` with duration `1411200000`, project rate 705600000 and
+a two-second source in-point. Both effect mirrors contain the same linear
+intensity frame and native descriptor. The constructor copies those complete
+payloads only with matching owner clocks; it copies no geometry or visual
+animation track and performs no retiming. Native loading derives the missing
+visual interval from the copied effect. This copies a native curve rather than
+adding linked recording support to the effect-curve authoring commands.
+
+A 42-second sequence compares those helpers with independent native full,
+half, bypass, removal and animated controls, plus bare recording and background
+references. The recording remains inset and plays from its positive source
+in-point at 2×. Fifty-two inspected phase frames include the copied interval's
+start, ramp and endpoint. Thirty matched-time comparisons differ by at most
+0.941 mean RGB byte levels per channel. Separate cells retain these encoding
+differences; full intensity visibly changes the foreground, and bypass/removal
+restore its original color. The recorded picture includes a macOS permission
+notice; no permission was granted for this verification.
+
+Native save/close/reopen and two exports in the same editor process produce
+identical complete decoded RGB and PCM streams: 1260 frames, 42 seconds,
+640×360 H.264 and stereo 44.1 kHz AAC. Twenty-eight both-channel one-second
+windows retain the 440 Hz background tone and the 660 Hz recorded-system-audio
+tone in recording cells. The background-only cell has no recorded tone. RMS
+spans 0.09607–0.13480.
+
+Whole-document first-save comparison accounts for 81 remapped clip IDs, one
+derived visual interval, the duration label and thumbnail. Every other field
+remains equal. The second save is byte-identical; original baseline/source and
+bundled AV hashes remain unchanged. Nine snapshots pass the existing exact-build
+profile and native hazard checks. The 43 raw errors are the known timeline
+metadata and wrapper Sepia-enum omissions; no new correction is needed.
+Completed comparison projects, media, exports and measurements are disposable.

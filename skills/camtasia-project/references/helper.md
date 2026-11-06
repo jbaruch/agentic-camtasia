@@ -331,11 +331,13 @@ text glyph ordering and new parameter combinations retain their own checks.
 
 Use `scripts/effects.py` for construction from a saved native template, existing
 static scalar edits, bypass and removal. Its module docstring, `CLIENT_FORMATS`,
-`EFFECT_TYPES`, `constructor_owners`, `add_effect`, `owner_defaults` and `patch_parameter` own the
+`EFFECT_TYPES`, `LINKED_RECORDING_TYPES`, `constructor_owners`, `add_effect`,
+`owner_defaults` and `patch_parameter` own the
 build, owner, parameter, reset and preservation contracts. Read the relevant
 [native effect contract](advanced-features.md) before selecting a template.
 [Recording-owner constructors](effect-recording-constructors.md) record native
-construction, lifecycle, reset companions and complete frozen-effect copying.
+construction, lifecycle, reset companions, complete frozen-effect copying and
+root linked moving recordings with preserved recorded audio.
 
 ```bash
 python3 -B "{camtasia_skill_root}/scripts/effects.py" inspect "<template-project>"
