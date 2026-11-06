@@ -694,9 +694,66 @@ frames and eight full-size views were inspected for slower drawing, thicker
 yellow/orange strokes, instant drawing, zero thickness, Fade and disappearance.
 Audio checks retain the generated 440-Hz tone. The matching exact-build profile
 and native hazard checks pass; the raw schema retains its known SVG-kind and
-drawing-modifier omissions without a new profile correction. Other owner clocks
-and arbitrary SVG/style animation remain separate work. Vendor SVGs, generated
+drawing-modifier omissions without a new profile correction. The
+[Group and clip-clock verification](#sketch-motion-group-and-clip-clocks)
+extends these controls to trimmed/speed-adjusted and nested owners. Arbitrary
+SVG/style animation remains separate work. Vendor SVGs, generated
 media and disposable verification artifacts remain outside the package.
+
+## Sketch Motion Group and clip clocks
+
+Mac 2026.2.4 (2026.132), format 10, native splitting of a five-second drawing at
+one second creates a right fragment with `mediaStart: 705600000` and no drawing
+modifier. Its Draw Time displays 0.0. Setting 2 seconds creates the same single
+drawing companion used by palette presets, with duration 1411200000; source
+offset, clip clock and `def.DrawTime` remain unchanged. The
+[helper contract](helper.md#annotation-json-editing) defines these edits without
+reconstructing the SVG; stroke-only edits preserve the absent drawing.
+
+Native Clip Speed 2× saves scalar `"1/2"`, halves clip duration and changes the
+two-second drawing to one second. A subsequent Draw Time 1.5 edit writes
+1058400000 ticks directly. Timing is local to the selected clip's immediate
+timeline owner, independent of source offset; no source-clock speed conversion
+is applied to that control. The UI rounds a 0.75 entry to 0.8 and saves
+564480000 ticks. Helper inputs retain their requested exact project ticks.
+
+Single and three-level native Groups retain the same child control. The nested
+specimen has canvas-sized bounds, outer X translation 60 and a native trim to
+frame 37. That trim propagates saved starts/offsets through all three Groups and
+the 2× child; the drawing duration stays unchanged. Child time, thickness and
+color edits preserve every ancestor field except observed Group-open/track-view
+bookkeeping. Native color bindings still refer to the same leaf ID.
+
+Slowing the child from 2× to 0.5× saves scalar 2 and multiplies its existing
+drawing time by four. The native parent durations stay unchanged, including
+after closing all Group tabs. A later child drawing-time edit uses its own
+duration limit and does not expand those parents. In the rendered comparison,
+the Group ends at root time 3 seconds while the same translated root control
+continues drawing and later fades. At 3.5 seconds, the measured stroke region
+matches background for both grouped results; the independent root differs by
+6.2544 mean byte levels. Check parent temporal and spatial bounds when preparing
+the requested composition.
+
+Six whole-document comparisons cover missing-companion creation, trimmed 2×
+time/stroke edits and single/nested Group edits with trimmed and slowed clocks.
+Only thumbnail, command count, native reset additions and the observed Group
+open/track display records are normalized. Two 264-second native exports contain
+22 cells, including before controls, native/helper pairs, two independent root
+composites and background. All 7920 decoded RGB frames and stereo PCM repeat
+identically. Across 308 sampled and inspected phase frames, 105 paired native/
+helper/root comparisons have maximum mean difference 0.048 byte levels; twelve
+full-size views check phase, color, bounds, retained Fade and disappearance.
+All 616 channel-specific audio windows retain the generated 440-Hz tone.
+
+Opening the staged sequence normalizes 280 static numeric descriptors into their
+same scalar defaults: each observed object contains only type, defaultValue and
+interpolation, with no keyframes or opaque payload. A verified 174-ID bijection
+updates clip, Fade and Group-binding references. Only one Group-open flag and
+the duration label also change. Save/reopen changes only the thumbnail. The
+matching schema profile and native hazard checks pass with the two known raw
+SVG-kind/drawing-modifier omissions. Other container kinds, additional scenes
+and arbitrary SVG animation remain outside this evidence. No vendor SVGs or
+completed native test artifacts are distributed or archived.
 
 ## Reusable annotation helper verification
 

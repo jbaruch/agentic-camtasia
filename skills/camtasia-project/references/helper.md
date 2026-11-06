@@ -298,7 +298,7 @@ for ancestor preservation, native Group sizing and the independent composite con
 Inspect the complete chord in native output. Recorded keyboard events retain
 their separate [recording-effect contract](cursors.md#recorded-keystrokes-and-active-windows).
 
-Existing standalone Sketch Motion callouts accept `draw_time` in rational seconds
+Existing standalone or Group-contained Sketch Motion callouts accept `draw_time` in rational seconds
 and definition stroke edits:
 
 ```json
@@ -307,9 +307,12 @@ and definition stroke edits:
 
 Inspection includes the saved `leftEdgeMods` separately from the definition.
 The helper contract above owns supported clocks, modifier shape, native units
-and refusals. Read [Sketch Motion controls](advanced-features.md#sketch-motion-drawing-and-stroke-controls)
+and refusals, including trimmed/speed-adjusted clips and creation of a trimmed-off
+drawing companion. Read [Sketch Motion controls](advanced-features.md#sketch-motion-drawing-and-stroke-controls)
 for the effective drawing duration, native reset/precision observations and
-independent output checks. Inspect drawing and ending Fade together.
+independent output checks. Read [Group and clip clocks](advanced-features.md#sketch-motion-group-and-clip-clocks)
+for the selected child's local timing, native UI rounding and parent cropping.
+Inspect drawing and ending Fade in the complete composite.
 
 Version 2 adds `rich_ranges`, with `start`, exclusive `end` and `rich` changes
 for each selected range. Offsets count Unicode code points in the resulting
