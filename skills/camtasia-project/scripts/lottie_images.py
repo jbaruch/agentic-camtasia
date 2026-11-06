@@ -439,11 +439,27 @@ def main(argv: list[str] | None = None) -> int:
             report["ok"] = not args.require_embedded or report["imageAssetsEmbedded"]
         action = "keep stdout available or redirect it to a writable report file"
         print(encode_document(report).decode("utf-8"), end="")
-        return 0 if report["ok"] else 1
+        if not report["ok"]:
+            print(
+                json.dumps(
+                    {
+                        "ok": False,
+                        "error": "the image embedding requirement is unmet",
+                        "action": "inspect unresolved image rows; embed supported ordinary images or obtain native evidence for unsupported forms",
+                    }
+                ),
+                file=sys.stderr,
+            )
+            return 1
+        return 0
     except RecursionError:
         print(
             json.dumps(
-                {"ok": False, "error": "reduce excessive Lottie JSON nesting before staging"}
+                {
+                    "ok": False,
+                    "error": "reduce excessive Lottie JSON nesting before staging",
+                    "action": "reduce source JSON nesting and retry inspection or staging",
+                }
             ),
             file=sys.stderr,
         )

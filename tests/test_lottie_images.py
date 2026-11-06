@@ -128,7 +128,10 @@ class LottieImageTests(unittest.TestCase):
                 with tempfile.TemporaryDirectory() as directory:
                     path = Path(directory) / "source.json"
                     path.write_bytes(lottie_images.encode_document(source))
-                    with patch("sys.stdout", io.StringIO()):
+                    with (
+                        patch("sys.stdout", io.StringIO()),
+                        patch("sys.stderr", diagnostic := io.StringIO()),
+                    ):
                         self.assertEqual(
                             lottie_images.main(
                                 [
@@ -139,6 +142,7 @@ class LottieImageTests(unittest.TestCase):
                             ),
                             1,
                         )
+                    self.assertIn("inspect unresolved", json.loads(diagnostic.getvalue())["action"])
 
     def test_sound_and_data_file_assets_remain_unresolved_outside_the_image_gate(self) -> None:
         source = lottie_images.embed_png(fixture(), "photo", png())
@@ -252,6 +256,7 @@ class LottieImageTests(unittest.TestCase):
             report = json.loads(result.stderr)
             self.assertFalse(report["ok"])
             self.assertIn("reduce", report["error"])
+            self.assertIn("reduce source JSON nesting", report["action"])
 
     def test_cli_argument_failures_emit_json_with_exit_two(self) -> None:
         for command in ([], ["embed"], ["inspect"], ["unknown"]):
@@ -522,11 +527,15 @@ class LottieImageTests(unittest.TestCase):
             image.write_bytes(png())
             original = source.read_bytes()
             stream = io.StringIO()
-            with patch("sys.stdout", stream):
+            with patch("sys.stdout", stream), patch("sys.stderr", diagnostic := io.StringIO()):
                 self.assertEqual(
                     lottie_images.main(["inspect", str(source), "--require-embedded"]), 1
                 )
             self.assertFalse(json.loads(stream.getvalue())["imageAssetsEmbedded"])
+            refusal = json.loads(diagnostic.getvalue())
+            self.assertFalse(refusal["ok"])
+            self.assertIn("embedding requirement", refusal["error"])
+            self.assertIn("inspect unresolved", refusal["action"])
             command = [
                 "embed",
                 str(source),
