@@ -145,7 +145,7 @@ class EffectCurveTests(unittest.TestCase):
     def test_spec_bounds_values_and_exact_tick_failures_refuse_without_mutation(self):
         bad = [
             dict(schema_version=True),
-            dict(schema_version=2),
+            dict(schema_version=3),
             dict(segments=[]),
             dict(segments=[dict(start=0, end=1, value=2)]),
             dict(defaultValue=-1),

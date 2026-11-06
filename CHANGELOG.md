@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.13.0 — 2026-11-05
+
+### Added
+
+- Version-2 typed-double visual-effect curves with per-segment exponential,
+  bounce and spring easing. Version-1 linear inputs retain their contract.
+  Explicit effect-frame easing preserves matching known visual intervals and
+  unrelated geometry, linked effect tokens/mirrors, audio and source clocks.
+- Native Sepia easing captures and independent rendered controls for trimmed
+  2× linked AV, a 2× Group, mixed curves, clearing, bypass, geometry and audio.
+  Spring overshoot and constant-frame reconstruction remain explicit.
+
 ## 0.12.0 — 2026-11-05
 
 ### Added

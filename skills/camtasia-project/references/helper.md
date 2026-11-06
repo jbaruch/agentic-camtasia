@@ -333,10 +333,12 @@ new owner's geometry, resource closure or a new parameter combination.
 ## Visual-effect curve editing
 
 Use `skills/camtasia-project/scripts/effect_curves.py` to inspect effects, replace
-an existing typed double parameter's linear interval curve, or clear it to a
+an existing typed double parameter's interval curve, or clear it to a
 constant. Its module docstring, `OWNERS`, `selected`, `parameter_of` and
 `edit_curve` own the build, descriptor, clock and interval contracts. Read the
 [native effect-curve evidence](advanced-features.md#visual-effect-parameter-curves).
+[Nonlinear verification](effect-nonlinear-curves.md) records native easing,
+independent geometry, retimed linked/Group output and constant reconstruction.
 
 ```bash
 python3 -B "{camtasia_skill_root}/scripts/effect_curves.py" inspect "<project>"
@@ -347,6 +349,9 @@ python3 -B "{camtasia_skill_root}/scripts/effect_curves.py" clear "<project>" --
 The schema-version-one spec supplies `defaultValue` and `segments`. Each segment
 has `start`, `end` and target `value` in raw native units. Example:
 `{"schema_version":1,"defaultValue":0,"segments":[{"start":1,"end":2,"value":1},{"start":3,"end":4,"value":"1/4"}]}`.
+Version 2 adds optional segment `easing`, with choices and interpolation ownership
+defined by the compiler contract above. Example:
+`{"schema_version":2,"defaultValue":0,"segments":[{"start":1,"end":2,"value":1,"easing":"spring"}]}`.
 Times are rational clip-relative timeline seconds. The request replaces the
 selected parameter's complete curve, including its initial value; other curves
 and visual intervals survive. Clearing preserves intervals and descriptor data.
