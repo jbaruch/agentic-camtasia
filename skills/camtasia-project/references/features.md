@@ -86,6 +86,9 @@ Existing generated cursor point paths use the
 Standalone moving recordings use the separate
 [recorded-path helper](helper.md#recorded-cursor-path-json-editing) for complete
 overrides and restoration, with [native controls](recorded-cursor-paths.md).
+Explicit generated/recorded click lists use the
+[click helper](helper.md#cursor-click-json-editing), with
+[native event and render controls](cursor-click-authoring.md).
 Recorded pointer overrides retain their separate representation.
 
 Standalone annotation construction and existing shape/text edits use

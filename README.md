@@ -33,6 +33,7 @@ macOS. Schema auditing uses the optional pinned `jsonschema` dependency.
 | Captions | Author plain closed cues, correct recognized source words, map trims/speed/offsets and edit existing dynamic display controls. |
 | Created cursors | Edit existing video cursor point lists, explicit Bézier handles and timing, including trimmed 2× clocks and static holds. |
 | Recorded cursors | Create or replace standalone recording path overrides with explicit points and handles; restore the original captured path while preserving clicks and TREC data. |
+| Cursor clicks | Author, replace and clear explicit left/right clicks on generated video paths and standalone recordings, preserving captured click deletions and cursor geometry. |
 | Quick Properties | Edit Group bindings and shared text/colors; replace or clear bound native media with preserved fitting, clocks and source ownership. |
 | Theme duplication | Follow the verified native workflow to preserve the source UUID and independently edit the copy's colors, font and logo. |
 | Lottie images | Inspect internal image references and unresolved font declarations; stage explicitly selected PNG embedding and verify native relocation. |

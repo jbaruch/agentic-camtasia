@@ -542,6 +542,44 @@ editability. Input specs remain version 1. Edit reports include hashes,
 `changed`, `written` and `nativeVerified: false`. JSON diagnostics go to stderr;
 exit 1 refuses input/I/O and exit 2 reports CLI syntax. `--help` is plaintext.
 
+## Cursor click JSON editing
+
+Use `skills/camtasia-project/scripts/cursor_clicks.py` for explicit click lists.
+Its module docstring, `BUTTONS`, `spec_clicks`, `events`, `path_curve`,
+`recorded_override` and the shared cursor-path selectors own input shapes,
+owner/build boundaries, source clocks, anchor handling, preservation and refusals.
+Read the [native click controls](cursor-click-authoring.md) before editing.
+
+```bash
+python3 -B "{camtasia_skill_root}/scripts/cursor_clicks.py" inspect "<project>"
+python3 -B "{camtasia_skill_root}/scripts/cursor_clicks.py" set-path-clicks "<project>" --clip-id 5 --spec "<click-spec.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/cursor_clicks.py" set-recorded-clicks "<project>" --clip-id 8 --spec "<click-spec.json>" --output "<candidate.json>"
+```
+
+The version-one spec supplies the entire desired authored list:
+
+```json
+{"schema_version":1,"clicks":[{"time":1,"button":"left"},{"time":2,"button":"right"}]}
+```
+
+Times use clip-relative timeline seconds. An empty `clicks` list clears the
+selected authored events. Recording commands preserve captured deletion entries
+and do not decode, erase or restore original TREC clicks. Generated commands
+retain the source-zero anchor. Event authoring requires existing native path/
+recording ownership; visible targets or click sound require their own native
+effect and resources. The helper constructs no effect or source.
+
+Stdout uses `schema_version: 1`, owner `camtasia-cursor-clicks`, hashes and
+physical `paths`/`recordings` inventories with raw `cursorAction` payloads or
+null when absent. Inspection includes unsupported owners without promising
+editability. Edit reports add `output`, `changed`, `written` and
+`nativeVerified: false`. JSON diagnostics go to stderr; exit 1 refuses input/I/O
+and exit 2 reports CLI syntax. Top-level and subcommand `--help` return JSON
+with the same owner/version, `ok: true` and a formatted `help` string.
+Stage a separate candidate,
+inspect its diff and validation, apply through the project helper, then verify
+native save/reopen and rendered event frames before delivery.
+
 ## Motion Path JSON editing
 
 Use `scripts/motion_paths.py` for explicit point geometry. Its module docstring,

@@ -164,6 +164,11 @@ state; commit the native edit and verify JSON plus rendered audio.
 
 ## Inserting and removing clicks
 
+The [cursor click helper](helper.md#cursor-click-json-editing) authors explicit
+generated-path clicks and recording edits. Its [native helper controls](cursor-click-authoring.md)
+cover trim/speed mapping, same-time button replacement and clearing while
+preserving captured deletion entries and TREC data.
+
 Use the intended click-effect panel's **Add cursor click at playhead** control.
 Multiple panels expose identically named controls. Select the effect explicitly
 before adding a left or right event. **View next cursor click** navigates actual

@@ -577,6 +577,9 @@ explicit point editing and trimmed 2× source clocks on ordinary video.
 The [recorded-path controls](recorded-cursor-paths.md) establish complete
 recording overrides, explicit point editing and restoration on a standalone
 moving recording, preserving its captured clicks and TREC source.
+The [click authoring controls](cursor-click-authoring.md) establish explicit
+generated-path and recording click edits without replacing cursor geometry or
+captured deletion entries.
 
 The native highlight effect is spelled **`CursorHilight`**. Its typed doubles
 include `radius`, four `color-*` components, and `blur`. Radius 50, yellow with
