@@ -632,8 +632,10 @@ Twenty inspected frames retain the image/callout/Group/recording pictures and
 source timecodes at the retimed destinations. The
 [Group reopen finding](project-format.md#clock-domains) records the unstable
 positive-in-point constructor and verified rebasing used for the accepted pair.
-Legacy still-screen, stitched and placeholder constructors remain distinct cases;
-this evidence does not promote them into the helper's observed target set.
+The [held/stitched hotspot evidence](hotspot-recording-owners.md) extends this
+contract to existing standalone frozen recordings and stitched parents. It
+records their marker origins, runtime controls and a forward-reference identity
+failure. Placeholder owners and additional scene clocks remain separate cases.
 
 ## Quizzes and SCORM
 

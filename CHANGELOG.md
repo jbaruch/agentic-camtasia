@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.14.0 — 2026-11-05
+
+### Added
+
+- Hotspot construction, action edits and removal on existing standalone frozen
+  recordings and stitched parents. Held markers use a local-zero clock while
+  retaining source-frame selection; stitched markers retain trim/source timing
+  and inverse speed. Hidden stitched children and linked variants are refused.
+- Independent native constructor and marker captures, plus repeatable web-player
+  controls for Continue, Time, URL and Marker on both new owner forms. Fresh
+  reopening preserves the accepted marker identities and complete decoded AV.
+  A failed synthetic forward-reference roundtrip is documented separately;
+  cached seek success alone does not prove retained Marker ownership.
+
 ## 0.13.0 — 2026-11-05
 
 ### Added

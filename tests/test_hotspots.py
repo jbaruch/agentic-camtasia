@@ -141,7 +141,7 @@ class HotspotTests(unittest.TestCase):
         self.assertEqual(result, before)
 
     def test_unobserved_visual_types_are_preserved_without_constructor_claims(self) -> None:
-        for kind in ("AMFile", "Caption", "ScreenIMFile", "StitchedMedia", "PlaceholderMedia"):
+        for kind in ("AMFile", "Caption", "PlaceholderMedia"):
             doc = document()
             target = {"id": 50, "_type": kind, "attributes": {"future": True}}
             doc["timeline"]["sceneTrack"]["scenes"][0]["csml"]["tracks"][0]["medias"] = [target]

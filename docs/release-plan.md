@@ -36,7 +36,7 @@ All fourteen issues are enhancements and explicitly do not block v0.1.
 | [#6](https://github.com/jbaruch/agentic-camtasia/issues/6) | Group binding/value edits, linked text/color/media controls and native media replacement/clear shipped in 0.9.0. |
 | [#7](https://github.com/jbaruch/agentic-camtasia/issues/7) | Independent native theme duplication, UUID/label restoration and separate logo resources verified/documented in 0.9.1. |
 | [#8](https://github.com/jbaruch/agentic-camtasia/issues/8) | Nonlinear intensity intervals shipped in 0.10.0 and moving/frozen/stitched owners in 0.11.0; atomic media/track compositions with Group/root interaction controls in 0.12.0. Linked recording mirrors and point forms remain. |
-| [#9](https://github.com/jbaruch/agentic-camtasia/issues/9) | Additional hotspot owners and scene clocks |
+| [#9](https://github.com/jbaruch/agentic-camtasia/issues/9) | Standalone frozen-recording and stitched-parent hotspots with marker clocks shipped in 0.14.0. Linked variants, placeholders and additional scene clocks remain. |
 | [#10](https://github.com/jbaruch/agentic-camtasia/issues/10) | Additional quiz owners and destination clocks |
 | [#11](https://github.com/jbaruch/agentic-camtasia/issues/11) | Further SCORM resume and interrupted sessions |
 | [#12](https://github.com/jbaruch/agentic-camtasia/issues/12) | Resource closure beyond source-bin files |
