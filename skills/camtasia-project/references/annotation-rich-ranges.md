@@ -4,7 +4,8 @@ Use the [annotation workflow](helper.md#annotation-json-editing) for explicit
 range styling. The helper owns input versions, offsets, supported properties,
 partition validation, merging and refusals. These observations use Camtasia Mac
 2026.2.4 (2026.132), format 10, on a native Basic text Callout. They establish
-static rich text, not animated attributes, RTF conversion or physical font closure.
+static rich text. Timed rich-style steps have the separate verification below;
+RTF conversion and physical font closure remain separate.
 
 ## Independent property partitions
 
@@ -61,3 +62,67 @@ Verify requested font files, glyph coverage, ligatures and fitting in the
 consumer project. Code-point selection does not promise grapheme-aware editing.
 Completed native projects, exports, screenshots and measurements are deleted
 after incorporation into the plugin and generated-fixture tests.
+
+## Timed rich-style steps
+
+Locally observed in Camtasia Mac 2026.2.4 (2026.132), format 10. The annotation
+helper's `set-rich-steps` and `clear-rich-steps` commands add discrete timed
+styles to root remix text annotations. The module docstring and
+`rich_step_frames`, `rich_source_time`, `set_rich_steps` and `clear_rich_steps`
+own the input, clock, replacement and preservation contracts. General `set`
+continues to require static rich text; clear timed styles explicitly before
+changing text content. Nested clocks, RTF conversion and physical font closure
+remain separate work.
+
+Native Auto Animate followed by a font-size edit saves one static rich frame.
+Adding an explicit Custom animation first still edits that static frame. These
+UI operations do not establish a font-size ramp. A separate JSON-authored
+candidate retains the native initial rich-state list and adds a second complete
+list as either an interval or a point. Native save accepts both forms, removes
+their redundant interpolation fields and playback switches at endTime. At the
+interval midpoint the size remains 32; after its endpoint it is 64. The helper
+therefore authors discrete points rather than promising continuous interpolation.
+These timed states are JSON-authored and natively saved/rendered, not captured
+as a native UI authoring operation.
+
+The first state remains at native time zero. Subsequent complete lists contain
+independent per-property UTF-8 partitions, preserving native property types and
+opaque run fields. They do not replace the annotation's text or default font.
+A trimmed 2× control starts at timeline second one, has source in-point one
+second and a rich point at source second two. Native size readback is 32 at
+global 1.25 seconds and 64 at 1.75 seconds. This establishes source-position
+clock conversion independently of timeline placement. With no visual interval
+in the candidate, native saving reconstructs the observed interval preceding
+the point; rich playback remains discrete. Existing independent geometry and
+visual intervals are retained by the helper.
+
+An 88-second sequence compares complete literal reference states with helper
+output and three independent static controls for clearing. The text is `A café`.
+A positive source in-point and 2× speed place the three requested local style
+changes at source seconds four, six and eight. Initial 32-point white becomes
+64-point orange, then café alone becomes bold cyan, then the whole annotation
+becomes 24-point green and underlined while café stays bold. Native property
+readback confirms size/color/underline states. Independent translation continues
+through every style step and after clearing at local 1.5, 2.5 and 3.5 seconds.
+Separate controls retain the accepted interval-shaped step, the UI-authored
+static size and an empty background. References reuse native static rich payloads
+and the accepted point representation; no missing UI animation capture is inferred.
+
+Two same-process exports separated by saved close/reopen match all 2640 decoded
+RGB frames and complete stereo PCM: 88-second 640×360 H.264 at 30 fps with stereo
+44.1 kHz AAC. Three inspected contact sheets contain 88 unique phase frames;
+four full-resolution views verify accents, range color/bold and underline.
+Across 187 sampled frames, 68 matched reference/helper comparisons differ by at
+most 0.849 mean RGB byte levels per channel. Frame-boundary measurements retain
+white before the first switch, orange afterward, cyan only from the second
+switch and green from the third. The interval control stays small until its
+endpoint, and the UI-created size remains static. All 132 audio-channel windows
+retain the 440 Hz background tone with RMS amplitude 0.09559–0.09654.
+
+Strict whole-document comparison of the sequence permits only 43 remapped IDs,
+duration text and thumbnail. Every other value remains equal, including all
+rich frames/partitions, text/font data, geometry, source definitions and audio.
+Reopened saves change only the thumbnail. Original baseline and bundled AV
+hashes remain unchanged. Thirteen snapshots pass raw schema, exact-build profile
+and native hazard checks without a correction. Completed disposable projects,
+movies, screenshots and measurements are deleted after incorporation.
