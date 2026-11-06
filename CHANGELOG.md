@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.38.0 — 2026-11-06
+
+### Added
+
+- Annotation definition edits expose existing static Blur/Pixelate/Spotlight
+  strength, Blur inversion and Highlighter inversion/legacy RGB fields. Values
+  use saved native units; existing spelling, static typed descriptors, geometry,
+  reset metadata and audio survive. Missing fields, cross-kind controls and
+  animated/default-less parameter flattening remain refused.
+- Seven whole-document native comparisons and a 152-second save/reopen sequence
+  verify strength, color, opacity and inversion against independent controls.
+  Across 228 sampled phase frames, 84 paired samples, 133 inspected contact-sheet
+  frames, seven full-size views and 228 audio-channel windows, the controls retain
+  native/helper parity. Repeat PCM matches; repeat RGB differs on 279 frames with
+  maximum frame mean difference 0.908 byte levels. Twenty profile/hazard checks
+  pass with only the three known missing raw-schema kind identifiers. Native UI
+  floating aliases are documented without quantizing helper inputs or claiming
+  sufficient obscuration for arbitrary content.
+
 ## 0.37.0 — 2026-11-06
 
 ### Added
