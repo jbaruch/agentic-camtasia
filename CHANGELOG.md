@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.22.0 — 2026-11-06
+
+### Added
+
+- Annotation schema version 3 supports mixed-style substring replacement,
+  insertion and deletion with original code-point coordinates, exact expected
+  text and explicit style anchors. Independent native property partitions and
+  opaque payloads survive UTF-8 offset changes and adjacent-run merging.
+- Complete deletion preserves the native null frame. Reinsertion into that
+  saved empty frame requires explicit style properties; default font objects
+  and cached caret styles are not inferred. Existing versions retain their contracts.
+- Native edit replays and two fresh-process exports cover seven helper/native
+  pairs, including compound edits, cross-style replacement and empty/reinserted text.
+
 ## 0.21.0 — 2026-11-06
 
 ### Added

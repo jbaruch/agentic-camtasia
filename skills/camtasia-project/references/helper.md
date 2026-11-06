@@ -220,9 +220,10 @@ Smart Player CC delivery requires its web package and toggle/playback checks.
 ## Annotation JSON editing
 
 Use `skills/camtasia-project/scripts/annotations.py` for construction from a standalone native Callout,
-Unicode text/rich properties, per-range styling and existing static shape/text fields.
+Unicode text/rich properties, per-range styling, substring edits and existing static shape/text fields.
 Its module docstring, `KINDS`, `NUMBERS`, `ENUMS`, `RICH_TYPES`, `static_runs`,
-`uniform_runs`, `edit_rich_ranges` and `add_annotation` own the build, selector,
+`uniform_runs`, `edit_rich_ranges`, `edit_text`, `EMPTY_STYLE_REQUIRED` and
+`add_annotation` own the build, selector,
 value and preservation contracts.
 Read [annotation definitions](advanced-features.md#text-callout-presets) and
 [rich typography](quick-properties.md#text-and-rich-font-runs) before editing.
@@ -268,6 +269,20 @@ Version 2 can edit existing mixed styles and apply a whole-property `rich`
 change while retaining other partitions. Its exact range, replacement and
 refusal contracts remain in the helper above. Read the independent
 [native range controls](annotation-rich-ranges.md) before using mixed styles.
+
+Version 3 adds `text_edits` for mixed-style substring replacement, insertion and
+deletion. Each selection uses original Unicode code-point bounds, an exact
+`expected` substring and replacement `text`. Nonempty replacements select an
+original character's properties with `style_from`:
+
+```json
+{"schema_version":3,"text_edits":[{"start":6,"end":10,"expected":"café","text":"résumé","style_from":6}]}
+```
+
+Read the helper's original-coordinate, overlap, explicit empty-frame `text_style`
+and post-edit range contracts before combining edits. Read the independent
+[native text-edit controls](annotation-text-edits.md), including complete deletion
+and reinsertion after reopening. Default font objects do not establish typing style.
 
 Inspection reports declared fonts with `fontFilesVerified: false`. Resolve actual
 fonts and glyph coverage on the rendering host. Staging reports hashes,
