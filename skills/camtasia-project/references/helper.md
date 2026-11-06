@@ -485,18 +485,21 @@ documents/media and the editor are not changed by these commands.
 
 Use `scripts/mattes.py` to inspect and stage media or track mattes. Its module
 docstring, `MODES`, `MEDIA_TYPES`, `DEFAULT_EFFECT`, `patch_ease`, `edit_media`, `curve_parameter`,
-`edit_intensity_curve`, `clear_intensity_curve` and `track_target`
+`edit_intensity_curve`, `clear_intensity_curve`, `track_target` and `edit_composition`
 own the build, constructors, control units, edge preservation and ownership
 contract. The [native matte evidence](advanced-features.md#media-and-track-mattes)
 records the difference between intensity, bypass and track-level masking.
 [Recording-owner verification](matte-recording-owners.md) adds native moving,
 frozen and stitched ownership, clocks and lifecycle controls.
+[Composition verification](matte-composition.md) compares media/track interactions
+and Group/root scope against independent visual controls.
 
 | Command | Required inputs | Output and side effects |
 | --- | --- | --- |
 | `inspect PROJECT` | Bundle or JSON document | Read-only physical effect paths, clip IDs and track-matte paths/codes. |
 | `set-media PROJECT --clip-id ID --output CANDIDATE` | Verified visual-owner ID and at least one control: `--mode`, `--intensity`, `--ease-in`, `--ease-out`, `--bypass` or `--no-bypass` | Separate full candidate; creates or updates a native Media Matte. `--mode none` removes that effect. Linked wrapper/video mirrors change together; audio, unrelated effects, visual content and opaque state survive. |
 | `set-track PROJECT --track INDEX --mode MODE --output CANDIDATE [--group-id ID]` | Storage track index and mode, optional existing Group ID | Separate candidate; edits the selected root or Group track attribute without changing its media. |
+| `set-composition PROJECT --spec SPEC --output CANDIDATE` | Schema-1 composition input; explicit media and track edits | One complete candidate after every edit passes. The compiler contract above owns fields, units, target uniqueness and preservation. |
 | `set-intensity-curve PROJECT --clip-id ID --curve SPEC --output CANDIDATE` | Verified visual-owner ID and schema-1 or schema-2 curve input | Separate candidate; creates/replaces the intensity curve with source-clock conversion. Linked visual mirrors change together; audio and other animations survive. |
 | `clear-intensity-curve PROJECT --clip-id ID --intensity VALUE --output CANDIDATE` | Existing matte owner and requested static intensity | Separate candidate; clears only intensity keyframes. Other parameter curves and visual animation intervals remain. |
 

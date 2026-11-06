@@ -20,11 +20,21 @@ Track mode lives in timeline.trackAttributes for the observed single scene,
 or in a selected Group.tracks entry. Track indices are zero-based storage
 positions, not displayed track numbers. Group IDs may select nested Groups.
 Track modes and per-media effects are separate controls and may compound.
+set-composition stages both kinds together in one candidate. Its input is a
+schema_version 1 object with nonempty media and tracks lists. Each media item
+has clipId and at least one explicit control accepted by edit_composition's
+controls mapping (easeIn/easeOut use seconds). Each track item has track, mode
+and optional groupId, using the same selection rules as set-track. Unknown
+fields, explicit nulls, repeated physical media/track targets and linked aliases
+are refused. Every edit must succeed before any candidate is written. Existing
+curves survive mode-only edits; scalar overwrite still requires explicit clearing.
+The caller selects scope and arrangement; no layer moves or depth inference occur.
 
 CLI: inspect PROJECT; set-media PROJECT --clip-id ID --output CANDIDATE
 [--mode MODE] [--intensity SCALAR] [--ease-in SECONDS] [--ease-out SECONDS]
 [--bypass|--no-bypass]. --mode none removes only the selected MediaMatte.
 set-track PROJECT --track INDEX [--group-id ID] --mode MODE --output CANDIDATE.
+set-composition PROJECT --spec SPEC --output CANDIDATE.
 set-intensity-curve PROJECT --clip-id ID --curve SPEC --output CANDIDATE;
 clear-intensity-curve PROJECT --clip-id ID --intensity SCALAR --output CANDIDATE.
 Curve input schema_version 1 or 2 has defaultValue and nonempty segments, each with
@@ -480,6 +490,64 @@ def edit_track(
     return result
 
 
+def edit_composition(doc: dict[str, Any], spec: dict[str, Any]) -> dict[str, Any]:
+    """Stage explicit media/track edits together without changing layer arrangements."""
+    require_native(doc)
+    if (
+        not isinstance(spec, dict)
+        or set(spec) != {"schema_version", "media", "tracks"}
+        or type(spec["schema_version"]) is not int
+        or spec["schema_version"] != 1
+        or any(not isinstance(spec[key], list) or not spec[key] for key in ("media", "tracks"))
+    ):
+        raise ValueError("supply composition schema_version 1 with nonempty media and tracks lists")
+    controls = {
+        "mode": "mode",
+        "intensity": "intensity",
+        "easeIn": "ease_in",
+        "easeOut": "ease_out",
+        "bypass": "bypass",
+    }
+    result = copy.deepcopy(doc)
+    seen_media: set[int] = set()
+    seen_tracks: set[int] = set()
+    for item in spec["media"]:
+        if (
+            not isinstance(item, dict)
+            or "clipId" not in item
+            or not set(item) <= {"clipId", *controls}
+            or len(item) < 2
+            or any(value is None for value in item.values())
+            or ("mode" in item and not isinstance(item["mode"], str))
+        ):
+            raise ValueError("supply each media edit with clipId and explicit matte controls")
+        # Resolve aliases against the unchanged input graph, before any copied edit.
+        physical = {id(node) for node in media_targets(doc, item["clipId"])}
+        if seen_media & physical:
+            raise ValueError("edit each physical media matte once; linked IDs can alias one effect")
+        seen_media.update(physical)
+        result = edit_media(
+            result,
+            item["clipId"],
+            **{argument: item[key] for key, argument in controls.items() if key in item},
+        )
+    for item in spec["tracks"]:
+        if (
+            not isinstance(item, dict)
+            or not {"track", "mode"} <= set(item) <= {"track", "mode", "groupId"}
+            or not isinstance(item["mode"], str)
+            or ("groupId" in item and type(item["groupId"]) is not int)
+        ):
+            raise ValueError("supply each track edit with track, mode and optional integer groupId")
+        group_id = item.get("groupId")
+        physical = id(track_target(doc, item["track"], group_id))
+        if physical in seen_tracks:
+            raise ValueError("edit each physical track matte once in a composition")
+        seen_tracks.add(physical)
+        result = edit_track(result, item["track"], item["mode"], group_id=group_id)
+    return result
+
+
 def inventory(doc: dict[str, Any]) -> dict[str, Any]:
     media = []
     for path, node in hotspots.clips(doc):
@@ -533,6 +601,10 @@ def main(argv: list[str] | None = None) -> int:
     track.add_argument("--group-id", type=int)
     track.add_argument("--mode", choices=MODES, required=True)
     track.add_argument("--output", type=Path, required=True)
+    composition = commands.add_parser("set-composition")
+    composition.add_argument("project", type=Path)
+    composition.add_argument("--spec", type=Path, required=True)
+    composition.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
         doc, raw = project.load(args.project)
@@ -545,7 +617,10 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "inspect":
             report.update(inventory(doc))
         else:
-            if args.command == "set-intensity-curve":
+            if args.command == "set-composition":
+                spec, _ = project.load(args.spec)
+                candidate = edit_composition(doc, spec)
+            elif args.command == "set-intensity-curve":
                 spec, _ = project.load(args.curve)
                 candidate = edit_intensity_curve(doc, args.clip_id, spec)
             elif args.command == "clear-intensity-curve":

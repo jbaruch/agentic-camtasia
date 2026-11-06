@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.12.0 — 2026-11-05
+
+### Added
+
+- Atomic composition staging for explicit media and root/Group track matte edits.
+  Linked aliases and duplicate physical targets are refused; any failed edit
+  leaves the source and candidate path untouched. Existing intensity curves,
+  linked visual identities, audio and unrelated payload keep their contracts.
+- Native comparison controls for media-only, track-only, combined alpha, mixed
+  inversion, bypass, half intensity and clearing, with independent blue/background
+  references and a separate root-scope case.
+
 ## 0.11.0 — 2026-11-05
 
 ### Added

@@ -880,6 +880,8 @@ JSON; all five render the same blue ellipse over the unchanged lower video in
 this three-track stack. They mask the immediate blue layer and leave the lower
 video visible outside. This does not establish a depth-to-track-count formula.
 Use Group composition for a verified coverage boundary.
+[Atomic composition verification](matte-composition.md) compares media-only,
+track-only and combined controls, including mixed inversion and root scope.
 
 At 2× speed with positive source in-points on video/linked clips and a zero
 in-point on a Group, one-second/half-second easing still follows timeline seconds.
