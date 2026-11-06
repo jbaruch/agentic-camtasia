@@ -222,7 +222,8 @@ Smart Player CC delivery requires its web package and toggle/playback checks.
 Use `skills/camtasia-project/scripts/annotations.py` for construction from a standalone native Callout,
 Unicode text/rich properties, per-range styling, substring edits, timed rich-style
 steps and existing static shape/text/region fields.
-Its module docstring, `KINDS`, `NUMBERS`, `ENUMS`, `REGION_PARAMETERS`, `RICH_TYPES`, `static_runs`,
+Its module docstring, `KINDS`, `NUMBERS`, `ENUMS`, `REGION_PARAMETERS`,
+`KEYSTROKE_PARAMETERS`, `RICH_TYPES`, `static_runs`,
 `uniform_runs`, `edit_rich_ranges`, `edit_text`, `EMPTY_STYLE_REQUIRED`,
 `rich_step_frames`, `rich_source_time`, `set_rich_steps`, `clear_rich_steps` and
 `add_annotation` own the build, selector,
@@ -281,6 +282,19 @@ The helper contract above owns the kind-specific fields, raw saved units and
 refusals. Read the [native region controls](advanced-features.md#static-region-controls)
 for UI precision, inversion, strength and color observations. Stage the candidate,
 reopen it and inspect the requested region in native output.
+
+Existing standalone keystroke callouts accept literal saved key strings and
+native style/background/modifier-name fields. For an exercised compound edit:
+
+```json
+{"schema_version":1,"definition":{"keys":"⇧ ⌘ K","keyStyle":2,"width":192,"showKeyHint":1}}
+```
+
+The helper contract above owns choices, types and refusals. Read the
+[native keystroke edits](advanced-features.md#static-keystroke-edits) before
+changing keys or style; matching geometry is part of the requested layout.
+Inspect the complete chord in native output. Recorded keyboard events retain
+their separate [recording-effect contract](cursors.md#recorded-keystrokes-and-active-windows).
 
 Version 2 adds `rich_ranges`, with `start`, exclusive `end` and `rich` changes
 for each selected range. Offsets count Unicode code points in the resulting

@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.39.0 — 2026-11-06
+
+### Added
+
+- Existing standalone MacKey annotations accept literal native key strings,
+  style and background/modifier-name flags through definition edits. Explicit
+  geometry can accompany key/style changes; omitted width, display labels,
+  metadata, source and audio remain unchanged. Raw strings do not synthesize
+  recorded keyboard events or infer native chord parsing and layout.
+- Four whole-document comparisons and two independent 96-second native exports
+  verify complete chords, Traditional keycaps, modifier names and background
+  removal. Both complete decoded video/audio repeat exactly; 144 sampled phase
+  frames, 48 paired samples, 72 inspected contact-sheet frames, eight full-size
+  views and 144 audio-channel windows retain the exercised behavior. Two stale-
+  width diagnostics omit the final key after save/reopen, documenting the need
+  for matching native geometry. Fourteen profile/hazard checks retain only the
+  known raw-schema MacKey omission, without a new correction.
+
 ## 0.38.0 — 2026-11-06
 
 ### Added

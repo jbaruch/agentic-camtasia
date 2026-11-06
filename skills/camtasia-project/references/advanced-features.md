@@ -229,8 +229,63 @@ Each constructor uniquely matches an installed definition. A 30-second neutral
 sequence independently reopens and reproduces decoded video/audio; twelve
 inspected early/late frames retain the command glyph, A and native styling.
 The format-10 profile adds only the observed `MacKey` identifier. Preserve keys,
-background flags and geometry together; arbitrary key text, hint controls and
-cross-host glyph/font selection are separate checks.
+background flags and geometry together. The static editing controls below add
+key/style/visibility edits; arbitrary key text and cross-host glyph/font selection
+still require independent output checks.
+
+### Static keystroke edits
+
+Version 0.39.0 extends [annotation definition edits](helper.md#annotation-json-editing)
+to existing standalone keystroke controls. Inputs are saved native key strings,
+not an event stream or a text-to-key conversion request. The helper preserves
+omitted geometry, the definition's display name and the clip's independent ident.
+
+Mac Camtasia 2026.2.4 (2026.132), format 10, captured Command–Shift–K as literal
+`⇧ ⌘ K`, preserving the old definition name `⌘ A`. With height 64, the native
+Clear key edit changes width from 90.1111111111111 to 130.182454427083. Switching
+that chord to Traditional saves `keyStyle: 2.0` and width 192. Enabling modifier
+names changes `showKeyHint` to 1.0; disabling the background changes
+`showKeyBackg` to 0.0. The latter two edits retain width 192. Native first edits
+add reset metadata; helper edits preserve existing resets without inventing them.
+
+The custom Keys control captures shortcuts while focused, including Command-S.
+Leave it through another native control before saving; an apparent Save shortcut
+can instead replace the displayed key combination without saving the project.
+
+Four whole-document native/helper comparisons match the key, style, modifier-name
+and background edits. Width changes are explicit requested edits; comparison
+normalizes only thumbnail/command-count UI state and observed first-edit reset
+additions on the selected owner. Source entries, audio, clocks, metadata,
+geometry outside requested width and all unrelated fields remain compared.
+Native readback of the helper shows Traditional, the complete chord, background
+enabled and modifier names enabled.
+
+A twelve-cell, 96-second sequence contains four native/helper pairs, two stale-
+width diagnostics, the original preset and a background-only control. Each cell
+repeats the same eight-second source and retains its annotation for five seconds.
+Both exports contain 2,880 frames at 640×360, 30 fps H.264 and stereo 44.1 kHz AAC.
+All 48 pair comparisons across 144 sampled phase frames stay below 1.069 mean
+byte levels. Inspection covers 72 contact-sheet frames and eight full-size views:
+the complete chord, beveled keycaps, `shift`/`command` names, removed background
+and annotation clearing remain visible in the expected cells.
+
+The negative controls change keys or style while retaining the previous width.
+Both omit K in the saved/reopened native output; reopening does not recompute
+width. Supply geometry from the desired same-build native layout for a matching
+edit. A retained serialized key string or a successful save does not establish
+that the whole chord is visible. No glyph-width formula or automatic fitting
+is inferred from this specimen.
+
+The first native sequence save remaps 47 clip IDs and updates duration/thumbnail
+UI state, with every other field unchanged. Later saves are thumbnail-only or
+identical; the post-reopen save is identical. Both complete decoded video and
+audio repeat exactly. All 144 audio-channel windows retain the 440 Hz source
+tone with amplitudes 0.09600–0.09647, within 0.33% of their background-only
+counterparts. Original source bytes and baseline project hashes remain unchanged.
+Fourteen snapshots pass the exact-build profile and native hazard checks, with
+54 raw-schema errors solely for the previously observed missing `MacKey` enum.
+No new correction or external font dependency is introduced. Native definitions,
+generated sources and test exports remain local disposable inputs.
 
 ## Themes
 
