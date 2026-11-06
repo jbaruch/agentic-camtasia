@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.8.0 — 2026-11-05
+
+### Added
+
+- Closed and source-backed dynamic caption editing through
+  `skills/camtasia-project/scripts/captions.py`. Native audio-owned captions,
+  imported `Caption` clips, recognized source words and modifier-bearing displays
+  retain their separate ownership and payloads.
+- Plain cue authoring with explicit media/timeline clocks, gaps and a final clear;
+  occurrence-specific text corrections preserve native point timing and opaque
+  fields. Recognized word edits retain source onsets and `%GAP` pause markers.
+- Exact root trim/inverse-speed/offset mapping and retiming, with mirrored AV
+  clocks and source-stream bounds. Closed cues carry into a trim; dynamic words
+  whose onsets were trimmed away are omitted, matching native output.
+- Existing dynamic display bounds, numeric controls and rich font/color edits
+  preserve its placeholder, native style identity and partial rich ranges.
+  Recognition remains an actual native/external transcription step; RTF values,
+  nested clocks and nonzero audio source-file offsets require separate contracts.
+
 ## 0.7.0 — 2026-11-05
 
 ### Added

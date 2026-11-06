@@ -225,3 +225,71 @@ saved the project. Missing transcription requires an editor transcription or
 an explicitly chosen external workflow; inventing keyframes from text is not
 equivalent to measuring the recording. Validate the staged project and inspect
 caption blocks and highlighting in Camtasia playback.
+
+## Reusable caption helper verification
+
+The [caption helper](helper.md#caption-json-editing) was verified on Mac 2026.2.4
+(2026.132), format 10, using a generated 640×360, 30-fps, eight-second AV source
+with actual synthetic speech. Native **Add Dynamic Caption Style → Bebas 3 Line
+Word Red** generated nineteen recognized word points and one `%GAP` point.
+Both source streams use edit rate 384000, audio sample rate is 48000, and word
+times still use the 705600000 project-tick clock. Native **Add Captions** on the
+linked clip creates `audio.parameters.captions` with empty points at zero and
+four seconds and enables the existing global caption attributes. This confirms
+that audio-owned form independently on the current build.
+
+Three separate helper candidates share a two-second source trim, inverse speed
+`1/2`, and one-second timeline placement. The consumed six source seconds become
+a three-second visible clip at timeline seconds 1–4. Complete wrapper/video/audio
+clocks agree; all source word points remain unchanged except the requested
+occurrence correction below. Each candidate saves, closes, independently reopens
+and exports two matching four-second MP4s. All three pairs reproduce complete
+decoded video/audio, and decoded audio matches across caption forms.
+
+The audio-owned case authors `First café & timing` at source seconds 0–4 and
+`Second caption → end` at 4–8, with a final clearing point. Native output is
+blank before timeline second 1, shows the first held cue at 1, and switches at
+2. Eight inspected frames include both sides of that boundary. Native save
+changes only the project thumbnail, command count and duration label.
+
+The standalone `Caption.captionData` case uses the same first cue, ends its
+second cue at source second 7, and explicitly clears there. Eight inspected
+frames confirm cue starts at timeline seconds 1 and 2 and clearing at second 3.5
+while video continues to 4. Its native initialization removes the probe's empty
+`attributes` object, adds the four observed clip metadata defaults
+(`audiateLinkedSession`, `clipSpeedAttribute`, `colorAttribute`, `effectApplied`),
+and allocates ID 10→6. Cue points, complete clocks, maxMediaDuration, source data
+and audio survive. These initialization differences are separate from the
+helper's field-preserving transformation and the three bookkeeping fields.
+
+The dynamic case corrects source point 7 from `useful` to `HELPFUL` while retaining
+all twenty `time`, `endTime` and `duration` values and the `%GAP` marker. It bounds
+the independent display to timeline seconds 1–4, enables sentence splitting and
+changes only its rich `fgColor` to white. The native `ABC` placeholder, default
+font, style/preset identifiers and partial underline/strikethrough byte ranges
+stay intact. Native save changes only the same three bookkeeping fields.
+
+Fourteen inspected dynamic frames verify the trimmed opening, corrected text,
+advancing red highlights, later words and pause clearing. The source `We` onset
+precedes the two-second trim and is omitted; the first visible word is `build`.
+Unlike a closed cue, a partly trimmed dynamic word does not carry into this
+native display. `HELPFUL` starts at source second 2.42475 and maps to timeline
+1.212375; `tools` starts at 2.87475 and maps to 1.437375. Frames at 1.2/1.2333
+and 1.4333/1.4667 seconds bracket those changes. The odd-tick `%GAP` point retains
+its exact rational mapped tick rather than being quantized to a video frame.
+
+All candidates pass structural validation and the existing exact-build schema
+profile with no compatibility errors. Raw community errors for `Caption` and
+`transcriptionSet` remain separate. No new profile relaxation was needed.
+The attempted dedicated VTT import in this batch hung inside the host's native
+OneDrive-location check before importing; it was recovered without changing
+cloud configuration. The separate current-build interchange evidence above
+remains the import contract. This helper verification uses the known unstyled
+Caption form, actual native audio-caption/recognition captures and saved output.
+
+These checks cover the exercised plain values, root clocks and display controls.
+RTF editing, nested/stitched/multiscene mapping, nonzero audio source-file offsets,
+physical font closure and other requested delivery settings retain their own
+checks. Native definitions, recognition models, fonts and media remain outside
+the package. Completed disposable projects, exports, screenshots and diagnostics
+are deleted after incorporating the findings and generated-fixture tests.

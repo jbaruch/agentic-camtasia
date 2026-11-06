@@ -160,6 +160,63 @@ custom attributes, while replacing endpoints and duration for the destination.
 Neither route copies external resources. Keep any template resource dependencies
 available and verify the candidate in the matching native editor.
 
+## Caption JSON editing
+
+Use `skills/camtasia-project/scripts/captions.py` for plain closed cues, existing
+caption text, recognized source-word corrections, root clock mapping/retiming and
+existing dynamic display controls. Its module docstring, `RATE`, `root_clock`,
+`point_frames`, `correction_edits`, `capacity`, `mapped_holds` and `set_display`
+own the clock, source, value, preservation and refusal contracts. Read
+[captions](captions.md) before selecting an owner or parameter clock.
+
+```bash
+python3 -B "{camtasia_skill_root}/scripts/captions.py" inspect "<project>"
+python3 -B "{camtasia_skill_root}/scripts/captions.py" map "<project>" --clip-id 3
+python3 -B "{camtasia_skill_root}/scripts/captions.py" set-cues "<project>" --clip-id 3 --spec "<cues.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/captions.py" set-text "<project>" --clip-id 3 --spec "<corrections.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/captions.py" correct-words "<project>" --source-id 1 --source-track 1 --spec "<word-corrections.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/captions.py" retime "<project>" --clip-id 3 --spec "<clock.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/captions.py" set-display "<project>" --clip-id 6 --spec "<display.json>" --output "<candidate.json>"
+```
+
+Inspection returns separate `closed`, `transcriptions` and `displays` arrays
+with physical paths and saved payloads. Select clip/source IDs and source-track
+indices from inspection. Native Add Caption/import supplies the closed parameter;
+word correction requires actual saved recognition/transcription. Read the script
+anchors above for supported builds, clocks, selectors, controls and refusals.
+
+Every edit spec has `schema_version: 1`. Closed cue authoring supplies `clock`
+and `cues` containing start/end seconds and text, for example:
+`{"schema_version":1,"clock":"media","cues":[{"start":0,"end":4,"text":"First café"}]}`.
+An empty cue array clears captions. Authoring preserves global styles and enables
+captions. Use the text-correction route when retaining opaque per-point data.
+
+Both correction commands take
+`{"schema_version":1,"edits":[{"index":7,"expected":"useful","text":"HELPFUL"}]}`.
+Indices identify existing occurrences. Corrections preserve point timing and
+unrelated data; source-word edits affect every use of that source. Unsupported
+RTF/styled values and stale occurrence selections produce input errors. Use the
+native or an RTF-aware editor for RTF captions.
+
+Clock edits take
+`{"schema_version":1,"start":1,"duration":3,"media_start":2,"scalar":"1/2"}`.
+Start/duration/trim inputs use seconds; scalar is inverse speed. Retiming changes
+owner clocks and retains source cue/word points. Mapping returns source indices,
+exact timeline ticks and rational seconds; empty mapped results are valid.
+
+A display spec supplies independent start/duration seconds, `definition` and/or
+`rich` changes, for example:
+`{"schema_version":1,"start":1,"duration":3,"definition":{"dynamic-caption-new-paragraph-for-each-sentence":1},"rich":{"fgColor":"(255,255,255,255)"}}`.
+Select existing control names from the script's display contract. The native
+placeholder, other rich ranges, default fonts and style IDs remain unchanged.
+Verify physical fonts, fitting and actual word highlighting on the rendering host.
+
+Staging returns hashes, inventory, `changed`, `written` and
+`nativeVerified: false`. Original projects and media remain unchanged. Follow
+project validate/diff/apply and native save/reopen/export checks. Inspect actual
+cue boundaries, clearing and highlighted words. MP4 uses burned-in text;
+Smart Player CC delivery requires its web package and toggle/playback checks.
+
 ## Annotation JSON editing
 
 Use `skills/camtasia-project/scripts/annotations.py` for construction from a standalone native Callout,
