@@ -53,6 +53,13 @@ different file already occupying the cache path.
 
 ## Findings that structural conformance misses
 
+**Positive-time matte points can fail native parsing.** Mac 2026.2.4 format 10
+accepts the community-schema shape for linear Media Matte intensity frames with
+equal positive `time`/`endTime` and zero duration, then refuses native opening
+with `Invalid KeyFrame operation`. The helper rejects this reproduced shape;
+[nonlinear interval verification](matte-nonlinear-curves.md) records the accepted
+positive-duration alternative and independent output checks.
+
 **Ordinary geometry points can collapse to static values.** The format-10 Mac
 2026.2.4 `VMFile` translation0/1 controls accept zero-duration double keyframes
 under the schema, then fold them into static or initial values in native saves.

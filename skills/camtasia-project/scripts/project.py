@@ -379,12 +379,43 @@ def native_hazards(doc: dict[str, Any]) -> list[str]:
     reaches AnimationTrack::mutex() during native loading. The same ten-preset
     corpus saves successfully with only that redundant keyframe removed.
     This guard claims no safety result for other animated behavior shapes.
+    Mac 2026.2.4 separately refuses positive-time linear Media Matte intensity
+    points with equal time/endTime and zero duration during native opening.
     """
     errors = (
         native_lane_collisions(doc)
         + native_group_reopen_hazards(doc)
         + native_duplicate_track_indices(doc)
     )
+    if doc.get("version") == "10.0" and doc.get("authoringClientName") == {
+        "name": "Camtasia",
+        "platform": "Mac",
+        "version": "2026.2.4",
+    }:
+        for path, node in objects(doc.get("timeline", {}), "/timeline"):
+            if node.get("effectName") != "MediaMatte":
+                continue
+            parameters = node.get("parameters", {})
+            intensity = parameters.get("intensity") if isinstance(parameters, dict) else None
+            if not isinstance(intensity, dict) or intensity.get("type") != "double":
+                continue
+            frames = intensity.get("keyframes", [])
+            if not isinstance(frames, list):
+                continue
+            for index, frame in enumerate(frames):
+                if (
+                    isinstance(frame, dict)
+                    and type(frame.get("time")) in (int, float)
+                    and frame["time"] > 0
+                    and frame.get("duration") == 0
+                    and frame.get("endTime") == frame["time"]
+                    and frame.get("interp") == "linr"
+                ):
+                    errors.append(
+                        f"{path}/parameters/intensity/keyframes/{index}: positive-time linear matte "
+                        "point keyframe reproduces a Mac 2026.2.4 parse rejection; "
+                        "use a verified positive-duration intensity interval"
+                    )
     client = {"name": "Camtasia", "platform": "Mac", "version": "2025.0.3"}
     if doc.get("version") != "9.0" or doc.get("authoringClientName") != client:
         return errors

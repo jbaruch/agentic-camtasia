@@ -495,8 +495,12 @@ records the difference between intensity, bypass and track-level masking.
 | `inspect PROJECT` | Bundle or JSON document | Read-only physical effect paths, clip IDs and track-matte paths/codes. |
 | `set-media PROJECT --clip-id ID --output CANDIDATE` | Verified visual-owner ID and at least one control: `--mode`, `--intensity`, `--ease-in`, `--ease-out`, `--bypass` or `--no-bypass` | Separate full candidate; creates or updates a native Media Matte. `--mode none` removes that effect. Linked wrapper/video mirrors change together; audio, unrelated effects, visual content and opaque state survive. |
 | `set-track PROJECT --track INDEX --mode MODE --output CANDIDATE [--group-id ID]` | Storage track index and mode, optional existing Group ID | Separate candidate; edits the selected root or Group track attribute without changing its media. |
-| `set-intensity-curve PROJECT --clip-id ID --curve SPEC --output CANDIDATE` | Verified visual-owner ID and schema-1 curve input | Separate candidate; creates/replaces the intensity curve with source-clock conversion. Linked visual mirrors change together; audio and other animations survive. |
+| `set-intensity-curve PROJECT --clip-id ID --curve SPEC --output CANDIDATE` | Verified visual-owner ID and schema-1 or schema-2 curve input | Separate candidate; creates/replaces the intensity curve with source-clock conversion. Linked visual mirrors change together; audio and other animations survive. |
 | `clear-intensity-curve PROJECT --clip-id ID --intensity VALUE --output CANDIDATE` | Existing matte owner and requested static intensity | Separate candidate; clears only intensity keyframes. Other parameter curves and visual animation intervals remain. |
+
+Schema 1 stays linear. [Schema 2](matte-nonlinear-curves.md) adds optional
+per-segment `easing`: `linear`, `exponential`, `bounce` or `spring`. Existing
+visual intervals keep their own easing; this command changes intensity only.
 
 Curve input example:
 

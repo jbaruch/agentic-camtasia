@@ -74,6 +74,106 @@ def curve_fixture(linked: bool = False) -> dict:
 
 
 class MatteCurveTests(unittest.TestCase):
+    def test_v2_easing_compiles_each_interval_with_fixed_native_codes(self) -> None:
+        spec = {
+            "schema_version": 2,
+            "defaultValue": "1/4",
+            "segments": [
+                {"start": 0, "end": 1, "value": 1, "easing": "linear"},
+                {"start": 1, "end": 2, "value": 0, "easing": "exponential"},
+                {"start": 2, "end": 3, "value": 1, "easing": "bounce"},
+                {"start": 3, "end": 4, "value": 0, "easing": "spring"},
+                {"start": 4, "end": 5, "value": "1/2"},
+            ],
+        }
+        result = mattes.edit_intensity_curve(curve_fixture(), 3, spec)
+        parameter = clip(result)["effects"][0]["parameters"]["intensity"]
+        self.assertEqual(parameter["defaultValue"], 0.25)
+        self.assertEqual(
+            parameter["keyframes"],
+            [
+                dict(time=0, endTime=1000, duration=1000, value=1.0, interp="linr"),
+                dict(time=1000, endTime=2000, duration=1000, value=0.0, interp="eioe"),
+                dict(time=2000, endTime=3000, duration=1000, value=1.0, interp="bnce"),
+                dict(time=3000, endTime=4000, duration=1000, value=0.0, interp="sprg"),
+                dict(time=4000, endTime=5000, duration=1000, value=0.5, interp="linr"),
+            ],
+        )
+        self.assertEqual(mattes.edit_intensity_curve(result, 3, spec), result)
+
+    def test_nonlinear_linked_source_clock_preserves_audio_and_other_animation(self) -> None:
+        doc = mattes.edit_media(curve_fixture(True), 3, mode="alpha")
+        for node in (clip(doc), clip(doc)["video"]):
+            node.update(mediaStart=1000, scalar="1/2")
+        visual = clip(doc)["video"]
+        visual["animationTracks"] = {
+            "visual": [{"endTime": 4000, "duration": 2000, "interp": "linr"}]
+        }
+        visual["parameters"]["scale0"] = {
+            "type": "double",
+            "defaultValue": 1,
+            "keyframes": [dict(time=2000, endTime=4000, duration=2000, value=0.7, interp="linr")],
+        }
+        before = copy.deepcopy(doc)
+        spec = dict(
+            schema_version=2,
+            defaultValue=0,
+            segments=[dict(start="1/2", end="3/2", value=1, easing="spring")],
+        )
+        result = mattes.edit_intensity_curve(doc, 4, spec)
+        expected = copy.deepcopy(before)
+        for node in (clip(expected), clip(expected)["video"]):
+            node["effects"][0]["parameters"]["intensity"].update(
+                defaultValue=0.0,
+                keyframes=[dict(time=2000, endTime=4000, duration=2000, value=1.0, interp="sprg")],
+            )
+            node["effects"][0]["parameters"]["intensity"].pop("interp")
+        self.assertEqual(result, expected)
+        self.assertEqual(doc, before)
+
+    def test_easing_requires_v2_and_a_verified_choice(self) -> None:
+        for version, easing in (
+            (1, "spring"),
+            (2, "auto"),
+            (2, "sprg"),
+            (2, None),
+            (2, True),
+            (2, []),
+        ):
+            spec = dict(
+                schema_version=version,
+                defaultValue=0,
+                segments=[dict(start=0, end=1, value=1, easing=easing)],
+            )
+            doc = curve_fixture()
+            with self.subTest(version=version, easing=easing), self.assertRaises(ValueError):
+                mattes.edit_intensity_curve(doc, 3, spec)
+            self.assertEqual(doc, curve_fixture())
+
+    def test_native_positive_time_matte_points_are_rejected_without_rewriting(self) -> None:
+        doc = mattes.edit_media(curve_fixture(), 3, mode="alpha")
+        parameter = clip(doc)["effects"][0]["parameters"]["intensity"]
+        parameter["keyframes"] = [dict(time=2000, endTime=2000, duration=0, value=1, interp="linr")]
+        before = copy.deepcopy(doc)
+        errors = project.native_hazards(doc)
+        self.assertEqual(len(errors), 1)
+        self.assertIn("/effects/0/parameters/intensity/keyframes/0", errors[0])
+        self.assertIn("positive-duration intensity interval", errors[0])
+        self.assertEqual(doc, before)
+        for version, build in (("9.0", "2025.0.3"), ("10.0", "2026.2.3")):
+            doc["version"] = version
+            doc["authoringClientName"]["version"] = build
+            self.assertEqual(project.native_hazards(doc), [])
+        doc = copy.deepcopy(before)
+        parameter = clip(doc)["effects"][0]["parameters"]["intensity"]
+        parameter["keyframes"][0].update(time=1000, duration=1000)
+        self.assertEqual(project.native_hazards(doc), [])
+        parameter["keyframes"][0].update(time=0, endTime=0, duration=0)
+        self.assertEqual(project.native_hazards(doc), [])
+        clip(doc)["effects"][0]["effectName"] = "Sepia"
+        parameter["keyframes"][0].update(time=2000, endTime=2000)
+        self.assertEqual(project.native_hazards(doc), [])
+
     def test_bare_native_intensity_promotes_to_the_observed_typed_curve(self) -> None:
         doc = mattes.edit_media(curve_fixture(), 3, mode="alpha")
         clip(doc)["effects"][0]["parameters"]["intensity"] = 0.6
@@ -214,7 +314,7 @@ class MatteCurveTests(unittest.TestCase):
         specs = [
             {},
             {**curve_spec(), "schema_version": True},
-            {**curve_spec(), "schema_version": 2},
+            {**curve_spec(), "schema_version": 3},
             {**curve_spec(), "future": 1},
             {**curve_spec(), "defaultValue": True},
             {**curve_spec(), "segments": []},
@@ -281,7 +381,11 @@ class MatteCurveTests(unittest.TestCase):
                 for name in ("project.json", "curve.json", "candidate.json", "cleared.json")
             ]
             source.write_bytes(project.encode_document(curve_fixture()))
-            spec.write_text(json.dumps(curve_spec()))
+            nonlinear = curve_spec()
+            nonlinear["schema_version"] = 2
+            nonlinear["segments"][0]["easing"] = "exponential"
+            nonlinear["segments"][1]["easing"] = "bounce"
+            spec.write_text(json.dumps(nonlinear))
             original = (source.read_bytes(), spec.read_bytes())
             with patch("sys.stdout", io.StringIO()):
                 self.assertEqual(
@@ -319,6 +423,15 @@ class MatteCurveTests(unittest.TestCase):
             ]
             self.assertNotIn("keyframes", parameter)
             self.assertEqual(parameter["defaultValue"], 0.5)
+            self.assertEqual(
+                [
+                    f["interp"]
+                    for f in clip(json.loads(output.read_text()))["effects"][0]["parameters"][
+                        "intensity"
+                    ]["keyframes"]
+                ],
+                ["eioe", "bnce"],
+            )
             self.assertEqual((source.read_bytes(), spec.read_bytes()), original)
 
 
