@@ -95,7 +95,7 @@ stereo `AMFile` system audio. Native Media Matte application creates matching
 wrapper/video effects with the same `effectIndex` token. Intensity, bypass and
 removal change both mirrors; source definitions and the audio child survive.
 The helper's `media_targets` and linked-recording constants own accepted owner
-shapes and clock checks. Group containment is covered below; linked held/stitched owners and other
+shapes and clock checks. Group containment is covered below; native linked-recording frame extensions are covered below; other
 container kinds retain separate contracts.
 
 The native half-intensity edit adds the wrapper reset companion
@@ -194,3 +194,80 @@ the original geometry baseline remain unchanged. Seventeen snapshots pass the
 existing exact-build profile and native hazard checks; each raw result contains
 only the known timeline-metadata omission. No schema correction is added.
 Completed disposable inputs and outputs are deleted after incorporation.
+
+## Frame extensions of linked recordings
+
+Mac 2026.2.4 (2026.132), format 10, extends a linked moving recording into a
+`StitchedMedia` parent containing the original `UnifiedMedia` moving pair and
+one standalone `ScreenIMFile` hold. The hold has no audio child. Do not invent a
+linked frozen wrapper or apply the moving pair's mirror contract to the parent.
+
+Use native **Edit → Playhead → Extend Frame to Playhead** on a selected linked
+recording. Extend the timeline with a disposable lower clip, place the playhead
+past the recording endpoint and invoke the command. Saving can clear selection;
+reselect the recording if the command is disabled. Save the native result before
+JSON editing. Native **Modify → Remove → All Stitches** restores the moving
+linked root and a separate frozen root. The helper edits those existing owners;
+it does not extract frozen picture/cursor data from proprietary TREC files.
+
+The exercised recording starts at timeline one second, selects source seconds
+two–ten and plays at 2×. Extension adds a two-second hold, ending at timeline
+seven seconds. At project rate 705600000 the stitched parent retains
+`mediaStart: 1411200000`, `mediaDuration: 8467200000`, `scalar: "1/2"` and
+`duration: 4233600000`. Its moving wrapper/video/audio children share start zero,
+duration/mediaDuration `7056000000`, mediaStart zero and scalar one. The hold
+starts at `7056000000`, retains virtual duration `5081731200000`, mediaDuration
+one and mediaStart `7008960000`. Preserve every child clock and negative cursor
+time. After unstitching, the moving root recovers its original trim/speed; the
+hold starts at timeline five seconds, lasts two seconds and retains scalar
+`"1/2"`. Frozen intensity intervals still use local zero through inverse speed.
+
+Native Alpha construction, half intensity, bypass and removal use one parent
+Media Matte with no `effectIndex`; neither moving visual/audio child changes.
+Native construction on the unstitched frozen root also uses one direct effect.
+Five whole-document helper/native comparisons cover those operations. Static
+intensity descriptors may collapse to scalars; the native half edit adds the
+existing parent reset companion. Unrelated effects, source data and audio survive.
+
+A 144-second sequence has seven reference/helper pairs plus bare stitched,
+unstitched, pre-extension and background-only controls. A reconstructed native
+linear interval crosses the moving/held join; it reuses the previously captured
+interval form rather than adding a new native UI curve-construction capture.
+Helper local seconds 3.5–4.5 become source positions `6350400000`–`7761600000`.
+Native readback at local 3.7 and 4.3 seconds shows 20% and 80%. Clearing matches
+the half-intensity control. Bypass/removal restore recorded pictures; the
+unstitched held matte changes only the held section.
+
+Three inspected contact sheets contain 126 unique frames; full-resolution
+views verify the crossing mask and held picture. Across 234 phase samples,
+91 reference/helper comparisons differ by at most 0.849 mean RGB byte levels
+per channel. The bare stitched and unstitched controls retain the same visible
+hold while the pre-extension recording disappears. The saved selected-frame
+field alone does not prove which picture native playback uses: this recording's
+held picture visibly contains source timestamp 26.633 seconds despite the saved
+9.933-second mediaStart. Check the actual native held picture for a requested
+trimmed extension; this workflow preserves the native result without repairing
+or claiming a frame-selection mapping from that field. The recorded permission
+notice is picture content; verification grants no OS permission.
+
+Two same-process exports separated by saved close/reopen are 144-second
+640×360 H.264 at 30 fps with stereo 44.1 kHz AAC. Complete decoded PCM is
+identical. Complete decoded RGB differs: 3837 of 4320 frames have nonzero
+pixel differences, with maximum per-frame mean difference 0.722 byte levels.
+Do not claim exact repeat-video equality. All 252 audio-channel windows retain
+the 440 Hz background tone at RMS amplitude 0.09551–0.09654. The 660 Hz recorded
+tone remains at 0.09427–0.09465 during the moving interval, matches the original
+pre-extension control, and falls below 0.000044 during holds/outside recording.
+Neither parent mattes nor unstitching invent or extend recorded audio.
+
+Strict whole-document save comparison accounts for 134 remapped clip IDs,
+118 frozen static descriptor collapses, three static intensity collapses, six
+constant scale/cursor-size companions, two derived visual intervals, duration
+text and thumbnail. Every other field remains equal, including source-bin,
+recording processing, cursor payload, descendants and all audio. Reopened saves
+change only the thumbnail. Both bundled source hashes and the original geometry
+baseline remain unchanged. Seventeen snapshots pass the existing exact-build
+profile and native hazard checks; each raw schema result has only the known
+timeline-metadata omission. No new correction is added. Completed disposable
+artifacts are deleted after incorporation. Further container arrangements and
+working native point-intensity forms remain separate verification work.

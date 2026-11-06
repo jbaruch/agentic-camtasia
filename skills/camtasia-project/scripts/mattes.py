@@ -7,8 +7,11 @@ UnifiedMedia/video uses mirrored effects. Root and Group-contained linked moving
 ScreenVMFile recordings share native wrapper/video tokens and preserve their same-source
 AMFile. Recording mirrors require complete matching wrapper/video clocks and
 positive edit rate/inverse speed. Group ancestors, their clocks and layer
-arrangements survive unchanged. Other containing kinds, held and stitched
-recording wrappers retain separate contracts. Preserve native fill/alpha content
+arrangements survive unchanged. A native linked-recording frame extension is a
+StitchedMedia parent with a moving UnifiedMedia pair and silent standalone
+ScreenIMFile hold. Its matte lives only on the parent; descendants stay unchanged.
+Unstitching restores a linked moving root and standalone held root. Other
+containing kinds and hypothetical held recording wrappers retain separate contracts. Preserve native fill/alpha content
 and use a separate lower track. Linked edits preserve the audio child and patch
 both visual mirrors through their stable effectIndex token, not array position.
 Media intensity is a scalar in [0,1]; omitted controls retain native values.

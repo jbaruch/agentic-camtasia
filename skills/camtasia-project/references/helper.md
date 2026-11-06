@@ -645,8 +645,10 @@ contract. The [native matte evidence](advanced-features.md#media-and-track-matte
 records the difference between intensity, bypass and track-level masking.
 [Recording-owner verification](matte-recording-owners.md) adds native moving,
 frozen and stitched ownership, clocks and lifecycle controls, plus root and
-Group-contained linked moving recordings with preserved recorded audio. Group
-ancestors retain their timing, geometry and track arrangement.
+Group-contained linked moving recordings with preserved recorded audio.
+[Linked-recording frame extensions](matte-recording-owners.md#frame-extensions-of-linked-recordings)
+retain a moving linked pair and silent hold under a single matte parent; native
+unstitching restores their separate roots. Group ancestors retain their timing, geometry and track arrangement.
 [Composition verification](matte-composition.md) compares media/track interactions
 and Group/root scope against independent visual controls.
 

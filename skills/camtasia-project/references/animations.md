@@ -76,6 +76,11 @@ Bounce and restored geometry; sixteen tone and sixteen silent hold windows
 verify audio. The existing schema/profile needs no correction. Deterministic
 tests retain the contract after completed disposable media/records are deleted.
 
+The [linked-recording extension workflow](matte-recording-owners.md#frame-extensions-of-linked-recordings)
+records the native moving-pair/silent-hold shape, unstitching and its trimmed
+frame-selection limitation. Preserve that native result and verify its actual
+held picture before treating mediaStart as a playback-frame guarantee.
+
 ### Retimed frozen recordings
 
 Native Clip Speed accepts frozen screen recordings. A hold selecting source
