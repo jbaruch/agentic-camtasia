@@ -151,6 +151,64 @@ rendered mask bounds: native spotlight also retains clip scale near 0.4444444444
 The format-10 profile adds the observed Highlighter, Spotlight and Pixelate kind
 names; arbitrary masks, strengths and privacy sufficiency require output checks.
 
+### Static region controls
+
+Version 0.38.0 extends existing annotation definition edits with static region
+controls. Use the [annotation helper contract](helper.md#annotation-json-editing)
+for inputs, outputs, units and refusals. These controls belong to `Callout.def`;
+the visual `BlurRegion` effect and its `sigma` parameter have a separate owner.
+
+Mac Camtasia 2026.2.4 (2026.132), project format 10, saved these native edits on
+240×140 regions with corner radius 6 and clip scale 1:
+
+| Native control | Saved observation |
+| --- | --- |
+| Blur strength 40% | `intensity: 0.400000005960464`; baseline 0.8125. |
+| Blur Invert enabled | `blur-invert: 1.0`; baseline 0. |
+| Pixelate intensity 60 | `intensity: 0.600000023841858`; baseline 0.33. |
+| Spotlight strength 75% | `intensity: 0.75`; baseline 0.5. |
+| Highlighter opacity 50% | `fill-color-opacity: 0.5`; baseline 0.25. |
+| Highlighter color #FF8000 | Legacy RGB fields save `(1, 0.501960784313725, 0)`; baseline green `(0,1,0)`. |
+| Highlighter Invert enabled | `fill-invert: 1.0`; baseline 0. |
+
+Seven whole-document comparisons match native edits against helper candidates.
+Normalization admits the selected owner's observed first-edit reset metadata,
+thumbnail/command-count changes and only the requested fields' measured floating
+aliases: native Blur/Pixelate values above versus raw 0.4/0.6, and the saved green
+channel versus `128/255`. The helper preserves existing reset metadata without
+inventing new reset fields. No other fields are excluded. Native readback shows
+40.0, 60, 75% and orange/50%/Invert on the corresponding helper candidates.
+
+A 152-second sequence contains seven native/helper pairs, four independent
+original-preset controls and a background-only control. Each eight-second cell
+repeats the same generated source; its region remains active for five seconds.
+Both exports contain 4,560 frames of 640×360 H.264 at 30 fps with stereo 44.1 kHz
+AAC. All 84 paired comparisons across 228 sampled phase frames stay below 0.879
+mean byte levels. Inspection covers 133 contact-sheet frames and seven full-size
+views. Blur softens the selected interior or exterior, Pixelate increases block
+size, Spotlight darkens the exterior and the Highlighter applies the selected
+color inside or outside its region. At local 1.5 seconds, Spotlight's exterior
+difference from the background rises from 11.62 to 17.31 mean byte levels;
+inverted Blur and Highlighter retain interiors within 0.032 while changing their
+exteriors. These observations establish the exercised controls, not sufficient
+obscuration for arbitrary source content.
+
+The first native save remaps 75 clip IDs, shortens the one helper green value to
+the saved precision above and updates duration/thumbnail UI state. Whole-document
+comparison retains every other source, descendant, clock, geometry, metadata and
+audio field. Subsequent saves, including reopening before the second export,
+change only the thumbnail. Repeat decoded PCM matches; 279 of 4,560 RGB frames
+differ, with maximum frame mean difference 0.908 and overall mean 0.00794 byte
+levels. All 228 audio-channel windows retain the 440 Hz source tone, with RMS
+tone amplitudes 0.09560–0.09654. Source bytes and the original baseline project
+remain unchanged.
+
+Twenty saved snapshots pass the exact-build profile and native hazard checks.
+Raw-schema validation retains 100 errors for the three previously documented
+missing annotation kind identifiers; no new schema correction is introduced.
+Timed region parameters and remaining keystroke controls retain separate scopes.
+Preset definitions, source media and test exports remain local disposable inputs.
+
 ## Standalone keystroke callouts
 
 All six Mac 2026.2.4 standalone presets use `Callout.def.kind: "MacKey"` and

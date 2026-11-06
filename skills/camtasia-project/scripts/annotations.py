@@ -16,8 +16,15 @@ set PROJECT --clip-id ID --spec SPEC --output CANDIDATE accepts schema_version 1
 with text, rich (existing property names), and/or definition (existing supported
 static fields). resize-behavior accepts the native resizeText (automatic text
 sizing) or resizeCallout choice; enable-ligatures accepts native numeric 0/1.
-Both require the existing field. They preserve rich values/ranges, default fonts,
-geometry and reset metadata. Automatic fitting can display a smaller size while
+Both require the existing field. REGION_PARAMETERS admits intensity on native
+Blur/Pixelate/Spotlight annotation kinds, blur-invert on Blur and fill-invert plus
+legacy fillColorRed/Green/Blue on Highlighter. New region values use native 0..1
+units; inversion uses numeric 0/1. Existing spellings and scalar/static typed
+representations survive. No color aliases, missing fields, animated/default-less
+flattening or generic intensity controls on other kinds are inferred. UI edits
+can save different floating precision; these inputs are raw saved units, not UI
+percentages or a promise of sufficient obscuration. Layout controls preserve rich
+values/ranges, default fonts, geometry and reset metadata. Automatic fitting can display a smaller size while
 the saved rich fontSize remains unchanged. Shape/style replacement is not a constructor. Uniform static
 rich runs use UTF-8 byte offsets; text replacement updates every range end.
 In version 1, mixed, partial, duplicate, animated and unfamiliar runs refuse rather than
@@ -107,6 +114,14 @@ RICH_TYPES = {
     "kerning": "double",
 }
 EMPTY_STYLE_REQUIRED = frozenset(RICH_TYPES) - {"kerning"}
+REGION_PARAMETERS = {
+    "TypeWinBlur": frozenset({"intensity", "blur-invert"}),
+    "TypeWinPixelate": frozenset({"intensity"}),
+    "TypeWinSpotlight": frozenset({"intensity"}),
+    "TypeWinHighlighter": frozenset(
+        {"fill-invert", "fillColorRed", "fillColorGreen", "fillColorBlue"}
+    ),
+}
 ENUMS = {
     "horizontal-alignment": {"left", "center", "right"},
     "vertical-alignment": {"top", "center", "bottom"},
@@ -558,7 +573,8 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
         if (
             not isinstance(changes, dict)
             or not changes
-            or changes.keys() - (NUMBERS | ENUMS.keys())
+            or changes.keys()
+            - (NUMBERS | ENUMS.keys() | REGION_PARAMETERS.get(definition["kind"], frozenset()))
         ):
             raise ValueError("name supported existing static annotation definition fields")
         for name, value in changes.items():
@@ -581,6 +597,8 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
                 or (name == "line-spacing" and not 0 <= number <= 3)
                 or (name == "numCtrlPts" and number != 2)
                 or (name == "enable-ligatures" and number not in {0, 1})
+                or (name in REGION_PARAMETERS.get(definition["kind"], ()) and not 0 <= number <= 1)
+                or (name in {"blur-invert", "fill-invert"} and number not in {0, 1})
             ):
                 raise ValueError("use the observed numeric range for " + name)
             effects.patch_parameter(definition, name, value)
