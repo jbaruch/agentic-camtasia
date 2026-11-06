@@ -27,8 +27,9 @@ percentages or a promise of sufficient obscuration. Layout controls preserve ric
 values/ranges, default fonts, geometry and reset metadata. Automatic fitting can display a smaller size while
 the saved rich fontSize remains unchanged. Shape/style replacement is not a constructor. Uniform static
 rich runs use UTF-8 byte offsets; text replacement updates every range end.
-KEYSTROKE_PARAMETERS admits existing MacKey keys, keyStyle, showKeyBackg and
-showKeyHint. keys is a nonempty printable native key string, copied literally;
+KEYSTROKE_PARAMETERS admits existing standalone root MacKey keys, keyStyle,
+showKeyBackg and showKeyHint; clip ancestors refuse for these controls.
+keys is a nonempty printable native key string, copied literally;
 no chord parsing, modifier ordering, event synthesis or text-to-key conversion
 is inferred. keyStyle uses native numeric 0..4 (Clear, Gray, Traditional, Outline,
 Black); the two flags use numeric 0/1, not JSON booleans. Definition name and
@@ -592,6 +593,10 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
             )
         ):
             raise ValueError("name supported existing static annotation definition fields")
+        if changes.keys() & KEYSTROKE_PARAMETERS:
+            path, _ = hotspots.visual_target(result, clip_id, visual_types=frozenset({"Callout"}))
+            if any(path.startswith(parent + "/") for parent, _ in hotspots.clips(result)):
+                raise ValueError("select a standalone root MacKey for keystroke-control edits")
         for name, value in changes.items():
             if name not in definition:
                 raise ValueError("capture the native field before editing: " + name)

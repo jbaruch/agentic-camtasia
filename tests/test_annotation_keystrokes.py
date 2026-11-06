@@ -158,6 +158,28 @@ class AnnotationKeystrokeTests(unittest.TestCase):
                     )
                 self.assertEqual(doc, before)
 
+    def test_group_contained_keystroke_controls_refuse_without_mutating_any_owner(self):
+        for name, value in [
+            ("keys", "⇧ ⌘ K"),
+            ("keyStyle", 2),
+            ("showKeyBackg", 0),
+            ("showKeyHint", 1),
+        ]:
+            doc = document()
+            owner = clip(doc)
+            project.scene_tracks(doc)[0][0]["medias"] = [
+                dict(_type="Group", id=10, tracks=[dict(medias=[owner])])
+            ]
+            before = copy.deepcopy(doc)
+            with (
+                self.subTest(name=name),
+                self.assertRaisesRegex(ValueError, "standalone root MacKey"),
+            ):
+                annotations.edit_annotation(
+                    doc, 3, dict(schema_version=1, definition={"width": 192, name: value})
+                )
+            self.assertEqual(doc, before)
+
     def test_cli_candidate_repeat_invalid_no_output_and_untouched_input_bytes(self):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
