@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.41.0 — 2026-11-06
+
+### Added
+
+- Existing standalone Sketch Motion annotations accept rational drawing time and
+  native stroke thickness/RGB edits. Timing changes the drawing modifier while
+  retaining the definition's DrawTime value, SVG, geometry, reset metadata and
+  ending Fade. Inspection exposes the actual drawing modifier. Unverified owner
+  clocks and unfamiliar modifier shapes remain refused.
+- Seven whole-document native comparisons and two independent 120-second exports
+  verify slower/instant/full-duration drawing, yellow/orange strokes, thickness
+  and zero thickness. Complete decoded video/audio repeat exactly; 180 sampled
+  and inspected phase frames, 84 native/helper pairs, eight full-size views and
+  360 channel-specific audio windows retain the exercised behavior. Sixteen
+  schema/profile/hazard checks pass with the two known raw-schema omissions.
+  A full-duration draw still overlaps its independent ending Fade.
+
 ## 0.40.0 — 2026-11-06
 
 ### Added
