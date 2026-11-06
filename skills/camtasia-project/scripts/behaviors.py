@@ -11,6 +11,16 @@ direct copies retain native metadata and refuse ambiguous repeated identities.
 Selected reset companions are copied without overwriting conflicting defaults.
 The added behavior becomes the wrapper/direct owner's last-applied name.
 
+copy-phase PROJECT --clip-id ID --behavior NAME --phase in|center|out
+--template-project TEMPLATE --template-clip-id ID [--effect-token TOKEN]
+[--template-effect-token TOKEN] --output CANDIDATE replaces one complete phase
+from an existing same-name native behavior. Native style, timing, parameters,
+integer point frames and opaque phase data copy together, including none phases.
+Owner kinds, linked layouts, edit rate, complete owner clocks and behavior outer
+intervals must match; no clock conversion or style-name constructor is inferred.
+Target tokens, bypass, reset companions, other phases and unrelated payload
+survive. Donor owner/effect metadata and reset companions are not imported.
+
 set PROJECT --clip-id ID --behavior NAME [--effect-token TOKEN] --spec SPEC
 --output CANDIDATE edits existing phase timing/static parameters and/or bypass.
 remove uses that selector without a spec and leaves all other tokens unchanged.
@@ -381,6 +391,46 @@ def attribute_value(name: str, value: Any, rate: Any) -> int | str:
     return int(number) if number.denominator == 1 else str(number)
 
 
+def copy_phase(
+    doc: dict[str, Any],
+    clip_id: int,
+    name: str,
+    phase: str,
+    template: dict[str, Any],
+    template_clip_id: int,
+    *,
+    token: str | None = None,
+    template_token: str | None = None,
+) -> dict[str, Any]:
+    """Replace one saved native phase without changing its behavior or owner."""
+    if not isinstance(phase, str) or phase not in PHASE_NAMES:
+        raise ValueError("select phase in, center or out for a complete native phase copy")
+    source = targets(template, template_clip_id, name, template_token)
+    result = copy.deepcopy(doc)
+    destination = targets(result, clip_id, name, token)
+    if project.number(doc["editRate"]) != project.number(template["editRate"]):
+        raise ValueError("select a native phase template with the destination project edit rate")
+    if len(source) != len(destination) or any(
+        a.get("_type") != b.get("_type") for (a, _), (b, _) in zip(source, destination)
+    ):
+        raise ValueError("select matching native phase owner kinds and linked layouts")
+    for (original, native), (owner, behavior) in zip(source, destination):
+        if any(field not in original or field not in owner for field in effects.CLOCK_FIELDS):
+            raise ValueError("capture complete native template and destination owner clocks")
+        if any(
+            project.number(original[field]) != project.number(owner[field])
+            for field in effects.CLOCK_FIELDS
+        ) or any(
+            project.number(native[field]) != project.number(behavior[field])
+            for field in ("start", "duration")
+        ):
+            raise ValueError(
+                "select matching owner clocks and behavior intervals; phase retiming is not inferred"
+            )
+        behavior[phase] = copy.deepcopy(native[phase])
+    return result
+
+
 def edit_behavior(
     doc: dict[str, Any], clip_id: int, name: str, spec: dict[str, Any], *, token: str | None = None
 ) -> dict[str, Any]:
@@ -507,20 +557,22 @@ def main(argv: list[str] | None = None) -> int:
     commands = parser.add_subparsers(dest="command", required=True)
     inspect = commands.add_parser("inspect")
     inspect.add_argument("project", type=Path)
-    for name in ["add", "set", "remove"]:
+    for name in ["add", "set", "remove", "copy-phase"]:
         command = commands.add_parser(name)
         command.add_argument("project", type=Path)
         command.add_argument("--clip-id", type=int, required=True)
         command.add_argument("--behavior", required=True)
         command.add_argument("--output", type=Path, required=True)
-        if name == "add":
+        if name in ("add", "copy-phase"):
             command.add_argument("--template-project", type=Path, required=True)
             command.add_argument("--template-clip-id", type=int, required=True)
             command.add_argument("--template-effect-token")
-        else:
+        if name != "add":
             command.add_argument("--effect-token")
         if name == "set":
             command.add_argument("--spec", type=Path, required=True)
+        if name == "copy-phase":
+            command.add_argument("--phase", choices=tuple(PHASE_NAMES), required=True)
     args = parser.parse_args(argv)
     try:
         doc, raw = project.load(args.project)
@@ -546,6 +598,17 @@ def main(argv: list[str] | None = None) -> int:
                     args.behavior,
                     project.load(args.spec)[0],
                     token=args.effect_token,
+                )
+            elif args.command == "copy-phase":
+                candidate = copy_phase(
+                    doc,
+                    args.clip_id,
+                    args.behavior,
+                    args.phase,
+                    project.load(args.template_project)[0],
+                    args.template_clip_id,
+                    token=args.effect_token,
+                    template_token=args.template_effect_token,
                 )
             else:
                 candidate = remove_behavior(

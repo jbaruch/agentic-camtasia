@@ -305,6 +305,7 @@ build, names, mixed-clock, selector and reset contracts. Read the
 ```bash
 python3 -B "{camtasia_skill_root}/scripts/behaviors.py" inspect "<template-project>"
 python3 -B "{camtasia_skill_root}/scripts/behaviors.py" add "<project>" --clip-id 10 --behavior fade --template-project "<same-build-template>" --template-clip-id 40 --template-effect-token 7 --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/behaviors.py" copy-phase "<project>" --clip-id 10 --behavior fade --phase center --effect-token 7 --template-project "<same-build-template>" --template-clip-id 40 --template-effect-token 2 --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/behaviors.py" set "<project>" --clip-id 10 --behavior fade --effect-token 7 --spec "<behavior-spec.json>" --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/behaviors.py" remove "<project>" --clip-id 10 --behavior fade --effect-token 7 --output "<candidate.json>"
 ```
@@ -315,7 +316,7 @@ For example:
 `{"schema_version":1,"phases":{"in":{"attributes":{"suggestedDurationPerCharacter":3}}},"bypassed":false}`.
 Timing inputs use rational seconds; the helper retains each field's native
 clock. Parameter inputs use raw native units. It does not interpret UI speed
-percentages, replace phase styles or infer total per-character phase duration.
+percentages or infer total per-character phase duration.
 
 Inspection returns physical owners, payloads and optional stable `effectToken`
 values; repeated names require a token. Construction preserves complete saved
@@ -327,6 +328,15 @@ and layer arrangements survive unchanged. Their first phase-duration edit retain
 native source/timeline reset distinction; existing native reset companions
 survive. See the [linked recording evidence](behavior-recordings.md#root-linked-moving-recordings)
 before selecting trim/speed clocks. Further linked forms retain separate contracts.
+
+`copy-phase` selects `in`, `center` or `out` (UI During maps to `center`).
+It copies one complete phase from the same outer behavior name, with matching
+native owner kinds, linked layout, edit rate, complete owner clocks and behavior
+outer interval. Style, timing, parameters, integer point frames and opaque phase
+data replace together; an observed None template can clear a phase. The target's
+other phases, identity/token, bypass, reset metadata and owner state survive.
+Donor owner/effect metadata is not imported. See the
+[native phase-copy contract](behaviors.md#copying-native-phase-styles).
 
 Edits return a separate candidate, hashes, inventory, `changed`, `written` and
 `nativeVerified: false`. Follow ordinary diff/validate/apply and native

@@ -13,7 +13,8 @@ The [behavior helper](helper.md#behavior-json-editing) now copies a selected
 same-build saved instance and stages phase timing/static controls, bypass and
 removal. It retains complete phase payloads and existing reset data. It requires
 matching owner kinds, linked layout and complete clocks for construction; it
-infers no outer interval retiming or phase-style replacement. Native references
+infers no outer interval retiming. Selected phase copying has the separate
+contract below. Native references
 below describe observations, while the helper module owns its accepted input
 and refusal contract.
 
@@ -136,3 +137,70 @@ command-counter changes; the remaining behavior, audio and source data match.
 All bundled source bytes remain identical. The existing exact-build profile
 accepts the saved sequence; its eight raw-schema errors are the previously
 recorded missing outer/phase names, not a new schema relaxation.
+
+## Copying native phase styles
+
+Use the [behavior helper](helper.md#behavior-json-editing) `copy-phase` operation
+to replace one complete saved `in`, `center` or `out` phase. The template and
+destination require the same outer behavior name, owner kinds, linked layout,
+project rate, complete owner clocks and behavior outer interval. Existing owner
+and mirror restrictions remain in force. No style-name constructor, timing
+conversion or external-resource import is inferred. The source phase replaces
+its selected counterpart, including timing, typed parameters, point frames and
+opaque phase data. Other phases, effect identity/token, bypass, owner state,
+reset companions, sources and audio remain unchanged.
+
+To give an existing Fade a Grow entry, first save a native Fade with Grow
+selected in its In tab. Select that saved Fade as the phase donor. The outer
+name remains `fade`; `grow` is its entry style, not a replacement outer name.
+Similarly, native During maps to `center`. A None template clears an active
+phase without deleting the behavior. This copies the template's complete phase
+settings; it does not combine donor style with the destination's old timing.
+
+### Native changes and reset preservation
+
+Camtasia Mac 2026.2.4 (2026.132), format 10, changes only the selected phase
+payload when Fade's In style becomes Grow, During becomes Pulsate, or Out becomes
+Shrink. Native Grow retains its Spring movement code, duration/offset hints and
+rational overlap. Pulsate introduces a default-less typed integer `movement`
+point at zero plus a bounded typed `scale` default of 1.08. Preserve that valid
+integer point; the separately reproduced hazardous redundant static-double
+point remains refused. Clearing Pulsate to None removes its active parameter
+map and restores the complete native inactive phase.
+
+A further native control first edits Fade entry Speed to 50%, creating
+`default-Speed-fade: "705600000"`, then selects Grow. The reset companion
+survives unchanged while the phase receives Grow's native defaults. Phase copying
+retains the destination's reset history and imports no donor reset metadata.
+Five whole-document helper/native comparisons match outside thumbnail and
+command-count UI metadata. Targeted deterministic tests retain linked mirrors,
+Group ancestors, direct recording clocks, independent tokens and atomic refusal.
+These inherited owner contracts do not imply new per-glyph or resource closure.
+
+### Rendered and persistence controls
+
+A twelve-cell, 96-second sequence pairs the five native/helper states and adds
+bare-media and dim-background-only controls. Two exports separated by saved
+close/reopen match complete decoded RGB and PCM: 2880 frames, 640×360 H.264 at
+30 fps and stereo 44.1 kHz AAC, using the same editor process. The analysis
+samples 180 phase frames; two contact sheets contain 96 visually inspected
+frames. Seventy-five matched-time pairs differ by at most 0.942 mean RGB byte
+levels per channel. Grow entry, Pulsate motion, Shrink exit and cleared None
+remain visibly distinct.
+
+Grow-only widths at five middle samples are 355, 387, 391, 384 and 384 pixels;
+Pulsate changes them to 359, 384, 380, 388 and 400. Clearing restores the matching
+Grow-only progression, including its settling motion. Shrink's four late samples measure 355, 423, 279 and 114
+pixels. These are observations of this specimen, not general interpolation or
+phase-duration formulas.
+
+All 110 foreground audio-channel windows retain the 440 Hz source tone, with
+RMS 0.0955–0.0965; ten background-only windows are silent. Style changes affect
+the picture without fading source audio. Strict whole-document comparison
+accounts for 69 remapped clip IDs, duration text and thumbnail. Every remaining
+field, source definition and bundled media byte remains unchanged. The second
+native save is byte-identical. Fifteen native/candidate/save snapshots pass raw
+schema, the existing exact-build profile and native hazard checks without a new
+correction. Completed disposable projects, exports and measurements are deleted
+after incorporation. Verify actual consumer text layout, requested clocks and
+unfamiliar phase settings before delivery.

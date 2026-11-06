@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.34.0 — 2026-11-06
+
+### Added
+
+- `behaviors.py copy-phase` replaces a selected entry, middle or exit phase
+  from a matching saved native behavior, including activating or clearing a
+  None phase. Style, timing, parameters and native integer point frames copy
+  together. Other phases, effect identity/bypass, owner clocks, reset companions
+  and unrelated payload remain unchanged; no style defaults or retiming are
+  inferred.
+- Five whole-document native comparisons and a 96-second save/reopen sequence
+  verify Grow, Pulsate, Shrink, None and reset preservation. Repeat exports match
+  complete decoded video/audio, with 180 sampled phase frames, 75 paired samples,
+  96 visually inspected frames and 120 audio-channel windows. All fifteen raw
+  schema/profile/hazard checks pass; the second native save is byte-identical.
+
 ## 0.33.0 — 2026-11-06
 
 ### Added
