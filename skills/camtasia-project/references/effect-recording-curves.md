@@ -5,6 +5,8 @@ existing recording effect. The compiler contract owns admitted owners, clocks,
 selection and refusals. This reference records native Camtasia Mac 2026.2.4,
 format-10 evidence for Sepia intensity. It adds no recording, freeze, stitch or
 effect constructor and does not establish arbitrary parameter combinations.
+[Native-template construction and lifecycle](effect-recording-constructors.md)
+have separate evidence.
 
 ## Native ownership and clock captures
 

@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.19.0 — 2026-11-06
+
+### Added
+
+- Native-template visual-effect construction, static edits, bypass and removal
+  on direct moving recordings, freeze frames and stitched parents. Complete
+  payloads and captured reset companions preserve recipient cursors, child
+  clocks, source selection and audio; timed templates require matching clocks.
+- Native lifecycle and rendering controls include complete frozen-interval
+  copying and native interval reconstruction. General Motion Path edits/removal
+  now route to its dedicated rotation-preserving helper.
+
 ## 0.18.0 — 2026-11-06
 
 ### Added

@@ -45,6 +45,8 @@ deriving project constructors from shader metadata. Newly edited destinations
 still require their own native output checks. Resource selectors use their feature-specific helpers. Typed double curves use
 the [effect-curve helper](helper.md#visual-effect-curve-editing); effect-specific
 retiming and other curve representations retain separate contracts.
+[Recording-owner construction](effect-recording-constructors.md) adds native
+template and lifecycle evidence for moving/frozen recordings and stitched parents.
 
 The installed editor also exposes Tiling. Its default `Tiling` effect saved
 and reopened but rendered black on the generated MP4; that specimen is a failed

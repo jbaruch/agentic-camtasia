@@ -18,6 +18,13 @@ and opaque data are copied, including distinct wrapper/video payloads. Selected
 owner default-NAME-* reset companions are copied without overwriting conflicting
 defaults; last-applied ease defaults need the selected effect as effectApplied.
 MediaPath construction uses motion_paths.py to preserve its clip-rotation coupling.
+Its editing/removal also use that dedicated helper.
+Direct moving recordings, frozen recordings and stitched parents support native
+template construction and lifecycle edits. FROZEN_STITCHED_TYPES is restricted to Mac
+2026.2.4/format 10 for all mutations. Linked recording mirrors remain unverified
+and are refused. Stitched parent edits preserve descendants and virtual holds;
+no recording/freeze/stitch constructor is inferred. Timed templates retain the
+complete matching-clock requirement, including held source-frame selection.
 
 Spec schema_version 1 accepts parameters (existing-name-to-scalar object) and/or
 bypassed (boolean). Raw native units/codes are required. Numeric rational input
@@ -33,8 +40,8 @@ Unique effect names work without tokens in older saves; duplicate names require
 an existing canonical decimal token. Tokens are stable identities, not array
 positions. Mirror controls/tokens must agree. Metadata may retain role-specific
 opaque fields. Audio, sources, IDs, other effects and reset data stay unchanged.
-Removal deletes only both selected instances, never renumbers other tokens and
-is an identical no-op if both instances are already absent.
+Removal deletes only the selected physical instances, never renumbers other
+tokens and is an identical no-op when the selected effect is already absent.
 
 No native project/media is written and no editor is launched. Candidate output
 is exclusive or an identical no-op; use project diff/validate/apply and native
@@ -69,7 +76,10 @@ MIRRORED_CONTROLS = (
     "start",
     "duration",
 )
+FROZEN_STITCHED_TYPES = frozenset({"ScreenIMFile", "StitchedMedia"})
+RECORDING_TYPES = FROZEN_STITCHED_TYPES | {"ScreenVMFile"}
 CONSTRUCTOR_TYPES = frozenset({"VMFile", "IMFile", "Callout", "Group"})
+EFFECT_TYPES = CONSTRUCTOR_TYPES | RECORDING_TYPES
 CLOCK_FIELDS = ("start", "duration", "mediaStart", "mediaDuration", "scalar")
 
 
@@ -239,6 +249,8 @@ def edit_effect(
     doc: dict[str, Any], clip_id: int, name: str, spec: dict[str, Any], *, token: str | None = None
 ) -> dict[str, Any]:
     require_native(doc)
+    if name == "MediaPath":
+        raise ValueError("edit Motion Path with motion_paths.py to preserve rotation coupling")
     if (
         not isinstance(spec, dict)
         or not {"schema_version"} <= set(spec)
@@ -253,7 +265,8 @@ def edit_effect(
     if "bypassed" in spec and type(spec["bypassed"]) is not bool:
         raise ValueError("supply a boolean effect bypass")
     result = copy.deepcopy(doc)
-    for _, effect in targets(result, clip_id, name, token):
+    constructor_owners(result, clip_id, visual_types=EFFECT_TYPES)
+    for _, effect in targets(result, clip_id, name, token, visual_types=EFFECT_TYPES):
         for key, value in parameters.items():
             patch_parameter(effect["parameters"], key, value)
         if "bypassed" in spec:
@@ -267,14 +280,29 @@ def remove_effect(
     doc: dict[str, Any], clip_id: int, name: str, *, token: str | None = None
 ) -> dict[str, Any]:
     require_native(doc)
+    if name == "MediaPath":
+        raise ValueError("remove Motion Path with motion_paths.py to preserve rotation coupling")
     result = copy.deepcopy(doc)
-    for owner, effect in targets(result, clip_id, name, token, absent_ok=True):
+    constructor_owners(result, clip_id, visual_types=EFFECT_TYPES)
+    for owner, effect in targets(
+        result, clip_id, name, token, absent_ok=True, visual_types=EFFECT_TYPES
+    ):
         effects_of(owner).remove(effect)
     return result
 
 
-def constructor_owners(doc: dict[str, Any], clip_id: int) -> list[dict[str, Any]]:
-    path, visual = hotspots.visual_target(doc, clip_id, visual_types=CONSTRUCTOR_TYPES)
+def constructor_owners(
+    doc: dict[str, Any],
+    clip_id: int,
+    *,
+    visual_types: frozenset[str] = CONSTRUCTOR_TYPES,
+) -> list[dict[str, Any]]:
+    """Select general-operation owners; other feature callers retain their own scope."""
+    path, visual = hotspots.visual_target(doc, clip_id, visual_types=visual_types)
+    if visual.get("_type") in FROZEN_STITCHED_TYPES and (
+        doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT
+    ):
+        raise ValueError("edit frozen/stitched effects with Mac 2026.2.4 format-10 native evidence")
     wrappers = [
         node
         for parent, node in hotspots.clips(doc)
@@ -282,6 +310,8 @@ def constructor_owners(doc: dict[str, Any], clip_id: int) -> list[dict[str, Any]
     ]
     if len(wrappers) > 1:
         raise ValueError("repair ambiguous linked visual ownership before construction")
+    if wrappers and visual.get("_type") in RECORDING_TYPES:
+        raise ValueError("capture native linked recording effect mirrors before editing")
     return [*wrappers, visual]
 
 
@@ -358,10 +388,10 @@ def add_effect(
         doc.get("editRate")
     ) != project.number(template.get("editRate")):
         raise ValueError("select a same-build template with the destination project edit rate")
-    source_owners = constructor_owners(template, template_clip_id)
-    source = targets(template, template_clip_id, name, template_token)
+    source_owners = constructor_owners(template, template_clip_id, visual_types=EFFECT_TYPES)
+    source = targets(template, template_clip_id, name, template_token, visual_types=EFFECT_TYPES)
     result = copy.deepcopy(doc)
-    destination = constructor_owners(result, clip_id)
+    destination = constructor_owners(result, clip_id, visual_types=EFFECT_TYPES)
     if len(source_owners) != len(destination) or any(
         a.get("_type") != b.get("_type") for a, b in zip(source_owners, destination)
     ):
