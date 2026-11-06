@@ -27,6 +27,15 @@ percentages or a promise of sufficient obscuration. Layout controls preserve ric
 values/ranges, default fonts, geometry and reset metadata. Automatic fitting can display a smaller size while
 the saved rich fontSize remains unchanged. Shape/style replacement is not a constructor. Uniform static
 rich runs use UTF-8 byte offsets; text replacement updates every range end.
+KEYSTROKE_PARAMETERS admits existing MacKey keys, keyStyle, showKeyBackg and
+showKeyHint. keys is a nonempty printable native key string, copied literally;
+no chord parsing, modifier ordering, event synthesis or text-to-key conversion
+is inferred. keyStyle uses native numeric 0..4 (Clear, Gray, Traditional, Outline,
+Black); the two flags use numeric 0/1, not JSON booleans. Definition name and
+clip ident remain unchanged. Native key/style edits can recompute width; use
+same-build native geometry when staging a matching layout, then verify output.
+The helper preserves omitted width; native reopening does not repair a stale
+width, and output can omit the final key. No automatic fitting is promised.
 In version 1, mixed, partial, duplicate, animated and unfamiliar runs refuse rather than
 guessing a new styling map. Rich values retain native valueType and signed codes;
 fgColor is a native '(R,G,B,A)' byte tuple string. Default fonts are preserved.
@@ -122,6 +131,7 @@ REGION_PARAMETERS = {
         {"fill-invert", "fillColorRed", "fillColorGreen", "fillColorBlue"}
     ),
 }
+KEYSTROKE_PARAMETERS = frozenset({"keys", "keyStyle", "showKeyBackg", "showKeyHint"})
 ENUMS = {
     "horizontal-alignment": {"left", "center", "right"},
     "vertical-alignment": {"top", "center", "bottom"},
@@ -574,12 +584,27 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
             not isinstance(changes, dict)
             or not changes
             or changes.keys()
-            - (NUMBERS | ENUMS.keys() | REGION_PARAMETERS.get(definition["kind"], frozenset()))
+            - (
+                NUMBERS
+                | ENUMS.keys()
+                | REGION_PARAMETERS.get(definition["kind"], frozenset())
+                | (KEYSTROKE_PARAMETERS if definition["kind"] == "MacKey" else frozenset())
+            )
         ):
             raise ValueError("name supported existing static annotation definition fields")
         for name, value in changes.items():
             if name not in definition:
                 raise ValueError("capture the native field before editing: " + name)
+            if name == "keys":
+                if (
+                    not isinstance(definition[name], str)
+                    or not isinstance(value, str)
+                    or not value
+                    or not value.isprintable()
+                ):
+                    raise ValueError("supply a nonempty printable native key string")
+                definition[name] = value
+                continue
             if name in ENUMS:
                 if (
                     not isinstance(definition[name], str)
@@ -599,6 +624,8 @@ def edit_annotation(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> 
                 or (name == "enable-ligatures" and number not in {0, 1})
                 or (name in REGION_PARAMETERS.get(definition["kind"], ()) and not 0 <= number <= 1)
                 or (name in {"blur-invert", "fill-invert"} and number not in {0, 1})
+                or (name == "keyStyle" and number not in {0, 1, 2, 3, 4})
+                or (name in {"showKeyBackg", "showKeyHint"} and number not in {0, 1})
             ):
                 raise ValueError("use the observed numeric range for " + name)
             effects.patch_parameter(definition, name, value)
