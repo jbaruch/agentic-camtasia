@@ -2,7 +2,8 @@
 
 These contracts were exercised in Camtasia Mac 2026.2.4, format 10.0, on a
 real `ScreenVMFile` with recorded pointer samples. A generated cursor path is
-a separate input workflow; see [features](features.md). Retain the recording
+a separate input workflow; use the [created-path helper controls](created-cursor-paths.md)
+for explicit video point editing. Retain the recording
 stream selection and pointer metadata described in [media](media.md).
 
 ## Native identifiers and controls

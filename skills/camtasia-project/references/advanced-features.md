@@ -572,8 +572,8 @@ Other native parameters include `cursorImagePath` (`Mac/pointer` here),
 `cursorOpacity`, `cursorScale`, `cursorTrackLevel`, `cursorAction`, and
 `smoothCursorAcrossEditDuration`. Built-in cursor lookup is a dependency on
 the target installation; preserve it instead of distributing native assets.
-These timings were observed on a zero-trim, speed-1 clip; retiming needs its
-own mapping evidence.
+The separate [created-path helper controls](created-cursor-paths.md) establish
+explicit point editing and trimmed 2× source clocks on ordinary video.
 
 The native highlight effect is spelled **`CursorHilight`**. Its typed doubles
 include `radius`, four `color-*` components, and `blur`. Radius 50, yellow with
