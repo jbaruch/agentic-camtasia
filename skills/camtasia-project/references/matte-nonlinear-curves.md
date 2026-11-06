@@ -28,7 +28,8 @@ source positions in project ticks. Linked wrapper/video mirrors share that
 clock and the effect's stable token. Audio children, source definitions, other
 effects, edge easing, descendants and unrelated parameter curves survive.
 The existing [owner contract](advanced-features.md#media-and-track-mattes)
-remains in effect; this update adds no recording-owner constructor.
+remains in effect; [recording owners](matte-recording-owners.md) have a separate
+native clock and lifecycle contract.
 
 Existing visual animation intervals retain their own interpolation and opaque
 fields. The helper does not change global animation easing to edit one effect.
