@@ -5,6 +5,11 @@ on 2026-11-01. On 2026-11-05 the operator requested continued feature shipping,
 with a patch or minor release after each feature. The repository is
 [jbaruch/agentic-camtasia](https://github.com/jbaruch/agentic-camtasia).
 
+On 2026-11-06 the operator defined the final release as **1.0.0, feature-complete**
+across all remaining gaps in this plan, including closed/deferred issue families.
+The [feature-completion plan](feature-completion-plan.md) tracks that requirement.
+An issue's closed/deferred state alone does not establish 1.0 completion.
+
 The source repository and feature backlog are public. ACR 0.2.1 resolves GitHub
 installs from versioned package releases.
 

@@ -10,6 +10,10 @@
 - Follow [the release plan](docs/release-plan.md) for remaining release work.
 - Known feature gaps are post-release issues in `jbaruch/agentic-camtasia`; implement them when requested by a real project.
 - Do not expand native feature or parameter matrices as a release prerequisite.
+- The operator requested on 2026-11-06 that the final release be 1.0.0 and
+  explicitly defined it as feature-complete across all remaining release-plan
+  gaps, including closed/deferred issue families. Follow the completion plan
+  linked from `docs/release-plan.md`; retain patch/minor releases per feature.
 
 ## Temporary review scope
 
