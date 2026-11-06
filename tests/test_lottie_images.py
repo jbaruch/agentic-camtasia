@@ -88,6 +88,50 @@ def fixture() -> dict:
 
 
 class LottieImageTests(unittest.TestCase):
+    def test_slotted_images_remain_unhandled_even_with_an_embedded_fallback(self) -> None:
+        source = lottie_images.embed_png(fixture(), "photo", png())
+        source["assets"][0]["sid"] = "picture-slot"
+        source["slots"] = {"picture-slot": {"p": {"p": "external.png", "u": "/remote/"}}}
+        before = copy.deepcopy(source)
+        report = lottie_images.inventory(source)
+        self.assertFalse(report["imageAssetsEmbedded"])
+        self.assertEqual(report["unhandledAssetIds"], ["photo"])
+        with self.assertRaisesRegex(ValueError, "slots"):
+            lottie_images.embed_png(source, "photo", png())
+        self.assertEqual(source, before)
+
+    def test_sequences_cannot_be_replaced_or_pass_as_an_embedded_single_image(self) -> None:
+        for embedded in (False, True):
+            for with_dimensions in (False, True):
+                source = (
+                    lottie_images.embed_png(fixture(), "photo", png()) if embedded else fixture()
+                )
+                source["assets"][0]["t"] = "seq"
+                if not with_dimensions:
+                    del source["assets"][0]["w"], source["assets"][0]["h"]
+                before = copy.deepcopy(source)
+                report = lottie_images.inventory(source)
+                self.assertFalse(report["imageAssetsEmbedded"])
+                self.assertFalse(report["images"][0]["embeddedPNG"])
+                self.assertEqual(report["unhandledAssetIds"], ["photo"])
+                with self.assertRaisesRegex(ValueError, "sequences"):
+                    lottie_images.embed_png(source, "photo", png())
+                self.assertEqual(source, before)
+                with tempfile.TemporaryDirectory() as directory:
+                    path = Path(directory) / "source.json"
+                    path.write_bytes(lottie_images.encode_document(source))
+                    with patch("sys.stdout", io.StringIO()):
+                        self.assertEqual(
+                            lottie_images.main(
+                                [
+                                    "inspect",
+                                    str(path),
+                                    "--require-embedded",
+                                ]
+                            ),
+                            1,
+                        )
+
     def test_sound_and_data_file_assets_remain_unresolved_outside_the_image_gate(self) -> None:
         source = lottie_images.embed_png(fixture(), "photo", png())
         source["assets"].extend(

@@ -4,7 +4,7 @@
 Mac 2026.2.4 native evidence supports p=data:image/png;base64,..., e=1, u="".
 This edits a Lottie source JSON, not a Camtasia project. A source is recognized
 by composition identity/clocks/layers, never just its filename extension.
-Select one existing image asset by its animation-local ID and supply the PNG
+Select one ordinary image asset by its animation-local ID and supply the PNG
 explicitly; no stored path is followed, remote content fetched, or installation
 resource/font copied. The PNG's physical size must match the asset's w/h.
 Only p/u/e change; animation clocks, geometry, layers, colors, glyphs, fonts,
@@ -222,7 +222,11 @@ def source_assets(doc: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def image_size(asset: dict[str, Any]) -> tuple[int, int]:
-    if "layers" in asset or asset.get("t") == 3 or not isinstance(asset.get("p"), str):
+    if "t" in asset or "sid" in asset:
+        raise ValueError(
+            "select an ordinary image; sequences, slots and typed assets require native verification"
+        )
+    if "layers" in asset or not isinstance(asset.get("p"), str):
         raise ValueError(
             "select an image asset, keeping precompositions and unfamiliar assets intact"
         )
@@ -258,7 +262,7 @@ def inventory(doc: dict[str, Any]) -> dict[str, Any]:
         if (
             "layers" in asset
             or asset.get("t") == 3
-            or not any(field in asset for field in ("w", "h", "sid"))
+            or not (asset.get("t") == "seq" or any(field in asset for field in ("w", "h", "sid")))
         ):
             if "p" in asset:
                 unhandled.append(asset["id"])
