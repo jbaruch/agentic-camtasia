@@ -119,6 +119,10 @@ retained baseline before choosing whether to save; never overwrite unknown work.
 
 ### SVG image and font dependencies
 
+For executable inspection and byte-preserving PNG embedding, read
+[SVG images](svg-images.md). Its image-only report leaves fonts, CSS and other
+resource references unresolved.
+
 Mac 2026.2.4 / format 10 additionally renders nine controlled SVG variants
 through the known native `IMFile`/still-source constructor. Each five-second
 use retains source range `[0,1]`, source edit rate 600 and `mediaDuration: 1`.

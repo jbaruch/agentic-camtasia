@@ -34,6 +34,7 @@ macOS. Schema auditing uses the optional pinned `jsonschema` dependency.
 | Quick Properties | Edit Group bindings and shared text/colors; replace or clear bound native media with preserved fitting, clocks and source ownership. |
 | Theme duplication | Follow the verified native workflow to preserve the source UUID and independently edit the copy's colors, font and logo. |
 | Lottie images | Inspect internal image references and unresolved font declarations; stage explicitly selected PNG embedding and verify native relocation. |
+| SVG images | Inspect image and other resource references; embed explicitly selected PNGs while preserving surrounding SVG bytes and verify native relocation. |
 | Feature references | Captions, audio, annotations, behaviors, cursor/click effects, Quick Properties, themes, Library assets, Lottie/SVG dependencies and delivery formats. |
 | Native checks | Read-only process health and a backed-up save/reopen adapter with separate rendering status. |
 

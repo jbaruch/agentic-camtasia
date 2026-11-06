@@ -19,7 +19,7 @@ they are added when a real project needs them.
 | Hotspots | JSON action editing and observed single-scene nested/retimed marker clocks, with actual browser click/seek tests and the Group reload-drift guard. |
 | Quizzes and surveys | JSON question/answer/feedback editing, supported owner transfers, four question/survey kinds, SCORM 1.2 and three 2004 edition outputs; fourth-edition session resume. |
 | Quick Properties and themes | Reusable Group binding, text/color and media replacement/clear helpers, native theme application and independent duplication, and resource/package contracts. |
-| Library and resources | Native archive reuse, names, sorting and copy/move identities; hard-link hazards, collision-safe intake and isolated rendering. Lottie image inventory and explicit PNG embedding with native relocation checks; SVG, fonts and other dependency limits remain explicit. |
+| Library and resources | Native archive reuse, names, sorting and copy/move identities; hard-link hazards, collision-safe intake and isolated rendering. Lottie/SVG image inspection and explicit PNG embedding with native relocation checks; fonts and other dependency limits remain explicit. |
 | Delivery | Native MP4, MOV codecs, WebM, GIF and audio outputs; Smart Player interactions, captions and quiz packages. Resource and codec limits are documented per specimen. |
 
 Individual helpers retain their named Mac build, format and owner restrictions.

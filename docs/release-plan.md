@@ -39,7 +39,7 @@ All fourteen issues are enhancements and explicitly do not block v0.1.
 | [#9](https://github.com/jbaruch/agentic-camtasia/issues/9) | Standalone frozen-recording and stitched-parent hotspots with marker clocks shipped in 0.14.0. Linked variants, placeholders and additional scene clocks remain. |
 | [#10](https://github.com/jbaruch/agentic-camtasia/issues/10) | Standalone frozen-recording and stitched-parent quiz authoring, editing, retiming and owner transfer shipped in 0.15.0. Linked variants, audio/placeholders, additional destinations and scene clocks remain. |
 | [#11](https://github.com/jbaruch/agentic-camtasia/issues/11) | Further SCORM resume and interrupted sessions |
-| [#12](https://github.com/jbaruch/agentic-camtasia/issues/12) | Lottie image inventory and explicit PNG embedding shipped in 0.16.0; general packing, fonts and other render-resource closure remain. |
+| [#12](https://github.com/jbaruch/agentic-camtasia/issues/12) | Lottie image inventory/embedding shipped in 0.16.0 and SVG image inspection/byte-preserving PNG embedding in 0.17.0; general packing, fonts and other render-resource closure remain. |
 | [#13](https://github.com/jbaruch/agentic-camtasia/issues/13) | Companion applications and connected imports |
 | [#14](https://github.com/jbaruch/agentic-camtasia/issues/14) | Remaining Library lifecycle operations |
 

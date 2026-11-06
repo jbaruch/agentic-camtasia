@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.17.0 — 2026-11-06
+
+### Added
+
+- SVG image-reference inspection and explicit PNG embedding into a separate
+  candidate. Selected reference value bytes change while surrounding XML,
+  namespace prefixes, formatting, numeric text and geometry remain intact.
+  Hash-bound image selection, alias/collision protection and dynamic/active
+  reference refusals preserve original inputs.
+- Native XLink and plain `href` controls compare embedded and linked SVGs with
+  a direct PNG before and after actual bundle relocation. Image gating remains
+  distinct from fonts, stylesheets, other references and full render closure.
+
 ## 0.16.0 — 2026-11-06
 
 ### Added
