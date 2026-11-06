@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.15.0 — 2026-11-05
+
+### Added
+
+- Quiz authoring, editing, exact-XML pin/unpin, retiming and removal on existing
+  standalone frozen recordings and stitched parents. Frozen points use a
+  local-zero clock independently of source-frame selection; stitched points
+  retain source positions, trims and inverse speed. Hidden stitched children
+  and linked variants remain refused.
+- Independent native pin/unpin captures and a six-quiz runtime sequence for
+  authored, unpinned and explicitly retimed points. Fresh native saves retain
+  exact XML and repeat byte-for-byte; removed points remain absent from export.
+
 ## 0.14.0 — 2026-11-05
 
 ### Added
