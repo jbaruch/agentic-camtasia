@@ -78,7 +78,8 @@ MIRRORED_CONTROLS = (
 )
 FROZEN_STITCHED_TYPES = frozenset({"ScreenIMFile", "StitchedMedia"})
 RECORDING_TYPES = FROZEN_STITCHED_TYPES | {"ScreenVMFile"}
-CONSTRUCTOR_TYPES = frozenset({"VMFile", "IMFile", "Callout", "Group"}) | RECORDING_TYPES
+CONSTRUCTOR_TYPES = frozenset({"VMFile", "IMFile", "Callout", "Group"})
+EFFECT_TYPES = CONSTRUCTOR_TYPES | RECORDING_TYPES
 CLOCK_FIELDS = ("start", "duration", "mediaStart", "mediaDuration", "scalar")
 
 
@@ -264,8 +265,8 @@ def edit_effect(
     if "bypassed" in spec and type(spec["bypassed"]) is not bool:
         raise ValueError("supply a boolean effect bypass")
     result = copy.deepcopy(doc)
-    constructor_owners(result, clip_id)
-    for _, effect in targets(result, clip_id, name, token, visual_types=CONSTRUCTOR_TYPES):
+    constructor_owners(result, clip_id, visual_types=EFFECT_TYPES)
+    for _, effect in targets(result, clip_id, name, token, visual_types=EFFECT_TYPES):
         for key, value in parameters.items():
             patch_parameter(effect["parameters"], key, value)
         if "bypassed" in spec:
@@ -282,17 +283,22 @@ def remove_effect(
     if name == "MediaPath":
         raise ValueError("remove Motion Path with motion_paths.py to preserve rotation coupling")
     result = copy.deepcopy(doc)
-    constructor_owners(result, clip_id)
+    constructor_owners(result, clip_id, visual_types=EFFECT_TYPES)
     for owner, effect in targets(
-        result, clip_id, name, token, absent_ok=True, visual_types=CONSTRUCTOR_TYPES
+        result, clip_id, name, token, absent_ok=True, visual_types=EFFECT_TYPES
     ):
         effects_of(owner).remove(effect)
     return result
 
 
-def constructor_owners(doc: dict[str, Any], clip_id: int) -> list[dict[str, Any]]:
+def constructor_owners(
+    doc: dict[str, Any],
+    clip_id: int,
+    *,
+    visual_types: frozenset[str] = CONSTRUCTOR_TYPES,
+) -> list[dict[str, Any]]:
     """Select general-operation owners; other feature callers retain their own scope."""
-    path, visual = hotspots.visual_target(doc, clip_id, visual_types=CONSTRUCTOR_TYPES)
+    path, visual = hotspots.visual_target(doc, clip_id, visual_types=visual_types)
     if visual.get("_type") in FROZEN_STITCHED_TYPES and (
         doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT
     ):
@@ -382,12 +388,10 @@ def add_effect(
         doc.get("editRate")
     ) != project.number(template.get("editRate")):
         raise ValueError("select a same-build template with the destination project edit rate")
-    source_owners = constructor_owners(template, template_clip_id)
-    source = targets(
-        template, template_clip_id, name, template_token, visual_types=CONSTRUCTOR_TYPES
-    )
+    source_owners = constructor_owners(template, template_clip_id, visual_types=EFFECT_TYPES)
+    source = targets(template, template_clip_id, name, template_token, visual_types=EFFECT_TYPES)
     result = copy.deepcopy(doc)
-    destination = constructor_owners(result, clip_id)
+    destination = constructor_owners(result, clip_id, visual_types=EFFECT_TYPES)
     if len(source_owners) != len(destination) or any(
         a.get("_type") != b.get("_type") for a, b in zip(source_owners, destination)
     ):

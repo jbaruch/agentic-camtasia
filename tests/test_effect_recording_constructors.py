@@ -10,7 +10,9 @@ from unittest.mock import patch
 
 from test_animation_freezes import owner_document, RATE
 from test_animations import visual
+from test_behaviors import fixture as behavior_fixture
 from test_effect_constructors import template as linked_template
+import behaviors
 import effects
 import project
 
@@ -72,6 +74,31 @@ def recipient(kind):
 
 
 class RecordingEffectConstructorTests(unittest.TestCase):
+    def test_behavior_owner_scope_stays_ordinary_for_donors_recipients_and_lifecycle(self):
+        for kind in KINDS:
+            for linked in (False, True):
+                ordinary = behavior_fixture(linked)
+                recording = copy.deepcopy(ordinary)
+                owner = project.scene_tracks(recording)[0][0]["medias"][0]
+                if linked:
+                    owner = owner["video"]
+                owner["_type"] = kind
+                before = copy.deepcopy(ordinary), copy.deepcopy(recording)
+                for clip in (3, 10) if linked else (3,):
+                    calls = [
+                        lambda: behaviors.add_behavior(recording, clip, ordinary, clip, "fade"),
+                        lambda: behaviors.add_behavior(ordinary, clip, recording, clip, "fade"),
+                        lambda: behaviors.edit_behavior(
+                            recording, clip, "fade", dict(schema_version=1, bypassed=True)
+                        ),
+                        lambda: behaviors.remove_behavior(recording, clip, "fade"),
+                    ]
+                    for call in calls:
+                        with self.subTest(kind=kind, linked=linked, clip=clip):
+                            with self.assertRaisesRegex(ValueError, "verified"):
+                                call()
+                self.assertEqual((ordinary, recording), before)
+
     def test_native_template_appends_complete_payload_and_only_selected_reset_metadata(self):
         for kind in KINDS:
             source, dest = template(kind), recipient(kind)

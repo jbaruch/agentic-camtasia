@@ -301,7 +301,7 @@ text glyph ordering and new parameter combinations retain their own checks.
 
 Use `scripts/effects.py` for construction from a saved native template, existing
 static scalar edits, bypass and removal. Its module docstring, `CLIENT_FORMATS`,
-`CONSTRUCTOR_TYPES`, `constructor_owners`, `add_effect`, `owner_defaults` and `patch_parameter` own the
+`EFFECT_TYPES`, `constructor_owners`, `add_effect`, `owner_defaults` and `patch_parameter` own the
 build, owner, parameter, reset and preservation contracts. Read the relevant
 [native effect contract](advanced-features.md) before selecting a template.
 [Recording-owner constructors](effect-recording-constructors.md) record native
