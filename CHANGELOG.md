@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.44.0 — 2026-11-06
+
+### Added
+
+- Animation schema 2 authors continuous text-outline width/RGBA targets on
+  existing remix text Callouts, independently or with geometry. Root and
+  Group-only descendants retain source clocks through trims and speed changes.
+  Initial values, rich points, metadata and all ancestor payload survive.
+- Easing and removal now handle coupled outline definition curves alongside
+  geometry. This fixes orphaned outline animation left by marker removal.
+  Unknown nested definition coupling and absent-marker orphans refuse edits;
+  inspection exposes direct definition curves, including discrete rich states.
+- Seven native operation comparisons and two decoded-identical 120-second
+  exports verify creation, compound edits, all five easings, return intervals,
+  native removals and trimmed 2× text through three Group levels. All 120 phase
+  frames, five full-size views, 95 paired samples and 120 audio-channel windows
+  retain the exercised behavior. Fourteen raw/profile/hazard checks pass.
+
 ## 0.43.0 — 2026-11-06
 
 ### Added

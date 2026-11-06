@@ -182,7 +182,7 @@ class AnimationTests(unittest.TestCase):
         for payload in (
             {},
             {**spec(), "schema_version": True},
-            {**spec(), "schema_version": 2},
+            {**spec(), "schema_version": 3},
             {**spec(), "extra": 1},
             spec(values={"invented": 3}),
             spec(initial={"opacity": 1}),
