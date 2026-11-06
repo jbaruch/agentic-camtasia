@@ -321,6 +321,11 @@ Inspection returns physical owners, payloads and optional stable `effectToken`
 values; repeated names require a token. Construction preserves complete saved
 phases and requires matching native owner kinds, linked layout and full clocks.
 New linked copies receive fresh tokens. No external resource bytes are copied.
+Root linked moving recordings support matching wrapper/video behavior mirrors
+with recorded-audio preservation. Their first phase-duration edit retains the
+native source/timeline reset distinction; existing native reset companions
+survive. See the [linked recording evidence](behavior-recordings.md#root-linked-moving-recordings)
+before selecting trim/speed clocks. Further linked forms retain separate contracts.
 
 Edits return a separate candidate, hashes, inventory, `changed`, `written` and
 `nativeVerified: false`. Follow ordinary diff/validate/apply and native

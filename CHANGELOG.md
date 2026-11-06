@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.29.0 — 2026-11-06
+
+### Added
+
+- Native-template behavior construction, phase timing/static editing, bypass and
+  removal on root linked moving recordings. Matching wrapper/video mirrors
+  preserve stable identities, recorded audio, source processing and complete
+  trim/speed clocks. First phase-duration edits keep native source durations
+  distinct from timeline reset ticks; existing reset companions survive.
+- Five native lifecycle comparisons and an eleven-cell, 44-second save/reopen
+  control verify construction and editing against native Fade. Repeat exports
+  match complete decoded video/audio, with 99 inspected phase frames and measured
+  background/recorded-audio tones. Behavior CLI help now emits versioned JSON.
+
 ## 0.28.0 — 2026-11-06
 
 ### Added
