@@ -431,6 +431,17 @@ class CaptionTests(unittest.TestCase):
         self.assertEqual(mapped["words"][0]["timelineStartSeconds"], "9/8")
         self.assertNotIn("We", [w["value"] for w in mapped["words"]])
 
+    def test_trimmed_silent_tail_has_valid_empty_word_mapping_and_idempotent_retime(self):
+        doc = fixture()
+        audio(doc)["parameters"].pop("captions")
+        request = spec(start=0, duration=1, media_start=7, scalar=1)
+        result = captions.retime(doc, 3, request)
+        mapped = captions.map_captions(result, 3)
+        self.assertEqual(mapped["words"], [])
+        self.assertEqual(mapped["closed"], [])
+        self.assertEqual(captions.retime(result, 3, request), result)
+        self.assertEqual(words(result), words(doc))
+
     def test_source_file_offsets_need_an_independent_caption_clock_contract(self):
         doc = fixture()
         audio(doc)["attributes"]["sourceFileOffset"] = 48000

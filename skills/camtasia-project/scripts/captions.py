@@ -595,6 +595,7 @@ def map_captions(doc: dict[str, Any], clip_id: int) -> dict[str, Any]:
         if key in parameters
         else []
     )
+    recognized = False
     if audio["_type"] == "AMFile":
         source, stream = audio_stream(doc, audio)
         if stream.get("transcriptionSet") is True:
@@ -605,9 +606,10 @@ def map_captions(doc: dict[str, Any], clip_id: int) -> dict[str, Any]:
                 bound,
                 words=True,
             )
+            recognized = True
         else:
             result["words"] = []
-    if key not in parameters and not result.get("words"):
+    if key not in parameters and not recognized:
         raise ValueError("select saved closed captions or actual recognized source transcription")
     return result
 

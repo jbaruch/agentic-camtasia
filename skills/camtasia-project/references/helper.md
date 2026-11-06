@@ -215,6 +215,8 @@ source/media clock. Stream ranges bound consumption using the stream edit rate;
 the word/caption clock remains separate. Mapping returns source point indices,
 exact timeline ticks and rational seconds, without frame quantization. Closed
 cues carry into trims; dynamic words with pre-trim onsets are omitted.
+A recognized source can map to no visible words in a silent-tail trim; its
+complete transcription remains intact and repeated retiming stays a no-op.
 Nested/stitched/multiscene clocks, nonzero audio `sourceFileOffset`, and retiming
 effected/animated owners require separate native contracts. Existing transitions
 must still fit; destination lane collisions refuse the edit.
