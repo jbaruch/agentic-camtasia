@@ -88,7 +88,8 @@ typed-double Sepia intensity on a root `UnifiedMedia` / `ScreenVMFile` pair uses
 matching wrapper/video effect payloads and a stable shared token. The source
 also supplies a stereo `AMFile` system-audio child. The compiler's `selected`
 and `effects.constructor_owners` own the admitted linked form, complete clocks,
-source/audio bindings and token checks. Linked held, stitched and nested owners
+source/audio bindings and token checks. Group-contained moving recordings have
+the additional evidence below. Linked held, stitched and other containing owners
 retain separate contracts. This edits existing effects and descriptors; it adds
 no effect or recording constructor.
 
@@ -138,3 +139,60 @@ bundled AV hashes remain unchanged. Eight snapshots pass the existing build
 profile and native hazard checks. Their 44 raw errors are the known timeline
 metadata and wrapper Sepia-enum omissions; no new correction is needed.
 Completed comparison artifacts are removed after incorporation.
+
+## Group-contained linked moving recordings
+
+The effect-curve helper now opts into existing Group-contained linked moving
+recordings, including nested Groups. Its descriptor, interval, mirror and token
+rules remain in the helper contract. Inputs stay relative to the recording's
+visible timeline, independently of Group placement. Parent geometry/clocks,
+recorded audio, reset data and source processing survive authoring and clearing.
+No Group retiming or owner constructor is supplied.
+
+Controls reconstruct the native linear interval recorded in 0.30.0 and the
+Spring/linear-position fields recorded in 0.28.0, on a newly saved native Group
+baseline from the same Mac 2026.2.4/format-10 build. These are reused template
+controls. The recording retains a two-second source in-point, inverse speed
+`"1/2"` and four-second visible duration. The outer Group begins at timeline
+second one; a second enclosing Group preserves the child's clock. Local
+zero–one-second effect intervals retain source bounds `1411200000`–`2822400000`
+and duration `1411200000` in both mirrors.
+
+Native property readback on the authored Spring effect with independent linear
+translation shows X −48 and intensity 60% at local second 0.1, then X −36 and
+intensity 112% at 0.2. The effect preserves the existing linear visual interval
+and geometry frame while storing its own `sprg` frame. Clear removes only the
+selected effect curve and retains those position fields. The Group's existing
+frame clips the translating child; the helper preserves that frame. Measured
+bare-control bounds move from X 138–441 through 139–501 to 199–501, with Y
+62–297 throughout. Native readback distinguishes stored linear position from
+the clipped visible rectangle.
+
+Thirteen six-second cells compare reused linear/Spring templates, helper
+authoring, independent linear geometry, clearing, bare/full controls and nested
+Group variants. Two exports from the same editor process, separated by native
+close/reopen/saves, repeat all 2,340 decoded RGB frames and complete stereo PCM
+exactly. Inspected contact sheets contain 117 phase frames. Forty-five paired
+samples have maximum mean absolute RGB difference 0.937 byte levels per channel;
+separate encoded cells are not a bitwise-equivalence claim. Spring color
+projection against matching bare/full geometry controls measures approximately
+0.597, 1.107 and 0.979 at local seconds 0.1, 0.2 and 0.5; clearing restores the
+bare-control color while retaining movement and clipping.
+
+One hundred thirty channel windows retain the independent 440 Hz background
+tone; the 72 recording-active windows retain 660 Hz within 0.2% of the bare
+geometry control. Outside Group intervals and in the background-only cell,
+measured 660 Hz amplitude stays below 0.00007 on normalized PCM. Output is
+78-second 640×360 H.264 at 30 fps, stereo 44.1 kHz AAC.
+
+The first save remaps 89 IDs, closes twelve Group-open UI flags, adds seven
+default parameter-level translation interpolations, collapses four cleared
+intensity descriptors and refreshes duration/thumbnail UI metadata. Their
+linear geometry frames remain unchanged. The second save reconstructs four
+constant-zero effect frames from retained visual intervals and refreshes the
+thumbnail. The third save is byte-identical. Whole-document comparisons
+preserve every other field. Original baseline/source and bundled AV hashes
+remain unchanged. Thirteen snapshots pass the existing exact-build profile and
+native hazard checks; 62 raw errors are the known timeline-metadata and wrapper
+Sepia-enum omissions. No new schema correction is needed. Completed disposable
+artifacts are removed after incorporation.

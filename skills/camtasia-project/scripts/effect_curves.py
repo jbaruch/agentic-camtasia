@@ -35,9 +35,12 @@ Direct moving/frozen recordings and stitched parents use their existing effects.
 ScreenIMFile intervals have a local-zero origin, independent of the held source
 frame in mediaStart; other owners retain source-position clocks. Stitched edits
 retain descendants, virtual hold durations, cursor data and source processing.
-Root linked moving ScreenVMFile recordings use matching wrapper/video mirrors,
+Root and Group-contained linked moving ScreenVMFile recordings use matching
+wrapper/video mirrors,
 complete shared clocks and the source/audio/token guard in effects.constructor_owners.
-Recorded audio is preserved. Linked held, stitched and nested variants retain
+Group ancestors, their placement/geometry and recorded audio are preserved;
+clip-relative inputs map through the child's source clock without Group retiming.
+Linked held, stitched and other containing variants retain
 separate contracts. Ordinary linked AV keeps its existing mirror contract.
 No recording/freeze/stitch constructor is inferred.
 
@@ -98,7 +101,9 @@ def selected(
     if visual.get("_type") not in OWNERS:
         raise ValueError("select a visual owner from OWNERS; capture other native clocks")
     if len(targets) > 1 and visual.get("_type") in RECORDING_OWNERS:
-        effects.constructor_owners(doc, clip_id, visual_types=OWNERS, linked_recordings=True)
+        effects.constructor_owners(
+            doc, clip_id, visual_types=OWNERS, linked_recordings=True, grouped_recordings=True
+        )
     for field in effects.CLOCK_FIELDS:
         value = project.number(visual.get(field))
         if any(project.number(owner.get(field)) != value for owner, _ in targets):

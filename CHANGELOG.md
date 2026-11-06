@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.31.0 — 2026-11-06
+
+### Added
+
+- Typed-double effect interval authoring and clearing on linked moving
+  recordings inside Groups, including nested Groups. Wrapper/video mirrors keep
+  the child's source clock, stable identities, recorded audio and reset data.
+  Nonlinear effect easing preserves independent geometry, parent timing and
+  existing Group clipping; clearing retains the unrelated movement.
+- Reused native template controls, direct native property readback and a
+  78-second save/reopen comparison verify the extension. Complete repeat exports
+  match decoded video/audio, with 117 inspected phase frames, 45 paired samples
+  and 130 audio-channel windows. Native constant-frame reconstruction stabilizes
+  on the third save.
+
 ## 0.30.0 — 2026-11-06
 
 ### Added
