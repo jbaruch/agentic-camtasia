@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.35.0 — 2026-11-06
+
+### Added
+
+- Verified native linked-recording frame extensions and unstitching: a stitched
+  parent contains the moving video/audio pair and a silent standalone hold.
+  Existing matte commands edit one parent effect, preserve descendants and audio,
+  and support cross-boundary intensity curves and unstitched held-root edits.
+  Ten fixed regression tests retain the native shape, clocks and preservation.
+- Five whole-document native comparisons and a 144-second save/reopen sequence
+  verify lifecycle and curve readback, with 234 sampled frames, 91 paired samples,
+  126 inspected contact-sheet frames and 252 audio-channel windows. Repeat PCM
+  matches; repeat RGB has small measured differences (maximum mean 0.722 byte
+  levels), explicitly documented alongside the native trimmed-frame picture
+  limitation. Seventeen schema/profile/hazard checks need no new correction.
+
 ## 0.34.0 — 2026-11-06
 
 ### Added
