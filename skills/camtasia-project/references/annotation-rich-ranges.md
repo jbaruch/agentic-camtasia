@@ -131,9 +131,7 @@ movies, screenshots and measurements are deleted after incorporation.
 
 Locally observed in Camtasia Mac 2026.2.4 (2026.132), format 10. Annotation
 `set` definition edits support the native automatic-sizing choice and ligature
-flag. The helper's `ENUMS`, `NUMBERS` and `edit_annotation` own accepted values,
-existing-field requirements, type/range checks and preservation. Layout-only
-edits can retain timed rich states; they do not run the static text-replacement
+flag. Layout-only edits can retain timed rich states; they do not run the static text-replacement
 path. Other text content edits retain their existing static-state requirement.
 
 Native **Auto-resize text** stores `resize-behavior: "resizeText"` when enabled
