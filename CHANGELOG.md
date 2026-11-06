@@ -1,5 +1,17 @@
 # Changelog
 
+## 0.9.1 — 2026-11-05
+
+### Fixed
+
+- Native theme duplication guidance now preserves the source UUID and label.
+  The observed Duplicate operation gives the entered name to the original UUID;
+  a temporary name and two native renames retain the intended source/copy roles.
+- Independent copied-logo ownership and duplicate-only color/font edits now have
+  native filesystem, applied-project and render evidence. Source theme/resource
+  bytes remain unchanged; concrete project styling and bundled logos survive
+  fresh-process reopening after the disposable themes are removed.
+
 ## 0.9.0 — 2026-11-05
 
 ### Added
