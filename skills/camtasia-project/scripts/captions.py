@@ -29,6 +29,8 @@ and positive scalar (inverse speed). Complete mirrored clocks change together;
 source words/cues and dynamic displays do not change. Consumed source bounds,
 lane collisions and transitions are checked. Effects/animations need their own
 retiming contract. Bound the independent display with set-display separately.
+Linked-video cut inputs and edited display bounds must align with the document's
+video frame grid. Recognized onsets and intentional subframe audio stay unchanged.
 
 set-display PROJECT --clip-id ID --spec SPEC edits an existing native dynamic
 display. Spec schema_version 1 accepts start/duration seconds, definition (existing
@@ -164,14 +166,39 @@ def closed_target(doc: dict[str, Any], clip_id: int) -> tuple[dict[str, Any], st
     return owner, key, parameters[key]
 
 
+def root_tracks(doc: dict[str, Any]) -> list[dict[str, Any]]:
+    scenes = project.scene_tracks(doc)
+    if len(scenes) != 1:
+        raise ValueError("capture multiscene caption mapping separately; use a single scene")
+    for track in scenes[0]:
+        medias = track.get("medias", [])
+        if not isinstance(medias, list) or any(not isinstance(n, dict) for n in medias):
+            raise ValueError(
+                "repair native root lane medias arrays and clip objects before caption timing edits"
+            )
+    return scenes[0]
+
+
+def require_frame_grid(doc: dict[str, Any], cuts: dict[str, Any]) -> None:
+    try:
+        fps, rate = (project.number(doc.get(k)) for k in ("videoFormatFrameRate", "editRate"))
+    except ValueError as exc:
+        raise ValueError(
+            "read/repair native videoFormatFrameRate and editRate before video timing edits"
+        ) from exc
+    if fps <= 0 or rate <= 0:
+        raise ValueError("use positive native videoFormatFrameRate and editRate for video cuts")
+    for name, ticks in cuts.items():
+        if (project.number(ticks) * fps / rate).denominator != 1:
+            raise ValueError("supply target frame-grid-aligned video timing for " + name)
+
+
 def root_clock(
     doc: dict[str, Any], clip_id: int
 ) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
-    if len(project.scene_tracks(doc)) != 1:
-        raise ValueError("capture multiscene caption mapping separately; use a single scene")
     selected(doc, clip_id)
     matches = []
-    for track in project.scene_tracks(doc)[0]:
+    for track in root_tracks(doc):
         for owner in track.get("medias", []):
             if not isinstance(owner, dict):
                 raise ValueError("repair native root clip objects")
@@ -183,6 +210,11 @@ def root_clock(
             "select a root Caption/audio/linked AV owner; nested/stitched clocks need native evidence"
         )
     track, owner, audio = matches[0]
+    if type(owner.get("id")) is not int:
+        raise ValueError(
+            "repair the root owner's numeric clip ID before caption mapping or retiming"
+        )
+    selected(doc, owner["id"])
     if not isinstance(audio, dict) or audio.get("_type") not in ("AMFile", "Caption"):
         raise ValueError("select a root Caption or speech-bearing audio/linked AV clip")
     attributes = audio.get("attributes", {})
@@ -418,6 +450,8 @@ def retime(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str,
         hotspots.ticks(result, spec[k]) for k in ("start", "duration", "media_start")
     )
     scalar = project.number(spec["scalar"])
+    if owner is not audio:
+        require_frame_grid(result, dict(start=start, duration=duration, mediaStart=media_start))
     streams = [audio] if owner is audio else [audio, owner["video"]]
     if (
         duration <= 0
@@ -477,11 +511,9 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
             "select a saved native dynamic-caption display, separately from its source words"
         )
     if "start" in spec or "duration" in spec:
-        tracks = project.scene_tracks(result)
-        lanes = [t for ts in tracks for t in ts if any(n is owner for n in t.get("medias", []))]
+        lanes = [t for t in root_tracks(result) if any(n is owner for n in t.get("medias", []))]
         if (
-            len(tracks) != 1
-            or len(lanes) != 1
+            len(lanes) != 1
             or project.number(owner.get("mediaStart")) != 0
             or project.number(owner.get("scalar")) != 1
             or owner.get("effects", [])
@@ -499,6 +531,7 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
             if duration <= 0:
                 raise ValueError("use a positive native display duration")
             owner.update(duration=duration, mediaDuration=duration)
+        require_frame_grid(result, dict(start=owner.get("start"), duration=owner.get("duration")))
         collisions = project.native_lane_collisions(result)
         if collisions:
             raise ValueError("resolve overlapping display clips: " + collisions[0])

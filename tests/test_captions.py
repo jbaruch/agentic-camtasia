@@ -48,6 +48,7 @@ def words(doc):
 def fixture(form="linked") -> dict:
     doc = document()
     doc["editRate"] = R
+    doc["videoFormatFrameRate"] = 30
     doc["timeline"]["captionAttributes"] = dict(
         enabled=False, fontName="Arial", fontSize=32, opaque=["global"]
     )
@@ -437,6 +438,106 @@ class CaptionTests(unittest.TestCase):
                 bad["sourceBin"][1]["sourceTracks"][0].pop("range")
             with self.subTest(mutation=mutation), self.assertRaises(ValueError):
                 captions.retime(bad, 3, spec(start=0, duration=1, media_start=1, scalar=1))
+
+    def test_linked_video_retime_rejects_off_grid_30_fps_cuts(self):
+        doc = fixture()
+        for field in ("start", "duration", "media_start"):
+            request = retime_spec()
+            request[field] = f"1/{R}"
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, "frame-grid"):
+                captions.retime(doc, 3, request)
+        result = captions.retime(
+            doc, 3, spec(start="1/30", duration="1/30", media_start="2/30", scalar="1/2")
+        )
+        self.assertEqual(root(result)["start"], 23520000)
+        self.assertEqual(root(result)["duration"], 23520000)
+        self.assertEqual(root(result)["mediaStart"], 47040000)
+        self.assertEqual(words(result), words(doc))
+
+    def test_frame_grid_reads_document_rate_and_preserves_subframe_audio(self):
+        doc = fixture()
+        doc["videoFormatFrameRate"] = 60
+        result = captions.retime(
+            doc, 3, spec(start="1/60", duration="1/60", media_start="1/60", scalar=1)
+        )
+        self.assertEqual(root(result)["duration"], 11760000)
+        doc["videoFormatFrameRate"] = "30000/1001"
+        result = captions.retime(
+            doc, 3, spec(start="1001/30000", duration="1001/30000", media_start=0, scalar=1)
+        )
+        self.assertEqual(root(result)["duration"], 23543520)
+        for fps in (None, 0, -30, True, "unknown"):
+            doc["videoFormatFrameRate"] = fps
+            with self.subTest(fps=fps), self.assertRaisesRegex(ValueError, "videoFormatFrameRate"):
+                captions.retime(doc, 3, retime_spec())
+        doc = fixture("audio")
+        result = captions.retime(
+            doc, 3, spec(start="1/48000", duration="1/48000", media_start="1/48000", scalar=1)
+        )
+        self.assertEqual(root(result)["start"], 14700)
+        self.assertEqual(root(result)["duration"], 14700)
+        self.assertEqual(words(result), words(doc))
+
+    def test_display_bounds_use_frame_grid_without_quantizing_recognized_onsets(self):
+        doc = dynamic()
+        for field in ("start", "duration"):
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, "frame-grid"):
+                captions.set_display(doc, 6, spec(**{field: f"1/{R}"}))
+        result = captions.set_display(doc, 6, spec(start="1/30", duration="2/30"))
+        self.assertEqual(display(result)["start"], 23520000)
+        self.assertEqual(display(result)["duration"], 47040000)
+        self.assertEqual(words(result), words(doc))
+
+    def test_malformed_linked_owner_ids_emit_json_without_writing_candidates(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            source, request, output = [
+                Path(tmp) / name for name in ("source.json", "spec.json", "candidate.json")
+            ]
+            request.write_text(json.dumps(retime_spec()))
+            for malformed in (None, True, "3", 3.0):
+                doc = fixture()
+                if malformed is None:
+                    root(doc).pop("id")
+                else:
+                    root(doc)["id"] = malformed
+                source.write_bytes(project.encode_document(doc))
+                before = source.read_bytes()
+                for name in ("map", "retime"):
+                    args = [name, str(source), "--clip-id", "5"]
+                    if name == "retime":
+                        args += ["--spec", str(request), "--output", str(output)]
+                    stdout, stderr = io.StringIO(), io.StringIO()
+                    with (
+                        self.subTest(malformed=malformed, command=name),
+                        patch("sys.stdout", stdout),
+                        patch("sys.stderr", stderr),
+                    ):
+                        self.assertEqual(captions.main(args), 1)
+                    self.assertEqual(stdout.getvalue(), "")
+                    self.assertIn(
+                        "root owner's numeric clip ID", json.loads(stderr.getvalue())["error"]
+                    )
+                    self.assertFalse(output.exists())
+                    self.assertEqual(source.read_bytes(), before)
+            duplicate = fixture()
+            lane(duplicate)["medias"].append(dict(id=3, _type="Callout", start=0, duration=R))
+            with self.assertRaisesRegex(ValueError, "unique"):
+                captions.map_captions(duplicate, 5)
+
+    def test_malformed_root_lane_arrays_produce_actionable_refusals(self):
+        for medias in (None, "invalid", [None]):
+            doc = dynamic()
+            project.scene_tracks(doc)[0].append(dict(medias=medias))
+            with (
+                self.subTest(medias=medias),
+                self.assertRaisesRegex(ValueError, "root lane medias"),
+            ):
+                captions.map_captions(doc, 5)
+            with (
+                self.subTest(medias=medias),
+                self.assertRaisesRegex(ValueError, "root lane medias"),
+            ):
+                captions.set_display(doc, 6, spec(duration=3))
 
     def test_timeline_clock_cues_invert_trim_offset_and_inverse_speed_exactly(self):
         doc = captions.retime(fixture(), 3, retime_spec())
