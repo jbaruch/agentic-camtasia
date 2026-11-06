@@ -11,9 +11,9 @@ the matte helper edits an existing owner and preserves its other payload.
 Locally observed in Camtasia Mac 2026.2.4, project format 10. A native Media Matte
 on a direct `ScreenVMFile`, standalone `ScreenIMFile` or `StitchedMedia` parent
 uses the ordinary Media Matte payload. It has no linked `effectIndex` token.
-Native application to a stitched parent leaves both children unchanged. A linked
-recording wrapper's mirror contract has not been established; the helper refuses
-that form. Ordinary linked AV retains its existing mirror contract.
+Native application to a stitched parent leaves both children unchanged. Root
+linked moving recordings have the additional mirror and audio controls below.
+Ordinary linked AV retains its existing mirror contract.
 
 Native **Edit → Playhead → Extend Frame to Playhead** turns the eight-second
 recording into a ten-second stitched owner with moving and frozen children.
@@ -86,3 +86,56 @@ these findings; no historical verification archive is required.
 evidence. Any working point-intensity form retains separate investigation.
 Verify a consumer project's actual native output;
 these cases do not establish every recording stream or composition arrangement.
+
+## Linked moving recordings
+
+Locally observed in Camtasia Mac 2026.2.4 (2026.132), project format 10. Native
+Recorder creates a root `UnifiedMedia` with a `ScreenVMFile` video and same-source
+stereo `AMFile` system audio. Native Media Matte application creates matching
+wrapper/video effects with the same `effectIndex` token. Intensity, bypass and
+removal change both mirrors; source definitions and the audio child survive.
+The helper's `media_targets` and linked-recording constants own accepted owner
+shapes and clock checks. Held, stitched and nested linked recording variants
+retain separate contracts.
+
+The native half-intensity edit adds the wrapper reset companion
+`default-MediaMatte-intensity: "1"`. The helper preserves an existing companion
+without inventing a missing reset value. The native effect otherwise uses the
+ordinary matte payload, including its category and track-depth parameter.
+
+A native Custom animation on a trimmed 2× recording confirms the existing
+source-position clock on both mirrors. Its local zero–one-second interval saves
+`time: 1411200000`, `endTime: 2822400000`, `duration: 1411200000`, and linear
+interpolation at project rate 705600000 with a two-second source in-point.
+The independent helper result matches both complete effect payloads. The audio
+retains its own stream selection, stereo channel binding, processing and clocks.
+
+A 36-second root sequence pairs helper construction, half intensity, bypass,
+removal and linear curves with independently captured native controls. Clearing
+the curve to half intensity matches the static half control. An independent
+background-only cell distinguishes masking from the recorded picture. The
+recording is inset, has a positive source in-point and plays at 2×. Forty-six
+sampled frames show the opaque interior, black or partially visible exterior,
+linear ramp and restored recording picture for bypass/removal. Twenty-one
+matched-time comparisons differ by at most 1.055 mean RGB byte levels per
+channel; these inter-cell encoding differences are separate from repeat-export
+equality. The recorded picture contains a macOS permission notice; no permission
+was granted to obtain these results.
+
+Native save, close, reopen and a second export produce identical complete
+decoded RGB and PCM streams: 36 seconds, 1080 frames, 640×360 H.264 and stereo
+44.1 kHz AAC. These two exports use the same editor process. Twenty-four
+both-channel one-second windows retain the 440 Hz background tone and, in
+recording cells, the 660 Hz system-audio tone. RMS spans 0.09608–0.13481; the
+background-only control has no recorded-audio contribution.
+
+Whole-document first-save comparison accounts for 70 remapped IDs, fourteen
+static intensity collapses, twelve omitted unity-opacity fields, one derived
+visual interval, two source-metadata basename updates and UI caches. Every other
+field remains equal, including all audio, recording source selection and matte
+clocks. The second save is byte-identical. Bundled recording/background hashes
+and the original baseline remain unchanged. Ten snapshots pass the existing
+exact-build profile and native hazard checks; each raw-schema result reports
+only its previously documented timeline-metadata omission. No new profile
+correction is needed. Completed disposable comparison artifacts are removed
+after incorporating these observations.

@@ -944,7 +944,8 @@ Evidence is `matte-curves-native-checks.json`.
 [Nonlinear intensity editing](matte-nonlinear-curves.md) adds exponential, bounce
 and spring intervals, independent geometry preservation and a rejected point
 form. [Recording-owner support](matte-recording-owners.md) adds moving/frozen
-screen recordings and stitched parents. Interacting media/track mattes retain
+screen recordings and stitched parents, plus root linked moving recordings with
+preserved recorded audio. Interacting media/track mattes retain
 separate cases.
 
 ## Companion apps and connected imports

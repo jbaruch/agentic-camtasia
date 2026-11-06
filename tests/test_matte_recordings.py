@@ -190,13 +190,14 @@ class RecordingMatteTests(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "verified"):
                 hotspots.visual_target(owner_document(kind), 3)
 
-    def test_linked_recording_mirrors_require_their_own_native_contract(self):
-        doc = linked_fixture()
-        project.scene_tracks(doc)[0][0]["medias"][0]["video"]["_type"] = "ScreenVMFile"
-        before = copy.deepcopy(doc)
-        with self.assertRaisesRegex(ValueError, "linked recording matte mirrors"):
-            mattes.edit_media(doc, 3, mode="alpha")
-        self.assertEqual(doc, before)
+    def test_linked_held_and_stitched_mirrors_require_their_own_native_contract(self):
+        for kind in ("ScreenIMFile", "StitchedMedia"):
+            doc = linked_fixture()
+            project.scene_tracks(doc)[0][0]["medias"][0]["video"]["_type"] = kind
+            before = copy.deepcopy(doc)
+            with self.assertRaisesRegex(ValueError, "linked recording matte mirrors"):
+                mattes.edit_media(doc, 3, mode="alpha")
+            self.assertEqual(doc, before)
 
     def test_cli_stages_frozen_curve_and_removal_with_unchanged_inputs(self):
         with tempfile.TemporaryDirectory() as directory:
