@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.27.0 — 2026-11-06
+
+### Added
+
+- Native-template visual-effect construction, static editing, bypass and removal
+  on root linked moving recordings. Matching wrapper/video mirrors retain stable
+  identities, recorded stereo audio, cursor/geometry state, source processing and
+  reset metadata. Complete animated templates copy with matching owner clocks;
+  behavior and effect-curve authoring keep their separate ownership contracts.
+- Five native lifecycle replays and a 42-second save/reopen comparison verify
+  static and timed template copies against native controls. Repeat exports match
+  complete decoded picture/audio, with inspected phase frames and measured
+  background/system-audio tones. Effect CLI help now emits versioned JSON.
+
 ## 0.26.0 — 2026-11-06
 
 ### Added
