@@ -114,6 +114,14 @@ class LottieImageTests(unittest.TestCase):
                 self.assertFalse(report["imageAssetsEmbedded"])
                 self.assertFalse(report["images"][0]["embeddedPNG"])
                 self.assertEqual(report["unhandledAssetIds"], ["photo"])
+                self.assertEqual(report["missingImageAssetIds"], [])
+                self.assertEqual(
+                    report["images"][0]["dimensions"], [2, 3] if with_dimensions else None
+                )
+                self.assertEqual(
+                    report["images"][0]["referenceKind"],
+                    "data-uri" if embedded else "absolute-path",
+                )
                 with self.assertRaisesRegex(ValueError, "sequences"):
                     lottie_images.embed_png(source, "photo", png())
                 self.assertEqual(source, before)
@@ -155,6 +163,11 @@ class LottieImageTests(unittest.TestCase):
                 self.assertEqual(
                     lottie_images.main(["inspect", str(path), "--require-embedded"]), 0
                 )
+        source["layers"].append({"ty": 2, "refId": "sound"})
+        report = lottie_images.inventory(source)
+        self.assertFalse(report["imageAssetsEmbedded"])
+        self.assertEqual(report["missingImageAssetIds"], [])
+        self.assertIn("sound", report["unhandledAssetIds"])
 
     def test_effect_values_and_opaque_nested_objects_are_not_image_layers(self) -> None:
         source = lottie_images.embed_png(fixture(), "photo", png())
@@ -572,7 +585,9 @@ class LottieImageTests(unittest.TestCase):
                 st_ctime_ns=before.st_ctime_ns,
             )
             with (
-                patch.object(os, "fstat", side_effect=[before, changed]),
+                patch.object(
+                    os, "fstat", side_effect=[source.stat(), source.stat(), before, changed]
+                ),
                 patch("sys.stderr", io.StringIO()),
             ):
                 self.assertEqual(lottie_images.main([*base, str(output)]), 1)
@@ -586,6 +601,50 @@ class LottieImageTests(unittest.TestCase):
             os.mkfifo(pipe)
             with self.assertRaisesRegex(ValueError, "regular PNG file"):
                 lottie_images.read_image(pipe)
+
+    @unittest.skipUnless(hasattr(os, "mkfifo"), "POSIX pipe fixture")
+    def test_source_pipe_is_refused_without_waiting_for_a_writer(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            pipe = Path(directory) / "source.json"
+            os.mkfifo(pipe)
+            with patch("sys.stderr", stream := io.StringIO()):
+                self.assertEqual(lottie_images.main(["inspect", str(pipe)]), 1)
+            report = json.loads(stream.getvalue())
+            self.assertIn("regular Lottie source JSON", report["error"])
+            self.assertIn("select", report["action"])
+
+    def test_cli_source_image_json_and_output_errors_include_specific_actions(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, image = root / "source.json", root / "image.png"
+
+            def failure(command: list[str]) -> dict:
+                with patch("sys.stderr", stream := io.StringIO()):
+                    self.assertEqual(lottie_images.main(command), 1)
+                report = json.loads(stream.getvalue())
+                self.assertFalse(report["ok"])
+                return report
+
+            report = failure(["inspect", str(source)])
+            self.assertIn("existing readable Lottie", report["action"])
+            source.write_text("{invalid JSON}")
+            self.assertIn("repair", failure(["inspect", str(source)])["error"])
+            source.write_bytes(project.encode_document(fixture()))
+            command = [
+                "embed",
+                str(source),
+                "--asset-id",
+                "photo",
+                "--image",
+                str(image),
+                "--output",
+            ]
+            self.assertIn("readable PNG", failure([*command, str(root / "out.json")])["action"])
+            image.write_bytes(png())
+            self.assertIn(
+                "create the output parent",
+                failure([*command, str(root / "absent/out.json")])["action"],
+            )
 
     def test_cli_never_follows_stored_image_or_font_paths(self) -> None:
         with tempfile.TemporaryDirectory() as directory:

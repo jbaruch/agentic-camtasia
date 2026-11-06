@@ -7,8 +7,9 @@ establish that its internal image or font dependencies are portable.
 
 ## Helper contract
 
-`scripts/lottie_images.py` owns image recognition, PNG checks and preservation
-in its module docstring and `inventory`, `embed_png` and `read_image` contracts.
+`skills/camtasia-project/scripts/lottie_images.py` owns image recognition, PNG
+checks and preservation in its module docstring and `inventory`, `embed_png`
+and `read_file` contracts.
 It reads a standalone Lottie JSON source, never a Camtasia project. Select an
 animation-local image asset ID from inspection and provide the intended PNG
 explicitly. Stored filenames, directories, URLs and font declarations are
@@ -26,6 +27,11 @@ Stdout uses schema 1, owner `camtasia-lottie-images`, and includes
 `fontDeclarations`, `embeddedGlyphCount`, `imageAssetsEmbedded`, and
 `nativeVerified: false`. Each image reports its animation-local identity,
 reference kind, dimensions, embedding status and available PNG byte hash.
+Dimensions and reference fields are null when their input is absent or
+unusable; unsupported forms retain the valid values that can be inspected.
+`missingImageAssetIds` names absent asset IDs, independently of whether an
+existing asset is an eligible image. Present unsupported assets remain
+unhandled and cannot satisfy an image layer reference or the image gate.
 Embedded data URLs are omitted from the filename field. Embed also returns
 `assetId`, `pngSha256`, `candidateSha256`, `changed`, `written` and `output`.
 The helper owns this snapshot; readers must recheck input hashes before use.
@@ -49,6 +55,9 @@ clocks and unfamiliar numeric values retain their exact values without a binary
 float conversion. Exit codes are 0 for inspection/staging, 1 for a
 refusal or unmet `--require-embedded`, and 2 for argument syntax. Errors are JSON
 on stderr. A successful embed can still report other unresolved images.
+File/parser errors include operation-specific `action` guidance. Source and
+PNG inputs must be stable regular files; special files and changed snapshots
+refuse before staging.
 
 `imageAssetsEmbedded` covers the inspected image asset/reference table only.
 PNG checks cover the container without decoding pixels or certifying every PNG

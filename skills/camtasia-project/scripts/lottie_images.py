@@ -59,7 +59,7 @@ class JSONArgumentParser(argparse.ArgumentParser):
 
 def load_source(path: Path) -> tuple[dict[str, Any], bytes]:
     """Keep finite decimal values exact, including unfamiliar animation payload."""
-    raw = path.read_bytes()
+    raw = read_file(path, "Lottie source JSON")
     try:
         doc = json.loads(
             raw,
@@ -71,6 +71,8 @@ def load_source(path: Path) -> tuple[dict[str, Any], bytes]:
         raise ValueError(
             "use finite animation numbers within the exact decimal parser's range"
         ) from exc
+    except (json.JSONDecodeError, UnicodeError) as exc:
+        raise ValueError(f"repair the Lottie source JSON syntax/encoding at {path}: {exc}") from exc
     if not isinstance(doc, dict):
         raise ValueError("select a Lottie JSON object rather than a scalar or array")
     return doc, raw
@@ -122,12 +124,12 @@ def stage(source: Path, output: Path, candidate: dict[str, Any]) -> bool:
     return True
 
 
-def read_image(path: Path) -> bytes:
+def read_file(path: Path, kind: str) -> bytes:
     """Read an explicit regular-file snapshot, refusing a changed identity."""
     with os.fdopen(os.open(path, os.O_RDONLY | getattr(os, "O_NONBLOCK", 0)), "rb") as stream:
         before = os.fstat(stream.fileno())
         if not stat.S_ISREG(before.st_mode):
-            raise ValueError("select a regular PNG file instead of a device, directory or pipe")
+            raise ValueError(f"select a regular {kind} file instead of a device, directory or pipe")
         raw = stream.read()
         after = os.fstat(stream.fileno())
     fields = ("st_dev", "st_ino", "st_size", "st_mtime_ns", "st_ctime_ns")
@@ -137,8 +139,12 @@ def read_image(path: Path) -> bytes:
         or getattr(after, name) != getattr(current, name)
         for name in fields
     ):
-        raise ValueError("PNG changed while reading; finish image writes and retry")
+        raise ValueError(f"{kind} changed while reading; finish file writes and retry")
     return raw
+
+
+def read_image(path: Path) -> bytes:
+    return read_file(path, "PNG")
 
 
 def png_size(raw: bytes) -> tuple[int, int]:
@@ -221,7 +227,7 @@ def source_assets(doc: dict[str, Any]) -> list[dict[str, Any]]:
     return assets
 
 
-def image_size(asset: dict[str, Any]) -> tuple[int, int]:
+def image_kind(asset: dict[str, Any]) -> None:
     if "t" in asset or "sid" in asset:
         raise ValueError(
             "select an ordinary image; sequences, slots and typed assets require native verification"
@@ -230,6 +236,9 @@ def image_size(asset: dict[str, Any]) -> tuple[int, int]:
         raise ValueError(
             "select an image asset, keeping precompositions and unfamiliar assets intact"
         )
+
+
+def asset_dimensions(asset: dict[str, Any]) -> tuple[int, int]:
     values: tuple[Any, Any] = (asset.get("w"), asset.get("h"))
     if not all(finite_number(value) and 0 < value <= PNG_MAX_DIMENSION for value in values):
         raise ValueError("retain positive whole-pixel image asset dimensions before embedding")
@@ -237,6 +246,11 @@ def image_size(asset: dict[str, Any]) -> tuple[int, int]:
     if (width, height) != values:
         raise ValueError("retain positive whole-pixel image asset dimensions before embedding")
     return width, height
+
+
+def image_size(asset: dict[str, Any]) -> tuple[int, int]:
+    image_kind(asset)
+    return asset_dimensions(asset)
 
 
 def reference_kind(filename: str, directory: str) -> str:
@@ -267,25 +281,32 @@ def inventory(doc: dict[str, Any]) -> dict[str, Any]:
             if "p" in asset:
                 unhandled.append(asset["id"])
             continue
+        filename, directory = asset.get("p"), asset.get("u", "")
         row: dict[str, Any] = {
             "assetId": asset["id"],
             "path": f"/assets/{index}",
             "embeddedPNG": False,
             "pngSha256": None,
             "sizeBytes": None,
+            "dimensions": None,
+            "referenceKind": reference_kind(filename, directory)
+            if isinstance(filename, str) and isinstance(directory, str)
+            else None,
+            "filename": filename
+            if isinstance(filename, str) and not filename.startswith("data:")
+            else None,
+            "directory": directory if isinstance(directory, str) else None,
+            "declaredEmbedded": asset.get("e", 0),
         }
+        eligible = False
         try:
-            dimensions = image_size(asset)
-            filename, directory = asset["p"], asset.get("u", "")
+            dimensions = asset_dimensions(asset)
+            row["dimensions"] = list(dimensions)
+            image_kind(asset)
+            filename = asset["p"]
             if not isinstance(directory, str):
                 raise ValueError("inspect the image asset's unfamiliar directory value")
-            row.update(
-                dimensions=list(dimensions),
-                referenceKind=reference_kind(filename, directory),
-                filename=None if filename.startswith("data:") else filename,
-                directory=directory,
-                declaredEmbedded=asset.get("e", 0),
-            )
+            eligible = True
             if not filename.startswith(PNG_DATA_PREFIX):
                 row["reason"] = "Select a PNG explicitly to stage the native embedded image form."
             else:
@@ -300,9 +321,11 @@ def inventory(doc: dict[str, Any]) -> dict[str, Any]:
         except ValueError as exc:
             row["reason"] = str(exc)
         rows.append(row)
-        if "dimensions" not in row:
+        if not eligible:
             unhandled.append(asset["id"])
-    ids = {row["assetId"] for row in rows if row["assetId"] not in unhandled}
+    ids = {asset["id"] for asset in assets}
+    image_ids = {row["assetId"] for row in rows}
+    embedded_ids = {row["assetId"] for row in rows if row["embeddedPNG"]}
     layer_arrays = [("/layers", doc["layers"])] + [
         (f"/assets/{index}/layers", asset["layers"])
         for index, asset in enumerate(assets)
@@ -326,6 +349,17 @@ def inventory(doc: dict[str, Any]) -> dict[str, Any]:
         for path, node in references
         if not isinstance(node.get("refId"), str) or not node["refId"]
     ]
+    for _, node in references:
+        reference = node.get("refId")
+        if (
+            isinstance(reference, str)
+            and reference in ids
+            and reference not in embedded_ids
+            and reference not in unhandled
+        ):
+            # A present ordinary linked image is handled but not yet embedded.
+            if reference not in image_ids:
+                unhandled.append(reference)
     return {
         "images": rows,
         "missingImageAssetIds": missing,
@@ -333,7 +367,11 @@ def inventory(doc: dict[str, Any]) -> dict[str, Any]:
         "invalidImageReferencePaths": invalid_references,
         "imageAssetsEmbedded": all(row["embeddedPNG"] for row in rows)
         and not missing
-        and not invalid_references,
+        and not invalid_references
+        and all(
+            isinstance(node.get("refId"), str) and node["refId"] in embedded_ids
+            for _, node in references
+        ),
         "fontDeclarations": copy.deepcopy(doc.get("fonts")),
         "embeddedGlyphCount": len(doc["chars"]) if isinstance(doc.get("chars"), list) else None,
         "limits": [
@@ -370,6 +408,7 @@ def main(argv: list[str] | None = None) -> int:
     embed.add_argument("--image", type=Path, required=True)
     embed.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
+    action = "select an existing readable Lottie source JSON file; repair its JSON if needed"
     try:
         doc, source = load_source(args.source)
         report: dict[str, Any] = {
@@ -380,10 +419,13 @@ def main(argv: list[str] | None = None) -> int:
             "nativeVerified": False,
         }
         if args.command == "embed":
+            action = "select an existing readable PNG image file"
             image = args.image.resolve(strict=True)
             raw = read_image(image)
+            action = "inspect the image asset ID and select an ordinary image with matching PNG dimensions"
             candidate = embed_png(doc, args.asset_id, raw)
             report.update(inventory(candidate))
+            action = "create the output parent directory and choose a writable separate candidate path; recheck the source and image"
             report.update(
                 assetId=args.asset_id,
                 pngSha256=project.digest(raw),
@@ -395,6 +437,7 @@ def main(argv: list[str] | None = None) -> int:
         else:
             report.update(inventory(doc))
             report["ok"] = not args.require_embedded or report["imageAssetsEmbedded"]
+        action = "keep stdout available or redirect it to a writable report file"
         print(encode_document(report).decode("utf-8"), end="")
         return 0 if report["ok"] else 1
     except RecursionError:
@@ -406,7 +449,7 @@ def main(argv: list[str] | None = None) -> int:
         )
         return 1
     except (OSError, ValueError) as exc:
-        print(json.dumps({"ok": False, "error": str(exc)}), file=sys.stderr)
+        print(json.dumps({"ok": False, "error": str(exc), "action": action}), file=sys.stderr)
         return 1
 
 
