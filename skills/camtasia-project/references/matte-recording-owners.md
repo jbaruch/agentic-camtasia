@@ -82,6 +82,7 @@ raw schema and exact-build profile without a new correction. Completed
 projects, movies, screenshots and measurements are removed after incorporating
 these findings; no historical verification archive is required.
 
-Media/track matte interactions and any working point-intensity form retain
-separate investigation. Verify a consumer project's actual native output;
+[Media/track composition controls](matte-composition.md) have separate native
+evidence. Any working point-intensity form retains separate investigation.
+Verify a consumer project's actual native output;
 these cases do not establish every recording stream or composition arrangement.
