@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import struct
+import subprocess
 import sys
 import tempfile
 from types import SimpleNamespace
@@ -87,6 +88,68 @@ def fixture() -> dict:
 
 
 class LottieImageTests(unittest.TestCase):
+    def test_compact_huge_decimal_image_dimensions_refuse_before_integer_conversion(self) -> None:
+        for value in (Decimal("1e1000000"), Decimal("1e-1000000"), Decimal("2147483648")):
+            source = fixture()
+            source["assets"][0]["w"] = value
+            report = lottie_images.inventory(source)
+            self.assertFalse(report["imageAssetsEmbedded"])
+            with self.assertRaisesRegex(ValueError, "dimensions"):
+                lottie_images.embed_png(source, "photo", png())
+
+    def test_boolean_embedded_flag_correction_reports_changed_with_json_types(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, image, output = [root / n for n in ("source.json", "image.png", "out.json")]
+            candidate = lottie_images.embed_png(fixture(), "photo", png())
+            candidate["assets"][0]["e"] = True
+            source.write_bytes(lottie_images.encode_document(candidate))
+            image.write_bytes(png())
+            with patch("sys.stdout", stream := io.StringIO()):
+                self.assertEqual(
+                    lottie_images.main(
+                        [
+                            "embed",
+                            str(source),
+                            "--asset-id",
+                            "photo",
+                            "--image",
+                            str(image),
+                            "--output",
+                            str(output),
+                        ]
+                    ),
+                    0,
+                )
+            report = json.loads(stream.getvalue())
+            self.assertTrue(report["changed"])
+            self.assertTrue(report["written"])
+            self.assertTrue(report["imageAssetsEmbedded"])
+            self.assertIs(type(json.loads(output.read_bytes())["assets"][0]["e"]), int)
+            self.assertIs(json.loads(source.read_bytes())["assets"][0]["e"], True)
+
+    def test_deep_opaque_json_payload_refuses_at_cli_boundary_without_traceback(self) -> None:
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "source.json"
+            raw = project.encode_document(fixture()).rstrip()[:-1]
+            source.write_bytes(raw + b',"nested":' + b"[" * 2000 + b"0" + b"]" * 2000 + b"}")
+            result = subprocess.run(
+                [
+                    sys.executable,
+                    "-B",
+                    str(Path(lottie_images.__file__)),
+                    "inspect",
+                    str(source),
+                ],
+                capture_output=True,
+                text=True,
+            )
+            self.assertEqual(result.returncode, 1)
+            self.assertEqual(result.stdout, "")
+            report = json.loads(result.stderr)
+            self.assertFalse(report["ok"])
+            self.assertIn("reduce", report["error"])
+
     def test_cli_argument_failures_emit_json_with_exit_two(self) -> None:
         for command in ([], ["embed"], ["inspect"], ["unknown"]):
             with (
@@ -337,6 +400,10 @@ class LottieImageTests(unittest.TestCase):
             b"\x89PNG\r\n\x1a\n" + chunk(b"IEND", b""),
             b"\x89PNG\r\n\x1a\n" + header + header + chunk(b"IEND", b""),
             png(0, 3),
+            b"\x89PNG\r\n\x1a\n"
+            + chunk(b"IHDR", struct.pack(">IIBBBBB", 2147483648, 1, 8, 6, 0, 0, 0))
+            + chunk(b"IDAT", b"a")
+            + chunk(b"IEND", b""),
         ]:
             with self.subTest(length=len(bad)), self.assertRaises(ValueError):
                 lottie_images.png_size(bad)

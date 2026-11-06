@@ -48,6 +48,7 @@ import project
 PNG_SIGNATURE = b"\x89PNG\r\n\x1a\n"
 PNG_DATA_PREFIX = "data:image/png;base64,"
 PNG_DEPTHS = {0: {1, 2, 4, 8, 16}, 2: {8, 16}, 3: {1, 2, 4, 8}, 4: {8, 16}, 6: {8, 16}}
+PNG_MAX_DIMENSION = (1 << 31) - 1
 
 
 class JSONArgumentParser(argparse.ArgumentParser):
@@ -162,8 +163,8 @@ def png_size(raw: bytes) -> tuple[int, int]:
                 ">IIBBBBB", data
             )
             if (
-                not width
-                or not height
+                not 0 < width <= PNG_MAX_DIMENSION
+                or not 0 < height <= PNG_MAX_DIMENSION
                 or depth not in PNG_DEPTHS.get(color, set())
                 or compression != 0
                 or filtering != 0
@@ -224,12 +225,13 @@ def image_size(asset: dict[str, Any]) -> tuple[int, int]:
         raise ValueError(
             "select an image asset, keeping precompositions and unfamiliar assets intact"
         )
-    if not all(
-        finite_number(asset.get(k)) and asset[k] > 0 and int(asset[k]) == asset[k]
-        for k in ("w", "h")
-    ):
+    values: tuple[Any, Any] = (asset.get("w"), asset.get("h"))
+    if not all(finite_number(value) and 0 < value <= PNG_MAX_DIMENSION for value in values):
         raise ValueError("retain positive whole-pixel image asset dimensions before embedding")
-    return int(asset["w"]), int(asset["h"])
+    width, height = (int(value) for value in values)
+    if (width, height) != values:
+        raise ValueError("retain positive whole-pixel image asset dimensions before embedding")
+    return width, height
 
 
 def reference_kind(filename: str, directory: str) -> str:
@@ -364,7 +366,7 @@ def main(argv: list[str] | None = None) -> int:
                 pngSha256=project.digest(raw),
                 output=str(args.output),
                 candidateSha256=project.digest(encode_document(candidate)),
-                changed=candidate != doc,
+                changed=encode_document(candidate) != encode_document(doc),
                 written=stage(args.source, args.output, candidate),
             )
         else:
@@ -372,6 +374,14 @@ def main(argv: list[str] | None = None) -> int:
             report["ok"] = not args.require_embedded or report["imageAssetsEmbedded"]
         print(encode_document(report).decode("utf-8"), end="")
         return 0 if report["ok"] else 1
+    except RecursionError:
+        print(
+            json.dumps(
+                {"ok": False, "error": "reduce excessive Lottie JSON nesting before staging"}
+            ),
+            file=sys.stderr,
+        )
+        return 1
     except (OSError, ValueError) as exc:
         print(json.dumps({"ok": False, "error": str(exc)}), file=sys.stderr)
         return 1
