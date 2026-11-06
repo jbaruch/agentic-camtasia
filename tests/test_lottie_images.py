@@ -88,6 +88,30 @@ def fixture() -> dict:
 
 
 class LottieImageTests(unittest.TestCase):
+    def test_sound_and_data_file_assets_remain_unresolved_outside_the_image_gate(self) -> None:
+        source = lottie_images.embed_png(fixture(), "photo", png())
+        source["assets"].extend(
+            [
+                {"id": "sound", "p": "sound.wav", "u": "/audio/", "e": 0},
+                {"id": "data", "p": "values.json", "u": "/data/", "t": 3},
+            ]
+        )
+        source["layers"].append({"ty": 6, "refId": "sound", "ip": 0, "op": 120})
+        report = lottie_images.inventory(source)
+        self.assertEqual([row["assetId"] for row in report["images"]], ["photo"])
+        self.assertEqual(report["unhandledAssetIds"], ["sound", "data"])
+        self.assertTrue(report["imageAssetsEmbedded"])
+        for asset_id in ("sound", "data"):
+            with self.assertRaises(ValueError):
+                lottie_images.embed_png(source, asset_id, png())
+        with tempfile.TemporaryDirectory() as directory:
+            path = Path(directory) / "source.json"
+            path.write_bytes(lottie_images.encode_document(source))
+            with patch("sys.stdout", io.StringIO()):
+                self.assertEqual(
+                    lottie_images.main(["inspect", str(path), "--require-embedded"]), 0
+                )
+
     def test_effect_values_and_opaque_nested_objects_are_not_image_layers(self) -> None:
         source = lottie_images.embed_png(fixture(), "photo", png())
         color = {"ty": 2, "nm": "Color", "v": {"a": 0, "k": [1, 0, 0, 1]}}
@@ -151,7 +175,10 @@ class LottieImageTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             source = Path(directory) / "source.json"
             raw = project.encode_document(fixture()).rstrip()[:-1]
-            source.write_bytes(raw + b',"nested":' + b"[" * 20000 + b"0" + b"]" * 20000 + b"}")
+            # Inventory must copy/report font declarations even on interpreters
+            # whose JSON parser accepts deeper nesting without recursion.
+            raw = raw.replace(b'"fonts":', b'"originalFonts":')
+            source.write_bytes(raw + b',"fonts":' + b"[" * 20000 + b"0" + b"]" * 20000 + b"}")
             result = subprocess.run(
                 [
                     sys.executable,

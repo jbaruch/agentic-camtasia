@@ -31,6 +31,12 @@ Embedded data URLs are omitted from the filename field. Embed also returns
 The helper owns this snapshot; readers must recheck input hashes before use.
 No continuity state is read or migrated.
 
+`unhandledAssetIds` also lists other file assets outside image processing,
+including sound and data references. Those entries do not make the image-only
+gate fail. They remain unresolved resources; the gate never claims their
+portability. The [Lottie schema](https://lottiefiles.github.io/lottie-docs/schema/)
+distinguishes image dimensions/slots from general file-asset path fields.
+
 The candidate preserves animation geometry, clocks, layers, colors, fonts,
 glyphs, unfamiliar payload and other assets. Only the selected image's native
 embedding fields change. PNG physical dimensions must match the asset.

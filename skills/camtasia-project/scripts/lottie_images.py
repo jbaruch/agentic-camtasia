@@ -14,8 +14,9 @@ a no-op; originals, different occupied outputs and output symlinks are protected
 PNG checks cover signature, complete chunk framing/CRCs, IHDR dimensions and
 IDAT/IEND presence. They do not decode pixels or certify every PNG feature.
 Fonts are reported as unresolved declarations, not selected physical faces;
-glyph counts do not establish text coverage. imageAssetsEmbedded means only
-that every declared image asset/reference has this checked embedded PNG form.
+glyph counts do not establish text coverage. imageAssetsEmbedded covers the
+recognized image assets and root/asset-precomposition image layer references.
+Other file assets remain unresolved in unhandledAssetIds without gating images.
 It never establishes complete Lottie/project dependency closure or rendering.
 
 CLI: inspect SOURCE [--require-embedded]; embed SOURCE --asset-id ID --image PNG
@@ -221,7 +222,7 @@ def source_assets(doc: dict[str, Any]) -> list[dict[str, Any]]:
 
 
 def image_size(asset: dict[str, Any]) -> tuple[int, int]:
-    if "layers" in asset or not isinstance(asset.get("p"), str):
+    if "layers" in asset or asset.get("t") == 3 or not isinstance(asset.get("p"), str):
         raise ValueError(
             "select an image asset, keeping precompositions and unfamiliar assets intact"
         )
@@ -252,7 +253,15 @@ def inventory(doc: dict[str, Any]) -> dict[str, Any]:
     unhandled = []
     assets = source_assets(doc)
     for index, asset in enumerate(assets):
-        if "p" not in asset:
+        # File paths alone also describe sound and data assets. Image dimensions
+        # or a slotted image identity distinguish this image-only inventory.
+        if (
+            "layers" in asset
+            or asset.get("t") == 3
+            or not any(field in asset for field in ("w", "h", "sid"))
+        ):
+            if "p" in asset:
+                unhandled.append(asset["id"])
             continue
         row: dict[str, Any] = {
             "assetId": asset["id"],
