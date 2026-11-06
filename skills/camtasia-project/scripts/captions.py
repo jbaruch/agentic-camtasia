@@ -463,6 +463,9 @@ def retime(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str,
         raise ValueError(
             "use positive duration/inverse speed and a consumed interval within every selected stream's source bounds"
         )
+    media_duration = exact(Fraction(duration) / scalar)
+    if owner is not audio:
+        require_frame_grid(result, dict(mediaDuration=media_duration))
     nodes = [owner] if owner is audio else [owner, owner["video"], audio]
     for node in nodes:
         if (
@@ -478,7 +481,7 @@ def retime(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str,
             start=start,
             duration=duration,
             mediaStart=media_start,
-            mediaDuration=exact(Fraction(duration) / scalar),
+            mediaDuration=media_duration,
             scalar=exact(scalar),
         )
     collisions = project.native_lane_collisions(result)

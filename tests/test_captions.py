@@ -454,6 +454,22 @@ class CaptionTests(unittest.TestCase):
         self.assertEqual(root(result)["mediaStart"], 47040000)
         self.assertEqual(words(result), words(doc))
 
+    def test_slow_motion_source_out_cut_uses_frame_grid(self):
+        doc = fixture()
+        before = copy.deepcopy(doc)
+        with self.assertRaisesRegex(ValueError, "frame-grid.*mediaDuration"):
+            captions.retime(doc, 3, spec(start=0, duration="1/30", media_start=0, scalar=2))
+        self.assertEqual(doc, before)
+        result = captions.retime(
+            doc, 3, spec(start=0, duration="2/30", media_start="1/30", scalar=2)
+        )
+        for node in (root(result), root(result)["video"], audio(result)):
+            self.assertEqual(node["duration"], 47040000)
+            self.assertEqual(node["mediaStart"], 23520000)
+            self.assertEqual(node["mediaDuration"], 23520000)
+            self.assertEqual(node["scalar"], 2)
+        self.assertEqual(words(result), words(doc))
+
     def test_frame_grid_reads_document_rate_and_preserves_subframe_audio(self):
         doc = fixture()
         doc["videoFormatFrameRate"] = 60
