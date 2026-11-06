@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.23.0 — 2026-11-06
+
+### Added
+
+- A dedicated created-cursor path editor replaces explicit native video point
+  lists, preserving linked mirrors, tokens, images, click events, smoothing,
+  media transforms, source selection and audio. Point timing uses exact source
+  ticks with trim and inverse-speed mapping; Bézier handles remain explicit.
+- Native movement, easing/angle, trimmed 2× timing, insertion/deletion, separated
+  video and one-point hold controls match complete helper replays. Two independent
+  54-second exports repeat complete decoded picture/audio. Recorded overrides
+  and other owners retain separate contracts.
+
 ## 0.22.0 — 2026-11-06
 
 ### Added

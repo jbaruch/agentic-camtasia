@@ -80,6 +80,11 @@ chapter-player behavior still require their own output checks.
 
 ## Effects and behaviors
 
+Existing generated cursor point paths use the
+[created-path helper](helper.md#created-cursor-path-json-editing), with
+[native movement, trim/speed and hold controls](created-cursor-paths.md).
+Recorded pointer overrides retain their separate representation.
+
 Standalone annotation construction and existing shape/text edits use
 the [annotation helper](helper.md#annotation-json-editing), including
 [mixed rich ranges](annotation-rich-ranges.md) and

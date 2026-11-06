@@ -487,6 +487,34 @@ Frozen recording and stitched owners use the same commands. Their distinct
 clocks, native constant cursor-size companions and two-save reconstruction are
 documented in [frozen and stitched owners](animations.md#frozen-and-stitched-owners).
 
+## Created cursor path JSON editing
+
+Use `skills/camtasia-project/scripts/cursor_paths.py` for existing native
+`CursorPath.cursorLocation` point lists on root ordinary video or its linked AV
+wrapper/video IDs. Its module docstring, `OWNERS`, `TIMINGS`, `selected`,
+`curve_of` and shared `motion_paths.point_frames` own selectors, exact source
+clocks, explicit interpolation shapes, preservation and refusals. Read the
+[native cursor controls](created-cursor-paths.md) before editing.
+
+```bash
+python3 -B "{camtasia_skill_root}/scripts/cursor_paths.py" inspect "<project>"
+python3 -B "{camtasia_skill_root}/scripts/cursor_paths.py" set-path "<project>" --clip-id 5 --spec "<cursor-path-spec.json>" --output "<candidate.json>"
+```
+
+A version-one spec supplies the complete explicit point list:
+
+```json
+{"schema_version":1,"points":[{"time":1,"position":[128,90,0]},{"time":2,"position":[512,270,0],"interpolation":{"bezier":[[320,90,0],[320,270,0],"eioe"]}}]}
+```
+
+Point times use clip-relative timeline seconds; positions and handles use the
+unscaled source image plane. Supply new handles explicitly when changing points.
+The helper preserves cursor image resources, clicks, smoothing, scale/opacity,
+media transforms and audio. It does not create an effect or recording override.
+Follow ordinary staging, diff/apply, native save/reopen and rendering checks.
+Use the existing visual-effect workflow for its separate bypass/removal and
+matching-template contract. Native resources still require the target host.
+
 ## Motion Path JSON editing
 
 Use `scripts/motion_paths.py` for explicit point geometry. Its module docstring,

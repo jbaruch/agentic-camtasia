@@ -157,12 +157,17 @@ def zero_rotation_parameters(visual: dict[str, Any]) -> dict[str, Any]:
 
 
 def point_frames(
-    doc: dict[str, Any], visual: dict[str, Any], points: Any, old: Any
+    doc: dict[str, Any],
+    visual: dict[str, Any],
+    points: Any,
+    old: Any,
+    *,
+    label: str = "Motion Path",
 ) -> list[dict[str, Any]]:
     if not isinstance(points, list) or not points:
-        raise ValueError("supply at least one ordered Motion Path point")
+        raise ValueError(f"supply at least one ordered {label} point")
     if not isinstance(old, list):
-        raise ValueError("inspect the native Motion Path keyframe array")
+        raise ValueError(f"inspect the native {label} keyframe array")
     old_by_time = {}
     for frame in old:
         if (
@@ -174,7 +179,7 @@ def point_frames(
             or frame.get("endTime") != frame["time"]
             or frame["time"] in old_by_time
         ):
-            raise ValueError("inspect ambiguous or non-point native Motion Path frames")
+            raise ValueError(f"inspect ambiguous or non-point native {label} frames")
         old_by_time[frame["time"]] = frame
     result = []
     previous = None
