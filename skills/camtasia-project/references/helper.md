@@ -498,9 +498,10 @@ records the difference between intensity, bypass and track-level masking.
 | `set-intensity-curve PROJECT --clip-id ID --curve SPEC --output CANDIDATE` | Verified visual-owner ID and schema-1 or schema-2 curve input | Separate candidate; creates/replaces the intensity curve with source-clock conversion. Linked visual mirrors change together; audio and other animations survive. |
 | `clear-intensity-curve PROJECT --clip-id ID --intensity VALUE --output CANDIDATE` | Existing matte owner and requested static intensity | Separate candidate; clears only intensity keyframes. Other parameter curves and visual animation intervals remain. |
 
-Schema 1 stays linear. [Schema 2](matte-nonlinear-curves.md) adds optional
-per-segment `easing`: `linear`, `exponential`, `bounce` or `spring`. Existing
-visual intervals keep their own easing; this command changes intensity only.
+Schema 1 stays linear. Schema 2 adds optional per-segment `easing`; the compiler
+contract above owns accepted choices and saved codes. Existing visual intervals
+keep their own easing; this command changes intensity only.
+[Native nonlinear verification](matte-nonlinear-curves.md) records output behavior.
 
 Curve input example:
 

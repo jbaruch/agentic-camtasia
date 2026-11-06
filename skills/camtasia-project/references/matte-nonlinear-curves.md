@@ -1,6 +1,6 @@
 # Nonlinear matte intensity curves
 
-The `set-intensity-curve` command in `scripts/mattes.py` accepts curve input
+The `set-intensity-curve` command in `skills/camtasia-project/scripts/mattes.py` accepts curve input
 schema 2 with per-segment `easing`. Schema 1 retains its linear-only shape.
 Both replace only the selected Media Matte intensity default/keyframes.
 The [helper contract](helper.md#matte-json-editing) owns command invocation;
@@ -17,10 +17,8 @@ the script owns accepted fields, exact source-clock conversion and refusals.
 }
 ```
 
-Omitted easing in schema 2 means `linear`. Choices are `linear`, `exponential`,
-`bounce` and `spring`, serialized as `linr`, `eioe`, `bnce` and `sprg` on the
-intensity keyframes. `auto`, raw native codes and unknown fields refuse.
-Defaults and target intensities must lie in [0,1]. Spring interpolation can
+The compiler contract linked above owns easing defaults, accepted choices and
+saved codes. Defaults and target intensities must lie in [0,1]. Spring interpolation can
 overshoot those endpoints in native output; the helper does not clamp the
 renderer or approximate it with extra linear frames.
 
