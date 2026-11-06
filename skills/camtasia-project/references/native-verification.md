@@ -346,6 +346,21 @@ observation alone does not prove the project closed or export stopped. Inspect
 or pending panel before continuing. Never repeat an export from a tool timeout
 without checking the destination, output files, and current native state.
 
+A Mac 2026.2.4 save invoked from an active nested MacKey capture view stalled
+while generating its project thumbnail. The process sample retained
+`KeystrokeCaptureView becomeFirstResponder` and
+`HomeMetadata generateThumbnailForDocument` → frame-generator `waitForResponse`;
+Activity Monitor marked the exact editor PID Not Responding. Programmatic
+checkbox actions had changed values without releasing the custom key field;
+Command-S was still captured as key data. A menu Save did not resolve that state.
+Saved/recovery documents for both open projects were preserved before native
+Activity Monitor quit only that verified PID. After its observed exit, the same
+bundle restarted with a new PID. Native recovery Open restored the original
+project exactly from its preserved live bytes and retained the owned Command-B
+edit. Saving without active key capture and independent reopen/export then
+succeeded. This is a recovered interaction failure, not proof of invalid Group
+JSON or a permanent editor fix. See [Group keystroke verification](advanced-features.md#group-contained-keystroke-edits).
+
 The effect-curve investigation reproduced the OneDrive-classification stall in
 an initial source-free **Save As** operation. The sampled main thread reached
 `EditorDocument panel:userEnteredFilename:confirmed:` → `isOnOneDrive` → a

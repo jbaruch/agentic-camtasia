@@ -158,7 +158,7 @@ class AnnotationKeystrokeTests(unittest.TestCase):
                     )
                 self.assertEqual(doc, before)
 
-    def test_group_contained_keystroke_controls_refuse_without_mutating_any_owner(self):
+    def test_stitched_contained_keystroke_controls_refuse_without_mutating_any_owner(self):
         for name, value in [
             ("keys", "⇧ ⌘ K"),
             ("keyStyle", 2),
@@ -168,12 +168,12 @@ class AnnotationKeystrokeTests(unittest.TestCase):
             doc = document()
             owner = clip(doc)
             project.scene_tracks(doc)[0][0]["medias"] = [
-                dict(_type="Group", id=10, tracks=[dict(medias=[owner])])
+                dict(_type="StitchedMedia", id=10, medias=[owner])
             ]
             before = copy.deepcopy(doc)
             with (
                 self.subTest(name=name),
-                self.assertRaisesRegex(ValueError, "standalone root MacKey"),
+                self.assertRaisesRegex(ValueError, "Group-only clip ancestors"),
             ):
                 annotations.edit_annotation(
                     doc, 3, dict(schema_version=1, definition={"width": 192, name: value})
