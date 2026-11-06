@@ -142,8 +142,8 @@ class RecordingBehaviorTests(unittest.TestCase):
                     behaviors.add_behavior(dest, 3, source, 3, "fade")
                 self.assertEqual((source, dest), before)
 
-    def test_linked_recording_donors_recipients_and_lifecycle_require_native_mirror_evidence(self):
-        for kind in KINDS:
+    def test_linked_held_and_stitched_donors_recipients_and_lifecycle_require_native_mirrors(self):
+        for kind in ("ScreenIMFile", "StitchedMedia"):
             linked = linked_fixture(True)
             linked["editRate"] = RATE
             project.scene_tracks(linked)[0][0]["medias"][0]["video"]["_type"] = kind

@@ -30,15 +30,22 @@ Mirrored controls/tokens and complete owner clocks must agree; audio is untouche
 Direct moving/frozen recordings and stitched parents retain cursor data, child
 clocks, virtual holds and source selection. Their complete native behavior
 intervals are copied, not retimed: moving/stitched outer origins can follow
-source in-points, while held recordings use local zero. No recording/freeze/
-stitch constructor or linked recording behavior mirror is inferred. Hidden
+source in-points, while held recordings use local zero. Root linked moving
+ScreenVMFile recordings share verified wrapper/video behavior mirrors and
+preserve their same-source AMFile. The constructor_owners opt-in guard in
+effects owns their complete clock, source/audio and stable-token checks.
+Linked held, stitched and nested variants retain separate contracts.
+No recording/freeze/stitch constructor is inferred. Hidden
 stitched descendants are refused; select their independently verified parent.
 A redundant static-double zero-point frame reproduces a 2025 parser hazard;
 this helper also refuses that unsupported shape in a 2026 template, without
 claiming a 2026 crash. No vendor preset, shader, media or resource is copied.
 
 Existing native owner reset fields survive. A first entry/exit duration edit
-seeds its observed default-Speed-NAME companion from the prior duration; edits
+seeds its observed default-Speed-NAME companion from the prior duration. Root
+linked moving recordings convert that prior source duration through inverse
+speed to integral timeline reset ticks; fractional reset ticks require a native
+capture. Existing reset companions survive unchanged. Edits
 with differing unrecorded phase defaults refuse instead of choosing one reset.
 Other attribute controls do not manufacture reset descriptors; retain native
 reset companions when the requested reset behavior matters.
@@ -47,7 +54,8 @@ No editor/input/media is written. Staging is exclusive or an identical no-op;
 follow project diff/validate/apply and matching native save/reopen/export.
 JSON stdout schema_version 1 owner camtasia-behaviors reports hashes, inventory,
 changed/written and nativeVerified false. Exit 0 success, 1 input/I/O refusal,
-2 CLI syntax (JSON stderr). --help retains plaintext stdout. Native acceptance
+2 CLI syntax (JSON stderr). Help emits the same owner/version with ok true
+and a formatted help string. Native acceptance
 and correct per-glyph layout remain separate from these structural checks.
 """
 
@@ -145,6 +153,20 @@ CONTROLS = ("_type", "effectName", "bypassed", "start", "duration", "in", "cente
 
 
 class JsonArgumentParser(argparse.ArgumentParser):
+    def format_help(self) -> str:
+        return (
+            json.dumps(
+                dict(
+                    schema_version=1,
+                    owner="camtasia-behaviors",
+                    ok=True,
+                    help=super().format_help(),
+                ),
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
+
     def error(self, message: str) -> NoReturn:
         self.exit(2, json.dumps(dict(ok=False, error=message), ensure_ascii=False) + "\n")
 
@@ -225,7 +247,7 @@ def behavior_owners(doc: dict[str, Any], clip_id: int) -> list[dict[str, Any]]:
         for parent_path, ancestor in hotspots.clips(doc)
     ):
         raise ValueError("select the stitched parent; capture independent child behavior ownership")
-    return effects.constructor_owners(doc, clip_id, visual_types=OWNERS)
+    return effects.constructor_owners(doc, clip_id, visual_types=OWNERS, linked_recordings=True)
 
 
 def targets(
@@ -377,7 +399,11 @@ def edit_behavior(
     if "bypassed" in spec and type(spec["bypassed"]) is not bool:
         raise ValueError("supply a boolean behavior bypass")
     result = copy.deepcopy(doc)
-    for owner_index, (owner, behavior) in enumerate(targets(result, clip_id, name, token)):
+    pairs = targets(result, clip_id, name, token)
+    linked_recording = (
+        len(pairs) == 2 and pairs[-1][0].get("_type") in effects.LINKED_RECORDING_TYPES
+    )
+    for owner_index, (owner, behavior) in enumerate(pairs):
         speed_defaults = []
         for phase, change in phases.items():
             if (
@@ -430,7 +456,17 @@ def edit_behavior(
                     raise ValueError(
                         "capture native reset defaults for differing entry/exit durations before editing both"
                     )
-                metadata[key] = speed_defaults[0]
+                if linked_recording:
+                    reset_ticks = project.number(speed_defaults[0]) * project.number(
+                        owner["scalar"]
+                    )
+                    if reset_ticks.denominator != 1:
+                        raise ValueError(
+                            "capture integral native timeline reset ticks before editing linked phase duration"
+                        )
+                    metadata[key] = str(reset_ticks.numerator)
+                else:
+                    metadata[key] = speed_defaults[0]
         if "bypassed" in spec:
             behavior["bypassed"] = spec["bypassed"]
     return result

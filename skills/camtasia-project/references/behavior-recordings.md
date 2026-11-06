@@ -4,7 +4,8 @@ Use the [behavior workflow](helper.md#behavior-json-editing) to copy a saved
 native behavior or edit its phase controls, bypass or removal. The helper owns
 admitted owners, build checks, matching clocks, selection and refusals. These
 Camtasia Mac 2026.2.4/format-10 Fade controls exercise direct moving recordings,
-standalone freeze frames and stitched parents. They establish neither new
+standalone freeze frames, stitched parents and root linked moving recordings.
+They establish neither new
 recording constructors nor every preset-specific recording combination.
 
 ## Native intervals and reset data
@@ -27,7 +28,7 @@ data, source selection, child clocks and the stitched virtual hold.
 Twelve complete native add/edit/bypass/removal comparisons match helper output
 outside thumbnail and command-counter metadata. Complete template clocks are
 matched before subsequent timeline placement; the helper performs no outer
-interval or phase retiming. Linked recording mirrors require separate evidence.
+interval or phase retiming.
 
 ## Independent rendered controls
 
@@ -63,7 +64,48 @@ source hashes and the original baseline survive unchanged. Eighteen native
 capture/candidate/save snapshots pass both raw schema and the existing exact-
 build profile without a new correction.
 
-Verify requested presets, text layout, unfamiliar phase controls and linked
+## Root linked moving recordings
+
+The same Mac build saves Fade on both the root `UnifiedMedia` wrapper and its
+`ScreenVMFile` child with matching `effectIndex` tokens. The same-source
+`AMFile`, recorded cursor data and source processing survive construction,
+phase editing, bypass and removal. The helper owns the supported layout and
+refusals; linked held, stitched, nested and additional-scene forms retain
+separate contracts.
+
+The four-second control has source in-point `1411200000`, source duration
+`5644800000` and inverse speed `"1/2"`. Its complete behavior outer interval
+retains those source ticks. Native entry Speed 50% stores
+`suggestedDurationPerCharacter: 4233600000` in both mirrors and
+`default-Speed-fade: "352800000"` on the wrapper. The entry is six stored source
+seconds, rendered over three timeline seconds at 2× speed. The reset is the
+prior one-source-second duration converted to half a timeline second. The
+unchanged exit remains one source second. This observation supplies no general
+UI percentage formula or automatic retiming contract.
+
+Five complete native comparisons match helper construction, entry editing,
+edited-template copying, bypass and removal outside thumbnail and command
+counter metadata. An eleven-cell, 44-second comparison includes independent
+bare-recording and background-only controls. Two exports from the same running
+editor, separated by reopen/save, repeat all 1,320 decoded RGB frames and
+complete stereo PCM exactly. Inspected contact sheets contain 99 phase frames;
+63 paired samples have maximum mean absolute RGB difference 1.675 byte levels
+per channel. Separate encoded cells are not a bitwise-equivalence claim.
+
+Foreground projection against the independent controls measures approximately
+0.50 at local second 1.5 for the edited entry, against 1.00 for the default
+entry. Bypass and removal retain the full foreground. Sixty-six measured
+channel windows preserve the independent 440 Hz background tone; the sixty
+recording windows retain 660 Hz within 0.4% of the bare-recording amplitude.
+The output is 640×360 H.264, 30 fps, stereo 44.1 kHz AAC.
+
+The first save remaps 63 clip IDs and refreshes duration/thumbnail UI metadata;
+every other field matches. The second save is byte-identical. Original baseline
+and bundled source hashes remain unchanged. Eight snapshots each report the
+known raw-schema timeline-metadata omission, with zero exact-build profile or
+native compatibility errors and no new schema correction.
+
+Verify requested presets, text layout, unfamiliar phase controls and further
 recording layouts in their consumer project. Completed projects, movies,
 screenshots and measurements are deleted after incorporation into the plugin
 and deterministic tests.

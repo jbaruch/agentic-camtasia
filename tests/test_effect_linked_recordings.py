@@ -10,7 +10,6 @@ from unittest.mock import patch
 
 from test_matte_linked_recordings import fixture, wrapper
 from test_animations import visual
-import behaviors
 import effects
 import project
 
@@ -256,7 +255,7 @@ class LinkedRecordingEffectTests(unittest.TestCase):
                     operation()
                 self.assertEqual(doc, before)
 
-    def test_unsupported_linked_variants_scenes_builds_and_other_feature_callers_refuse(self):
+    def test_unsupported_linked_variants_scenes_builds_and_default_resolver_refuse(self):
         for change in ("held", "stitched", "nested", "scenes", "build"):
             doc = native_template()
             if change in ("held", "stitched"):
@@ -276,8 +275,6 @@ class LinkedRecordingEffectTests(unittest.TestCase):
         doc = native_template()
         with self.assertRaisesRegex(ValueError, "linked recording"):
             effects.constructor_owners(doc, 3, visual_types=effects.EFFECT_TYPES)
-        with self.assertRaisesRegex(ValueError, "linked recording"):
-            behaviors.behavior_owners(doc, 3)
 
     def test_conflicting_reset_defaults_and_flattening_animated_parameters_refuse(self):
         source, dest = native_template(), fixture()
