@@ -11,7 +11,7 @@ the matte helper edits an existing owner and preserves its other payload.
 Locally observed in Camtasia Mac 2026.2.4, project format 10. A native Media Matte
 on a direct `ScreenVMFile`, standalone `ScreenIMFile` or `StitchedMedia` parent
 uses the ordinary Media Matte payload. It has no linked `effectIndex` token.
-Native application to a stitched parent leaves both children unchanged. Root
+Native application to a stitched parent leaves both children unchanged. Root and Group-contained
 linked moving recordings have the additional mirror and audio controls below.
 Ordinary linked AV retains its existing mirror contract.
 
@@ -95,8 +95,8 @@ stereo `AMFile` system audio. Native Media Matte application creates matching
 wrapper/video effects with the same `effectIndex` token. Intensity, bypass and
 removal change both mirrors; source definitions and the audio child survive.
 The helper's `media_targets` and linked-recording constants own accepted owner
-shapes and clock checks. Held, stitched and nested linked recording variants
-retain separate contracts.
+shapes and clock checks. Group containment is covered below; linked held/stitched owners and other
+container kinds retain separate contracts.
 
 The native half-intensity edit adds the wrapper reset companion
 `default-MediaMatte-intensity: "1"`. The helper preserves an existing companion
@@ -139,3 +139,58 @@ exact-build profile and native hazard checks; each raw-schema result reports
 only its previously documented timeline-metadata omission. No new profile
 correction is needed. Completed disposable comparison artifacts are removed
 after incorporating these observations.
+
+## Group-contained linked moving recordings
+
+Mac 2026.2.4 (2026.132), format 10, retains the same matching wrapper/video
+Media Matte payload inside a native two-lane Group. The lower lane contains
+ordinary linked AV; the upper lane contains a trimmed 2× recording with a
+two-second source in-point, shared-source stereo audio and a four-second visible
+interval. Both Group lanes store explicit `matte: 0` before track edits.
+Native Alpha, Alpha Invert, half intensity, bypass and removal retain the Group
+and both source clocks. Half intensity adds its existing reset companion; the
+helper preserves reset data without constructing UI history.
+
+Setting the upper Group lane to Alpha is independent of the recording's Media
+Matte. Native mixed Alpha-Invert/track-Alpha and half-intensity controls retain
+both settings. Bypassing the media effect restores the track-only Alpha result;
+it does not disable the track matte. A separate dim, muted root background
+makes the Group's masked exterior distinguishable from the independent root
+content. Ancestor bounds and layer placement remain unchanged.
+
+A 24-cell, 144-second sequence pairs eleven native/helper states and includes
+lower-AV-only and root-background-only controls. Static controls come from the
+native Group lifecycle above. Linear and Spring interval controls reuse the
+previously captured native source-position templates, with independent linear
+geometry; they are not new native UI curve-construction captures. Nested Groups
+retain those child clocks. At local 0.1 seconds, native property readback shows
+linear intensity 10% and X −48. Nested Spring reads 60%/X −48 at 0.1 seconds and
+112%/X −36 at 0.2 seconds. Clearing intensity preserves the geometry and existing
+visual interval; native saves can regenerate constant intensity companions.
+
+Two same-process exports separated by saved close/reopen match complete decoded
+RGB and PCM: 144 seconds, 4320 frames, 640×360 H.264 at 30 fps, stereo 44.1 kHz
+AAC. The analysis samples 216 phase frames; 144 contact-sheet frames are visually
+inspected. Ninety-nine matched-time native/helper comparisons differ by at most
+0.845 mean RGB byte levels per channel. Initial/ramped/full masks, inverted
+interiors, half intensity, restored recorded pictures and independent movement
+remain distinct. The recorded picture includes a macOS permission notice; no
+permission was granted during verification.
+
+All 240 audio-channel windows retain the appropriate source or silence. During
+the recording Groups, both the 440 Hz lower-layer tone and 660 Hz recorded tone
+remain, including track mattes. Their measured amplitudes are 0.1351–0.1366 and
+0.1334–0.1339 respectively; combined RMS is 0.1344–0.1354. Outside the four-second
+Group interval the muted root layer is silent. The lower-only control retains
+its own tone without the recording contribution.
+
+Strict whole-document comparison accounts for 232 remapped clip IDs, twelve
+static intensity collapses, four regenerated constant intensity mirrors, five
+lane UI metadata additions, empty root-track parameter objects, duration text
+and thumbnail. No other payload changes: Group clocks/bounds/arrangement,
+independent geometry, recording processing, source definitions and all audio
+remain equal. A final save is byte-identical. Both bundled source hashes and
+the original geometry baseline remain unchanged. Seventeen snapshots pass the
+existing exact-build profile and native hazard checks; each raw result contains
+only the known timeline-metadata omission. No schema correction is added.
+Completed disposable inputs and outputs are deleted after incorporation.

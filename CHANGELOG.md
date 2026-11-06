@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.32.0 — 2026-11-06
+
+### Added
+
+- Media Matte construction, static edits, intensity intervals, clearing, bypass
+  and removal on linked moving recordings inside Groups, including nested
+  Groups. Matching wrapper/video mirrors preserve recorded audio, child clocks,
+  parent geometry and unrelated animations. Atomic media/Group-track edits keep
+  their controls independent.
+- Native lifecycle controls and reused native curve templates pass a 144-second
+  save/reopen comparison with identical decoded repeat exports, 216 measured
+  phase frames, 99 paired comparisons and 240 audio-channel windows. Save
+  normalization stabilizes after regenerating constant intensity companions.
+
 ## 0.31.0 — 2026-11-06
 
 ### Added

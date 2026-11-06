@@ -14,7 +14,6 @@ from test_animation_freezes import RATE
 import behaviors
 import effects
 import hotspots
-import mattes
 import project
 
 
@@ -216,10 +215,7 @@ class GroupedRecordingEffectTests(unittest.TestCase):
             ),
             [node(doc, 10), node(doc, 3)],
         )
-        for action in (
-            lambda: behaviors.behavior_owners(doc, 3),
-            lambda: mattes.media_targets(doc, 3),
-        ):
+        for action in (lambda: behaviors.behavior_owners(doc, 3),):
             with self.assertRaises(ValueError):
                 action()
 

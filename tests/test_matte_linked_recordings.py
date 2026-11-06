@@ -351,7 +351,7 @@ class LinkedRecordingMatteTests(unittest.TestCase):
                 mattes.edit_media(doc, 10, mode="alpha")
             self.assertEqual(doc, before)
 
-    def test_held_stitched_nested_and_multiple_scene_linked_recordings_refuse(self):
+    def test_held_stitched_other_containers_and_multiple_scene_linked_recordings_refuse(self):
         for kind in ["ScreenIMFile", "StitchedMedia"]:
             doc = fixture()
             visual(doc)["_type"] = kind
@@ -360,16 +360,16 @@ class LinkedRecordingMatteTests(unittest.TestCase):
         doc = fixture()
         old = wrapper(doc)
         project.scene_tracks(doc)[0][0]["medias"] = [
-            dict(id=20, _type="Group", tracks=[dict(trackIndex=0, medias=[old])])
+            dict(id=20, _type="StitchedMedia", medias=[old])
         ]
-        with self.assertRaisesRegex(ValueError, "root linked"):
+        with self.assertRaisesRegex(ValueError, "root or Group-contained"):
             mattes.edit_media(doc, 3, mode="alpha")
         doc = fixture()
         doc["timeline"]["sceneTrack"]["scenes"].append(
             copy.deepcopy(doc["timeline"]["sceneTrack"]["scenes"][0])
         )
         doc["timeline"]["sceneTrack"]["scenes"][1]["csml"]["tracks"][0]["medias"] = []
-        with self.assertRaisesRegex(ValueError, "root linked"):
+        with self.assertRaisesRegex(ValueError, "root or Group-contained"):
             mattes.edit_media(doc, 3, mode="alpha")
 
     def test_missing_conflicting_and_duplicate_native_effect_mirrors_refuse(self):
