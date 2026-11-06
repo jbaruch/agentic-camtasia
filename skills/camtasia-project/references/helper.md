@@ -160,6 +160,81 @@ custom attributes, while replacing endpoints and duration for the destination.
 Neither route copies external resources. Keep any template resource dependencies
 available and verify the candidate in the matching native editor.
 
+## Caption JSON editing
+
+Use `skills/camtasia-project/scripts/captions.py` for plain closed cues, existing
+caption text, recognized source-word corrections, root clock mapping/retiming and
+existing dynamic display controls. Its module docstring, `RATE`, `root_clock`,
+`point_frames`, `correction_edits`, `capacity`, `mapped_holds` and `set_display`
+own the clock, source, value, preservation and refusal contracts. Read
+[captions](captions.md) before selecting an owner or parameter clock.
+
+```bash
+python3 -B "{camtasia_skill_root}/scripts/captions.py" inspect "<project>"
+python3 -B "{camtasia_skill_root}/scripts/captions.py" map "<project>" --clip-id 3
+python3 -B "{camtasia_skill_root}/scripts/captions.py" set-cues "<project>" --clip-id 3 --spec "<cues.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/captions.py" set-text "<project>" --clip-id 3 --spec "<corrections.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/captions.py" correct-words "<project>" --source-id 1 --source-track 1 --spec "<word-corrections.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/captions.py" retime "<project>" --clip-id 3 --spec "<clock.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/captions.py" set-display "<project>" --clip-id 6 --spec "<display.json>" --output "<candidate.json>"
+```
+
+Inspection keeps audio-owned `captions`, imported `Caption.captionData`, source
+transcription and modifier-bearing displays separate. Select IDs from that
+inventory. A linked wrapper or its audio child selects the same closed parameter.
+Native Add Caption/import must first create that parameter; this route does not
+substitute an ordinary text overlay for captions. Plain closed editing covers
+Mac 2025.0.3/format 9 and 2026.2.4/format 10. Dynamic operations require the latter.
+The verified caption clock is 705600000 ticks/sec, independently of stream
+sample/edit rates. Other clock contracts require a native capture.
+
+Every edit spec has `schema_version: 1`. Closed cue authoring supplies
+`clock: "media"` or `"timeline"` and ordered, nonoverlapping
+`cues: [{"start":0,"end":4,"text":"First café"}]`, in rational seconds.
+The helper compiles held text, gap clearing and an explicit final clear. An empty
+cue array explicitly clears the parameter. Global caption styling survives;
+its existing `enabled` flag becomes true. Replacement refuses styled/RTF values
+and opaque point/value fields; text correction retains those opaque fields.
+
+Both text-correction commands take
+`{"schema_version":1,"edits":[{"index":7,"expected":"useful","text":"HELPFUL"}]}`.
+Indices identify existing point occurrences. A stale expected value refuses;
+an already-applied replacement is a no-op. Closed corrections retain every
+point field and edit `value.text` only. Word corrections edit one existing
+recognized token at a time and keep every onset, endTime, duration, pause marker,
+confidence field and display unchanged. A source edit affects all uses of that
+source. Generate actual recognition/transcription and save it first. No word
+point insertion, inferred onsets, recognition or `%GAP` synthesis occurs here.
+RTF closed values require native or RTF-aware editing; inspect them as raw data.
+
+Clock edits require all of
+`{"schema_version":1,"start":1,"duration":3,"media_start":2,"scalar":"1/2"}`.
+Start/duration/trim inputs are seconds; scalar is inverse speed. Complete root
+Caption/audio/linked AV clocks change together. Cue/word points stay in the
+source/media clock. Stream ranges bound consumption using the stream edit rate;
+the word/caption clock remains separate. Mapping returns source point indices,
+exact timeline ticks and rational seconds, without frame quantization. Closed
+cues carry into trims; dynamic words with pre-trim onsets are omitted.
+Nested/stitched/multiscene clocks, nonzero audio `sourceFileOffset`, and retiming
+effected/animated owners require separate native contracts. Existing transitions
+must still fit; destination lane collisions refuse the edit.
+
+Dynamic displays have independent bounds. A display spec may supply start and/or
+duration seconds, `definition` with existing supported numeric controls, and
+`rich` with existing fontName/fontSize/fgColor properties. For example:
+`{"schema_version":1,"start":1,"duration":3,"definition":{"dynamic-caption-new-paragraph-for-each-sentence":1},"rich":{"fgColor":"(255,255,255,255)"}}`.
+Bound edits require a clean untrimmed scalar-one root display. Its native
+placeholder stays unchanged; source transcription supplies the words. Targeted
+rich font/color entries must cover the placeholder; other native partial runs,
+default fonts, style IDs and unknown controls survive. Verify physical fonts,
+fitting and actual word highlighting on the rendering host.
+
+Staging returns hashes, inventory, `changed`, `written` and
+`nativeVerified: false`. Follow project validate/diff/apply and native
+save/reopen/export checks. Inspect the actual cue boundaries, clearing and
+highlighted words. MP4 uses burned-in text; Smart Player CC delivery requires
+its own web package and toggle/playback checks.
+
 ## Annotation JSON editing
 
 Use `skills/camtasia-project/scripts/annotations.py` for construction from a standalone native Callout,

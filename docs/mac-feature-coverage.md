@@ -14,7 +14,7 @@ they are added when a real project needs them.
 | Transitions | Root-track Fade construction and existing scalar/duration/removal editing. Native references cover all 179 current palette presets, one/shared edges, short clips, source skips, gaps, retiming and preroll. |
 | Effects and mattes | Native-template visual effect creation, static edits, typed effect curves and LUT resource/range/easing controls; supported track/media matte constructors, modes, intensity curves and lifecycle. Native references cover current visual, LUT and gesture families. |
 | Annotations and behaviors | Native specimens for all 134 annotation entries and thirteen behaviors. Annotation template construction preserves clocks, drawing modifiers and one-sided Fades; existing shape controls and uniform UTF-8 rich text are editable. Behavior template construction, phase timing/static edits, bypass and removal are supported. |
-| Captions and audio | Native closed/dynamic caption structures, word/style edits, retiming and interchange; current audio presets, processing, alignment, fades, ducking and output formats. |
+| Captions and audio | Closed cue authoring and text corrections, recognized-word edits, root clock mapping/retiming and existing dynamic display controls. Native interchange and current audio processing, alignment, fades, ducking and outputs remain separately documented. |
 | Cursors and input | Native recorded/generated paths, smoothing, click presets, keystroke styles and Window Spotlight, with source clocks and output controls. |
 | Hotspots | JSON action editing and observed single-scene nested/retimed marker clocks, with actual browser click/seek tests and the Group reload-drift guard. |
 | Quizzes and surveys | JSON question/answer/feedback editing, supported owner transfers, four question/survey kinds, SCORM 1.2 and three 2004 edition outputs; fourth-edition session resume. |
@@ -29,7 +29,7 @@ references define each supported representation; the
 
 ## Known follow-ups
 
-- Further effect/behavior controls, mixed annotation text styles, caption and Quick Property authoring.
+- Further effect/behavior controls, mixed annotation text styles, RTF/nested caption clocks and Quick Property authoring.
 - Theme duplication and additional requested Library lifecycle operations.
 - Further owner/container/scene clocks in matte, hotspot and quiz editing.
 - Further requested SCORM interrupted-session and resume behavior.
