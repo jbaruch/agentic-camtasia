@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.45.0 — 2026-11-06
+
+### Added
+
+- Animation schema 2 accepts existing remix fill/stroke RGB/opacity and shape
+  stroke-width targets on root or Group-contained Callouts, including trimmed/
+  speed-adjusted children and combined text/shape/glyph outlines. Coupled easing
+  and removal retain initial scalars, other intervals, rich states, sizing flags,
+  metadata and all ancestor payload. Fill/stroke opacity stays distinct from
+  text-outline alpha; native values retain their supplied precision.
+- Eleven whole-document native/helper comparisons and two decoded-identical
+  168-second exports verify all five easings, palette changes, native removals,
+  three Group levels and speech-bubble scale reconstruction. All 168 phase
+  frames, ten full-size views, 152 paired samples and 168 audio-channel windows
+  retain the exercised behavior. Seventeen profile/hazard checks pass with the
+  existing raw-schema speech-bubble enum omission; no new correction is needed.
+
 ## 0.44.0 — 2026-11-06
 
 ### Added

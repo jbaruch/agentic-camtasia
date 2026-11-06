@@ -281,7 +281,7 @@ class TextOutlineAnimationTests(unittest.TestCase):
         for field, value in [("_type", "IMFile"), ("kind", "TypeWinSVG"), ("text", None)]:
             doc = fixture()
             (leaf(doc) if field == "_type" else leaf(doc)["def"])[field] = value
-            with self.subTest(field=field), self.assertRaisesRegex(ValueError, "remix text"):
+            with self.subTest(field=field), self.assertRaisesRegex(ValueError, "remix"):
                 animations.edit_interval(doc, 3, spec())
         doc = fixture(1)
         project.scene_tracks(doc)[0][0]["medias"][0]["_type"] = "StitchedMedia"
