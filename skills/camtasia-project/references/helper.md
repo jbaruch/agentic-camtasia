@@ -339,6 +339,8 @@ constant. Its module docstring, `OWNERS`, `selected`, `parameter_of` and
 [native effect-curve evidence](advanced-features.md#visual-effect-parameter-curves).
 [Nonlinear verification](effect-nonlinear-curves.md) records native easing,
 independent geometry, retimed linked/Group output and constant reconstruction.
+[Recording-owner verification](effect-recording-curves.md) adds moving, frozen
+and stitched-parent effect clocks, clearing and preserved cursor/child data.
 
 ```bash
 python3 -B "{camtasia_skill_root}/scripts/effect_curves.py" inspect "<project>"

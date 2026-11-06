@@ -91,5 +91,6 @@ exits through normal Quit; privacy-service health remains unchanged.
 
 Completed captures, projects, exports, process samples and measurements are
 removed after incorporating these findings. Existing owner/type/resource limits
-remain in the compiler contract. Point frames, new recording clocks and arbitrary
+remain in the compiler contract. [Recording-owner controls](effect-recording-curves.md)
+have separate native clock and lifecycle evidence. Point frames and arbitrary
 effect-specific parameter combinations still require their own native evidence.

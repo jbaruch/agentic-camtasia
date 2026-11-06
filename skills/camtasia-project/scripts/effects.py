@@ -125,13 +125,20 @@ def matching(node: dict[str, Any], name: str, token: str | None) -> list[dict[st
 
 
 def targets(
-    doc: dict[str, Any], clip_id: int, name: str, token: str | None, absent_ok: bool = False
+    doc: dict[str, Any],
+    clip_id: int,
+    name: str,
+    token: str | None,
+    absent_ok: bool = False,
+    *,
+    visual_types: frozenset[str] = hotspots.VISUAL_TYPES,
 ) -> list[tuple[dict[str, Any], dict[str, Any]]]:
+    """Resolve effect ownership within the calling feature's verified visual types."""
     if not isinstance(name, str) or not name:
         raise ValueError("select an existing visual effect name from inspection")
     if token is not None:
         canonical_token(token)
-    path, visual = hotspots.visual_target(doc, clip_id)
+    path, visual = hotspots.visual_target(doc, clip_id, visual_types=visual_types)
     found = matching(visual, name, token)
     wrappers = [
         node

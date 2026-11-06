@@ -13,7 +13,7 @@ Version 1 stays linear. Version 2 adds optional per-segment easing: linear
 (default), exponential, bounce or spring, using animations.EASINGS codes.
 Default/target bounds remain enforced; native spring interpolation can overshoot.
 Exact project ticks use the visual source clock (mediaStart/inverse speed).
-OWNERS names ordinary visual owners verified for these clocks; linked wrapper
+OWNERS names visual owners verified for these clocks; linked wrapper
 and video clocks must agree. Only Mac 2026.2.4/format 10 is admitted. Existing
 native typed double descriptors are required; no scalar, resource, point,
 integer, boolean, missing parameter or effect constructor is inferred. MediaPath
@@ -30,6 +30,13 @@ Clear preserves descriptors, parameter interpolation, all visual intervals and
 other curves. Native save can regenerate constant frames from retained visual
 intervals. Reset metadata, stable effect tokens, edges, audio and sources survive.
 Structural success is not native rendering verification for a new combination.
+
+Direct moving/frozen recordings and stitched parents use their existing effects.
+ScreenIMFile intervals have a local-zero origin, independent of the held source
+frame in mediaStart; other owners retain source-position clocks. Stitched edits
+retain descendants, virtual hold durations, cursor data and source processing.
+Linked recording mirrors are unverified and refused; ordinary linked AV keeps
+its existing mirror contract. No recording/freeze/stitch constructor is inferred.
 
 No editor is launched and no input project/media is written. Output is exclusive
 or an identical no-op; use the project diff/validate/apply and native workflow.
@@ -52,7 +59,8 @@ import effects
 import hotspots
 import project
 
-OWNERS = frozenset({"VMFile", "IMFile", "Callout", "Group"})
+RECORDING_OWNERS = frozenset({"ScreenVMFile", "ScreenIMFile", "StitchedMedia"})
+OWNERS = frozenset({"VMFile", "IMFile", "Callout", "Group"}) | RECORDING_OWNERS
 
 
 class JsonArgumentParser(argparse.ArgumentParser):
@@ -67,10 +75,12 @@ def selected(
         raise ValueError("use the verified Camtasia Mac 2026.2.4 format-10 curve contract")
     if name == "MediaPath":
         raise ValueError("use motion_paths.py for Motion Path and its rotation coupling")
-    targets = effects.targets(doc, clip_id, name, token)
+    targets = effects.targets(doc, clip_id, name, token, visual_types=OWNERS)
     visual = targets[-1][0]
     if visual.get("_type") not in OWNERS:
-        raise ValueError("select an ordinary visual owner from OWNERS; capture other native clocks")
+        raise ValueError("select a visual owner from OWNERS; capture other native clocks")
+    if len(targets) > 1 and visual.get("_type") in RECORDING_OWNERS:
+        raise ValueError("capture native linked recording effect-curve mirrors before editing")
     for field in effects.CLOCK_FIELDS:
         value = project.number(visual.get(field))
         if any(project.number(owner.get(field)) != value for owner, _ in targets):
