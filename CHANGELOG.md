@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.21.0 — 2026-11-06
+
+### Added
+
+- Annotation styling with schema version 2 over Unicode code-point ranges, compiled
+  to native UTF-8 byte boundaries. Independent mixed property partitions retain
+  opaque style data, default fonts, other annotation fields, sources and audio.
+- Cross-boundary color edits, partial emphasis resets and whole-property edits
+  preserve unrelated styles. Version one retains its uniform-text contract;
+  changed mixed-style text and animated attribute maps remain refused.
+- Native range replays and independent rendered controls cover accented text,
+  emphasis, colors, underline boundaries and different sizes across a line break.
+
 ## 0.20.0 — 2026-11-06
 
 ### Added

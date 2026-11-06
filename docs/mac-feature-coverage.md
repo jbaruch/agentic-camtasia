@@ -13,7 +13,7 @@ they are added when a real project needs them.
 | Animation | Visual intervals, easing, removal and empty markers; explicit Motion Path points, orientation, bypass and removal on verified visual owners, including frozen/stitched forms. |
 | Transitions | Root-track Fade construction and existing scalar/duration/removal editing. Native references cover all 179 current palette presets, one/shared edges, short clips, source skips, gaps, retiming and preroll. |
 | Effects and mattes | Native-template visual effect creation, static edits and typed effect curves on ordinary and moving/frozen/stitched recording owners; LUT resource/range/easing controls; supported track/media mattes including moving/frozen recordings and stitched parents, modes, linear/nonlinear intensity curves and lifecycle. Native references cover current visual, LUT and gesture families. |
-| Annotations and behaviors | Native specimens for all 134 annotation entries and thirteen behaviors. Annotation template construction preserves clocks, drawing modifiers and one-sided Fades; existing shape controls and uniform UTF-8 rich text are editable. Behavior template construction, phase timing/static edits, bypass and removal include direct moving/frozen recordings and stitched parents; [recording controls](../skills/camtasia-project/references/behavior-recordings.md) retain native clock origins. |
+| Annotations and behaviors | Native specimens for all 134 annotation entries and thirteen behaviors. Annotation template construction preserves clocks, drawing modifiers and one-sided Fades; existing shape controls, Unicode text and static mixed rich-style ranges are editable. Behavior template construction, phase timing/static edits, bypass and removal include direct moving/frozen recordings and stitched parents; [recording controls](../skills/camtasia-project/references/behavior-recordings.md) retain native clock origins. |
 | Captions and audio | Closed cue authoring and text corrections, recognized-word edits, root clock mapping/retiming and existing dynamic display controls. Native interchange and current audio processing, alignment, fades, ducking and outputs remain separately documented. |
 | Cursors and input | Native recorded/generated paths, smoothing, click presets, keystroke styles and Window Spotlight, with source clocks and output controls. |
 | Hotspots | JSON action editing and observed single-scene nested/retimed marker clocks, with actual browser click/seek tests and the Group reload-drift guard. |
@@ -29,7 +29,7 @@ references define each supported representation; the
 
 ## Known follow-ups
 
-- Further effect/behavior controls, mixed annotation text styles, RTF/nested caption clocks and additional themed/animated Quick Property controls.
+- Further effect/behavior controls, animated annotation styles, RTF/nested caption clocks and additional themed/animated Quick Property controls.
 - Additional requested Library lifecycle operations and theme resource combinations.
 - Further owner/container/scene clocks in matte, hotspot and quiz editing.
 - Further requested SCORM interrupted-session and resume behavior.

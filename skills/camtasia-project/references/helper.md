@@ -220,9 +220,10 @@ Smart Player CC delivery requires its web package and toggle/playback checks.
 ## Annotation JSON editing
 
 Use `skills/camtasia-project/scripts/annotations.py` for construction from a standalone native Callout,
-uniform Unicode text/rich properties, and existing static shape/text fields.
-Its module docstring, `KINDS`, `NUMBERS`, `ENUMS`, `RICH_TYPES`, `uniform_runs`
-and `add_annotation` own the build, selector, value and preservation contracts.
+Unicode text/rich properties, per-range styling and existing static shape/text fields.
+Its module docstring, `KINDS`, `NUMBERS`, `ENUMS`, `RICH_TYPES`, `static_runs`,
+`uniform_runs`, `edit_rich_ranges` and `add_annotation` own the build, selector,
+value and preservation contracts.
 Read [annotation definitions](advanced-features.md#text-callout-presets) and
 [rich typography](quick-properties.md#text-and-rich-font-runs) before editing.
 
@@ -250,10 +251,23 @@ Name only existing fields and rich properties. Text changes without rich data
 retain default fonts. Existing rich data must consist of one static frame of
 unique full-string properties; replacement updates every end to the new UTF-8
 byte length. Empty text has zero-byte ranges. Mixed, partial, unknown or animated
-runs require a separate native contract. Native signed codes, value types,
+runs remain outside version 1. Native signed codes, value types,
 opaque style IDs and default fonts survive. Shape/style identifiers are not
 editable substitutes for full preset definitions. Numeric definition edits
 retain static typed descriptors and refuse animated parameters.
+
+Version 2 adds `rich_ranges`, with `start`, exclusive `end` and `rich` changes
+for each selected range. Offsets count Unicode code points in the resulting
+text. For example, styling `café` in `Alpha café`:
+
+```json
+{"schema_version":2,"rich_ranges":[{"start":6,"end":10,"rich":{"fontWeight":700}}]}
+```
+
+Version 2 can edit existing mixed styles and apply a whole-property `rich`
+change while retaining other partitions. Its exact range, replacement and
+refusal contracts remain in the helper above. Read the independent
+[native range controls](annotation-rich-ranges.md) before using mixed styles.
 
 Inspection reports declared fonts with `fontFilesVerified: false`. Resolve actual
 fonts and glyph coverage on the rendering host. Staging reports hashes,
