@@ -14,7 +14,8 @@ native text-only Cocoa RTF cues. expected is the complete decoded cue; half-open
 substring ranges count original Unicode code points. Replacements inherit the
 first removed character's style, insertions the following character's style,
 and end insertions the last character's style. Unchanged text and all existing
-format controls/groups are preserved byte for byte. Empty RTF insertion requires
+format controls/groups are preserved byte for byte. Removed encoded spans leave
+empty groups as lexical separators. Empty RTF insertion requires
 the native editor to establish a style. Complex/unsupported RTF refuses. Inspect
 RTF with rtf-text PROJECT --clip-id ID before choosing ranges. No timing changes.
 correct-words PROJECT --source-id ID --source-track INDEX --spec SPEC corrects
@@ -608,9 +609,19 @@ def replace_rtf(text: str, expected: str, replacements: Any) -> str:
                 "add text to an empty RTF cue in the native editor to establish its style"
             )
         anchor = chars[start][1][0][0] if start < len(chars) else chars[-1][1][-1][1]
-        changes.append((anchor, anchor, encoded if replacement else ""))
+        if replacement:
+            changes.append((anchor, anchor, encoded))
+        removed: list[tuple[int, int]] = []
         for _, spans in chars[start:end]:
-            changes.extend((a, b, "") for a, b in spans)
+            for a, b in spans:
+                if removed and removed[-1][1] == a:
+                    removed[-1] = (removed[-1][0], b)
+                else:
+                    removed.append((a, b))
+        # Empty groups separate every removed chunk, including chunks after
+        # retained style controls. Removing a control's delimiter must never
+        # turn e.g. \b\par text into the different control \btext.
+        changes.extend((a, b, "{}") for a, b in removed)
     for start, end, replacement in sorted(changes, reverse=True):
         text = text[:start] + replacement + text[end:]
     return text

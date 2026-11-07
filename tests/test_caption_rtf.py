@@ -61,14 +61,14 @@ class CaptionRtfTests(unittest.TestCase):
 
     def test_replace_retains_every_format_control_and_suffix(self):
         result = captions.replace_rtf(NATIVE, "First café & timing", [change(6, 10, "COFFEE")])
-        expected = HEADER + "First \n" + r"\f1\b {\uc0 COFFEE}" + "\n" + r"\f0\b0  & \i timing}"
+        expected = HEADER + "First \n" + r"\f1\b {\uc0 COFFEE}{}" + "\n" + r"\f0\b0  & \i timing}"
         self.assertEqual(result, expected)
         self.assertEqual(visible(result), "First COFFEE & timing")
 
     def test_cross_group_deletion_keeps_nested_groups_and_controls(self):
         original = HEADER + r"A{\b BC}D{\i EF}G}"
         result = captions.replace_rtf(original, "ABCDEFG", [change(2, 6, "X")])
-        self.assertEqual(result, HEADER + r"A{\b B{\uc0 X}}{\i }G}")
+        self.assertEqual(result, HEADER + r"A{\b B{\uc0 X}{}}{}{\i {}}G}")
         self.assertEqual(visible(result), "ABXG")
 
     def test_insertion_before_following_style_and_at_end(self):
@@ -81,13 +81,13 @@ class CaptionRtfTests(unittest.TestCase):
         result = captions.replace_rtf(
             HEADER + "abcd}", "abcd", [change(0, 2, "X"), change(2, 4, "YZ")]
         )
-        self.assertEqual(result, HEADER + r"{\uc0 X}{\uc0 YZ}}")
+        self.assertEqual(result, HEADER + r"{\uc0 X}{}{\uc0 YZ}{}}")
 
     def test_unicode_fallback_counts_are_scoped_and_deleted_together(self):
         original = HEADER + r"A\u233?{\uc2\u26085??}\u8594?Z}"
         self.assertEqual(visible(original), "Aé日→Z")
         result = captions.replace_rtf(original, "Aé日→Z", [change(1, 4, "é")])
-        self.assertEqual(result, HEADER + r"A{\uc0 \u233 }{\uc2}Z}")
+        self.assertEqual(result, HEADER + r"A{\uc0 \u233 }{}{\uc2{}}{}Z}")
         self.assertEqual(visible(result), "AéZ")
         self.assertEqual(visible(HEADER + r"\uc0 A\plain\u8594 X}"), "A→X")
 
@@ -96,7 +96,7 @@ class CaptionRtfTests(unittest.TestCase):
         self.assertEqual(visible(original), "A😀B")
         self.assertEqual(
             captions.replace_rtf(original, "A😀B", [change(1, 2, "X")]),
-            HEADER + r"A{\uc0 X}{\b }B}",
+            HEADER + r"A{\uc0 X}{}{\b {}}B}",
         )
         self.assertEqual(visible(HEADER + r"\uc0\u55357 \u56832 }"), "😀")
 
@@ -104,7 +104,7 @@ class CaptionRtfTests(unittest.TestCase):
         original = HEADER + r"\u123\{\u125\}\u92\\\u233\'e9}"
         self.assertEqual(visible(original), "{}\\é")
         result = captions.replace_rtf(original, "{}\\é", [change(0, 4, "")])
-        self.assertEqual(result, HEADER + "}")
+        self.assertEqual(result, HEADER + "{}}")
 
     def test_newline_tabs_escaped_braces_and_unicode_encoding(self):
         text = "café 日 😀 {x} \\ →\nline\tend"
@@ -121,12 +121,64 @@ class CaptionRtfTests(unittest.TestCase):
 
     def test_delete_all_retains_header_and_formatting(self):
         result = captions.replace_rtf(NATIVE, "First café & timing", [change(0, 19, "")])
-        self.assertEqual(result, HEADER + "\n" + r"\f1\b " + "\n" + r"\f0\b0 \i }")
+        self.assertEqual(result, HEADER + "{}\n" + r"\f1\b {}" + "\n" + r"\f0\b0 {}\i {}}")
         self.assertEqual(visible(result), "")
 
     def test_empty_rtf_insertion_requires_native_style(self):
         with self.assertRaisesRegex(ValueError, "establish its style"):
             captions.replace_rtf(HEADER + "}", "", [change(0, 0, "X")])
+
+    def test_deletion_separates_tokens_at_every_removed_chunk(self):
+        for control, token, decoded in [
+            (r"\b", r"\par ", "\n"),
+            (r"\b0", r"\line ", "\n"),
+            (r"\f1", r"\tab ", "\t"),
+            (r"\i", r"\{", "{"),
+        ]:
+            with self.subTest(control=control, token=token):
+                original = HEADER + control + token + "text}"
+                result = captions.replace_rtf(original, decoded + "text", [change(0, 1, "")])
+                self.assertEqual(result, HEADER + control + "{}text}")
+                self.assertEqual(visible(result), "text")
+        original = HEADER + r"\b\par first\i\par last}"
+        result = captions.replace_rtf(original, "\nfirst\nlast", [change(0, 7, "")])
+        self.assertEqual(result, HEADER + r"\b{}\i{}last}")
+        self.assertEqual(visible(result), "last")
+        result = captions.replace_rtf(original, "\nfirst\nlast", [change(0, 7, "X")])
+        self.assertEqual(result, HEADER + r"\b{\uc0 X}{}\i{}last}")
+        self.assertEqual(visible(result), "Xlast")
+
+    def test_cli_stages_parseable_cue_after_control_token_deletion(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            doc = fixture()
+            closed(doc)["keyframes"][0]["value"]["text"] = HEADER + r"\b\par text}"
+            source, request, target = (
+                root / name for name in ["source.json", "spec.json", "out.json"]
+            )
+            source.write_text(json.dumps(doc))
+            request.write_text(json.dumps(spec("\ntext", [change(0, 1, "")])))
+            with redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(
+                    captions.main(
+                        [
+                            "set-rtf-text",
+                            str(source),
+                            "--clip-id",
+                            "3",
+                            "--spec",
+                            str(request),
+                            "--output",
+                            str(target),
+                        ]
+                    ),
+                    0,
+                )
+                self.assertTrue(json.loads(out.getvalue())["written"])
+            staged = json.loads(target.read_text())
+            self.assertEqual(closed(staged)["keyframes"][0]["value"]["text"], HEADER + r"\b{}text}")
+            self.assertEqual(captions.inspect_rtf(staged, 3), [dict(index=0, text="text")])
+            self.assertEqual(json.loads(source.read_text()), doc)
 
     def test_malformed_or_complex_rtf_refuses(self):
         invalid = [
@@ -189,7 +241,7 @@ class CaptionRtfTests(unittest.TestCase):
             result = captions.correct_rtf(doc, clip_id, spec())
             expected = copy.deepcopy(original)
             closed(expected)["keyframes"][0]["value"]["text"] = (
-                HEADER + "First \n" + r"\f1\b {\uc0 COFFEE}" + "\n" + r"\f0\b0  & \i timing}"
+                HEADER + "First \n" + r"\f1\b {\uc0 COFFEE}{}" + "\n" + r"\f0\b0  & \i timing}"
             )
             self.assertEqual(result, expected)
             self.assertEqual(doc, original)

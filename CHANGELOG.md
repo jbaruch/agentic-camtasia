@@ -16,6 +16,10 @@
   three byte-identical project reopens, complete cue clearing and cross-style
   edits. Three repeat pairs match complete decoded video/audio; edited outputs
   match independent native rich or previously verified plain-text controls.
+- Deletions retain lexical separators between RTF tokens. A focused follow-up
+  verifies the reported paragraph-token boundary, later chunks after retained
+  style controls and complete clearing in both owner forms: five more native
+  exports match an independent control, with two byte-identical reopens.
 
 ## 0.47.0 — 2026-11-06
 

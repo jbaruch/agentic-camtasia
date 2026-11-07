@@ -420,3 +420,21 @@ RTF decoding does not prove native glyph coverage, repair an existing native
 boundary defect or provide physical font closure. Inspect actual output before
 delivery. Nested timing, other RTF forms and remaining dynamic controls are
 still tracked in the feature-completion plan.
+
+The policy review exposed a deletion boundary that the initial native batch
+did not exercise: deleting an encoded paragraph token after an undelimited
+style control can join that control to remaining text. The editor now leaves
+zero-width lexical separators at removed chunks. Fixed library and CLI tests
+cover the original reproducer and multiple removed chunks separated by retained
+style controls.
+
+A focused native follow-up uses JSON-authored RTF from the captured text-only
+form, including explicit paragraph controls. It replaces a bold word, appends
+italic text, deletes two paragraph/text chunks across a retained italic switch,
+and clears a complete later cue. Audio-owned and standalone variants each
+save/reopen and export twice. All four movies match a separately authored
+literal RTF/plain-clear control in complete decoded video/audio. Both project
+reopens are byte-identical; all 1200 frames pass cue/clear checks. Nine additional
+profile/hazard checks pass with the same known raw Caption-branch diagnostics.
+The five follow-up movies retain the first batch's identical audio. Existing
+global style, clocks, source data and unrelated payload survive.
