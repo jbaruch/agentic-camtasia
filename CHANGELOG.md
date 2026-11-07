@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.53.0 — 2026-11-07
+
+### Added
+
+- Root and Group-contained linked moving recordings support closed-cue and
+  recognized-word mapping, cue/text edits and clean mirrored retiming. The
+  verified caption clock preserves recorded speech onsets independently of the
+  recording stream's 44100 edit rate; source and cursor data remain intact.
+- Eleven native exports cover 75 seconds and 2,250 frames. All 1,650 primary
+  caption/highlight states match their maps, and three independent reopen pairs
+  reproduce complete decoded video/audio. Root and Group unit video matches;
+  cross-layout audio sample identity is not promised. Recording holds/stitches,
+  source offsets and multiscene clocks remain pending for feature-complete 1.0.
+
 ## 0.52.0 — 2026-11-07
 
 ### Added

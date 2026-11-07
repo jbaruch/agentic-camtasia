@@ -28,7 +28,10 @@ Keep the stitched scalar at one and speed its common audio/display Group when
 uniform highlight timing is required. At exact frame boundaries, native exports
 can retain the previous word for one frame; projected ticks are not shifted.
 stitched_children owns internal validation.
-Recording holds, mixed-owner/multi-source stitches and multiscene mapping refuse.
+Mac 2026.2.4 linked moving recordings use the same root/Group caption clock.
+Their ScreenVMFile/AMFile source selection and complete mirrored clocks are
+validated before mapping or retiming. Recording holds/stitches, mixed-owner or
+multi-source stitches and multiscene mapping refuse.
 
 set-text PROJECT --clip-id ID --spec SPEC corrects existing plain closed points.
 set-rtf-text uses edits [{index, expected, replacements:[{start,end,text}]}] for
@@ -319,10 +322,21 @@ def validate_caption_clock(
     clocks = [owner]
     if owner.get("_type") == "UnifiedMedia":
         video = owner.get("video")
-        if not isinstance(video, dict) or video.get("_type") != "VMFile":
+        if not isinstance(video, dict) or video.get("_type") not in ("VMFile", "ScreenVMFile"):
             raise ValueError(
-                "capture ordinary linked AV caption clocks without recording/freeze variants"
+                "select ordinary AV or a verified linked moving recording; capture holds separately"
             )
+        if video["_type"] == "ScreenVMFile":
+            require_native(doc, dynamic=True)
+            effects.constructor_owners(
+                doc,
+                owner["id"],
+                visual_types=effects.LINKED_RECORDING_TYPES,
+                linked_recordings=True,
+                grouped_recordings=True,
+            )
+            source_stream(doc, video, 0)
+            audio_stream(doc, audio)
         clocks += [video, audio]
     for node in clocks:
         values = {key: project.number(node.get(key)) for key in effects.CLOCK_FIELDS}
@@ -355,6 +369,10 @@ def stitched_children(doc: dict[str, Any], owner: dict[str, Any]) -> list[dict[s
         if not isinstance(child, dict) or child.get("_type") not in ("UnifiedMedia", "AMFile"):
             raise ValueError("capture stitched recording/hold caption forms separately")
         linked = child["_type"] == "UnifiedMedia"
+        if linked and (
+            not isinstance(child.get("video"), dict) or child["video"].get("_type") != "VMFile"
+        ):
+            raise ValueError("capture stitched recording/hold caption forms separately")
         audio = child.get("audio") if linked else child
         validate_caption_clock(doc, child, audio)
         assert isinstance(audio, dict)  # Validated by the caption clock selector.
@@ -527,9 +545,11 @@ def capacity(doc: dict[str, Any], owner: dict[str, Any]) -> Fraction:
     elif owner.get("_type") == "Caption":
         bound = project.number(owner.get("maxMediaDuration"))
     else:
-        if owner.get("_type") not in ("AMFile", "VMFile"):
+        if owner.get("_type") not in ("AMFile", "VMFile", "ScreenVMFile"):
             raise ValueError("select a Caption or ordinary audio/video source owner for bounds")
-        _, stream = source_stream(doc, owner, 0 if owner["_type"] == "VMFile" else 2)
+        if owner["_type"] == "ScreenVMFile":
+            require_native(doc, dynamic=True)
+        _, stream = source_stream(doc, owner, 2 if owner["_type"] == "AMFile" else 0)
         span, rate = stream.get("range"), project.number(stream.get("editRate"))
         if (
             not isinstance(span, list)
