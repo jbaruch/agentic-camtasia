@@ -14,6 +14,9 @@
   explicitly defined it as feature-complete across all remaining release-plan
   gaps, including closed/deferred issue families. Follow the completion plan
   linked from `docs/release-plan.md`; retain patch/minor releases per feature.
+- On 2026-11-07 the operator deferred quizzes (called "puzzles"), Snagit and
+  Audiate. Skip their remaining work, including quiz-specific SCORM session
+  follow-ups, and exclude it from the 1.0 completion gate.
 
 ## Temporary review scope
 

@@ -6,6 +6,12 @@ families and the [Mac coverage follow-ups](mac-feature-coverage.md#known-follow-
 Continue a patch/minor release after each feature. Keep 1.0.0 unpublished until
 the completion audit below passes.
 
+On 2026-11-07 the operator deferred quizzes (called "puzzles"), Snagit and
+Audiate. Their remaining work, including quiz-specific SCORM session follow-ups,
+is excluded from 1.0 and must be skipped until requested again. Existing shipped
+support remains documented. Rev/Zoom/cloud
+imports retain their pending status.
+
 ## Remaining capability families
 
 Each row remains incomplete until its named gaps have concrete implementation
@@ -31,10 +37,11 @@ sample offsets ship in 0.57.0 with distinct physical and nominal caption clocks.
 | Pending | Additional themed/animated Quick Property controls and theme/resource combinations. | [#6](https://github.com/jbaruch/agentic-camtasia/issues/6), [#7](https://github.com/jbaruch/agentic-camtasia/issues/7), [Quick Properties](../skills/camtasia-project/references/quick-properties.md), [theme duplication](../skills/camtasia-project/references/theme-duplication.md). |
 | Pending | Group-contained linked moving recording mattes ship in 0.32.0; native linked-recording stitched parents and unstitched silent holds ship in 0.35.0, including the trimmed-frame picture limitation. Further container forms and any working native point-intensity representation remain. | [#8](https://github.com/jbaruch/agentic-camtasia/issues/8), [recording mattes](../skills/camtasia-project/references/matte-recording-owners.md), [composition](../skills/camtasia-project/references/matte-composition.md). |
 | Pending | Linked/placeholder hotspot owners and additional scene/marker clocks. | [#9](https://github.com/jbaruch/agentic-camtasia/issues/9), [hotspot owners](../skills/camtasia-project/references/hotspot-recording-owners.md). |
-| Pending | Linked/audio/placeholder quiz owners, additional scene clocks and feedback destinations. | [#10](https://github.com/jbaruch/agentic-camtasia/issues/10), [quiz owners](../skills/camtasia-project/references/quiz-recording-owners.md). |
-| Pending | Remaining SCORM edition resume and interrupted/rejected-save/restart/cancel paths. | [#11](https://github.com/jbaruch/agentic-camtasia/issues/11), [SCORM runtime](../skills/camtasia-project/references/advanced-features.md#suspending-and-resuming-a-quiz-session). |
+| Deferred | Linked/audio/placeholder quiz owners, additional scene clocks and feedback destinations. Operator deferred quizzes on 2026-11-07; skip this work for 1.0. | [#10](https://github.com/jbaruch/agentic-camtasia/issues/10), [quiz owners](../skills/camtasia-project/references/quiz-recording-owners.md). |
+| Deferred | Remaining quiz-specific SCORM edition resume and interrupted/rejected-save/restart/cancel paths. Skip with the operator's quiz deferral. | [#11](https://github.com/jbaruch/agentic-camtasia/issues/11), [SCORM runtime](../skills/camtasia-project/references/advanced-features.md#suspending-and-resuming-a-quiz-session). |
 | Pending | General portable packing, physical fonts and internal/installation render-resource closure beyond existing SVG/Lottie image support. | [#12](https://github.com/jbaruch/agentic-camtasia/issues/12), [media](../skills/camtasia-project/references/media.md), [Lottie](../skills/camtasia-project/references/lottie.md), [SVG](../skills/camtasia-project/references/svg-images.md). |
-| Pending | Audiate/Snagit companion handoffs and Rev/Zoom/cloud import routes. | [#13](https://github.com/jbaruch/agentic-camtasia/issues/13), [integrations](../skills/camtasia-project/references/advanced-features.md#companion-apps-and-connected-imports). |
+| Pending | Rev/Zoom/cloud import routes. | [#13](https://github.com/jbaruch/agentic-camtasia/issues/13), [integrations](../skills/camtasia-project/references/advanced-features.md#companion-apps-and-connected-imports). |
+| Deferred | Audiate and Snagit companion handoffs. Operator deferred both on 2026-11-07; skip this work for 1.0. | [#13](https://github.com/jbaruch/agentic-camtasia/issues/13), [integrations](../skills/camtasia-project/references/advanced-features.md#companion-apps-and-connected-imports). |
 | Pending | Remaining Library lifecycle operations, including permanent deletion, root/ancestor return and modifier/multiple-selection moves. | [#14](https://github.com/jbaruch/agentic-camtasia/issues/14), [Library](../skills/camtasia-project/references/library.md). |
 
 ## Completion audit
@@ -52,8 +59,9 @@ sample offsets ship in 0.57.0 with distinct physical and nominal caption clocks.
 - Record completion evidence and the published patch/minor release for each gap.
   A guard, an unsupported/unknown label, a closed issue or a passing narrow test
   alone does not complete a capability.
-- Before 1.0.0, audit every row against the current source, native evidence and
-  actual published/installed behavior. Require all named work to be complete,
+- Before 1.0.0, audit every active row against the current source, native evidence and
+  actual published/installed behavior. Require all nondeferred work to be complete,
   current-head policy approval, passing CI and fresh installed-consumer checks.
+- Retain the operator's explicit deferrals as exclusions, not completed capabilities.
 - Publish and verify 1.0.0 only after that audit passes. Preserve its source-bound
   tag, publisher and retrievable-asset checks through final cleanup.

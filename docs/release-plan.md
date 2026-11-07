@@ -9,6 +9,10 @@ On 2026-11-06 the operator defined the final release as **1.0.0, feature-complet
 across all remaining gaps in this plan, including closed/deferred issue families.
 The [feature-completion plan](feature-completion-plan.md) tracks that requirement.
 An issue's closed/deferred state alone does not establish 1.0 completion.
+On 2026-11-07 the operator explicitly deferred quizzes (called "puzzles"), Snagit
+and Audiate. Skip their remaining work, including quiz-specific SCORM session
+follow-ups, and exclude it from the 1.0 gate; retain
+the other gaps in the completion plan.
 
 Version 0.58.0 adds explicit caption-scene sequencing into native Groups,
 including supplied scene intervals, blank padding and preserved local clocks.
@@ -47,10 +51,10 @@ All fourteen issues are enhancements and explicitly do not block v0.1.
 | [#7](https://github.com/jbaruch/agentic-camtasia/issues/7) | Independent native theme duplication, UUID/label restoration and separate logo resources verified/documented in 0.9.1. |
 | [#8](https://github.com/jbaruch/agentic-camtasia/issues/8) | Nonlinear intensity intervals shipped in 0.10.0 and moving/frozen/stitched owners in 0.11.0; atomic media/track compositions with Group/root interaction controls in 0.12.0; root linked moving recording mattes with recorded-audio preservation in 0.26.0; Group-contained linked moving recording lifecycle/intensity curves and mixed track controls in 0.32.0. Native linked-recording frame extensions, stitched-parent mattes and unstitched silent holds ship in 0.35.0. Further containers and point forms remain. |
 | [#9](https://github.com/jbaruch/agentic-camtasia/issues/9) | Standalone frozen-recording and stitched-parent hotspots with marker clocks shipped in 0.14.0. Linked variants, placeholders and additional scene clocks remain. |
-| [#10](https://github.com/jbaruch/agentic-camtasia/issues/10) | Standalone frozen-recording and stitched-parent quiz authoring, editing, retiming and owner transfer shipped in 0.15.0. Linked variants, audio/placeholders, additional destinations and scene clocks remain. |
-| [#11](https://github.com/jbaruch/agentic-camtasia/issues/11) | Further SCORM resume and interrupted sessions |
+| [#10](https://github.com/jbaruch/agentic-camtasia/issues/10) | Standalone frozen-recording and stitched-parent quiz authoring, editing, retiming and owner transfer shipped in 0.15.0. Remaining quiz work is deferred by the operator on 2026-11-07 and excluded from 1.0. |
+| [#11](https://github.com/jbaruch/agentic-camtasia/issues/11) | Further quiz-specific SCORM resume and interrupted sessions are deferred with quizzes and excluded from 1.0. |
 | [#12](https://github.com/jbaruch/agentic-camtasia/issues/12) | Lottie image inventory/embedding shipped in 0.16.0 and SVG image inspection/byte-preserving PNG embedding in 0.17.0; general packing, fonts and other render-resource closure remain. |
-| [#13](https://github.com/jbaruch/agentic-camtasia/issues/13) | Companion applications and connected imports |
+| [#13](https://github.com/jbaruch/agentic-camtasia/issues/13) | Rev/Zoom/cloud imports remain pending. Audiate and Snagit handoffs are deferred by the operator on 2026-11-07 and excluded from 1.0. |
 | [#14](https://github.com/jbaruch/agentic-camtasia/issues/14) | Remaining Library lifecycle operations |
 
 Use the distributed feature references as the contract for existing support.
