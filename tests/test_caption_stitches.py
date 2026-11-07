@@ -450,7 +450,7 @@ class StitchedCaptionTests(unittest.TestCase):
             elif mutation == "source":
                 child["audio"]["src"] = 2
             elif mutation == "offset":
-                child["audio"]["attributes"]["sourceFileOffset"] = 1
+                child["audio"]["attributes"]["sourceFileOffset"] = -1
             elif mutation == "kind":
                 child["video"]["_type"] = "ScreenVMFile"
             elif mutation == "origin":

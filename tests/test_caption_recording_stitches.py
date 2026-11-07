@@ -168,7 +168,7 @@ class RecordingStitchTests(unittest.TestCase):
             lambda d: parent(d)["medias"][1]["video"].update(trackNumber=1),
             lambda d: parent(d)["medias"][1]["audio"].update(start=R),
             lambda d: d["sourceBin"][0]["sourceTracks"][0].update(range=[0, 7 * 44100]),
-            lambda d: parent(d)["medias"][1]["audio"]["attributes"].update(sourceFileOffset=1),
+            lambda d: parent(d)["medias"][1]["audio"]["attributes"].update(sourceFileOffset=-1),
         )
         for mutate in mutations:
             doc = recording_stitch()

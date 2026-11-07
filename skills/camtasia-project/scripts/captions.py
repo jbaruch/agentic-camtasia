@@ -4,7 +4,15 @@
 inspect PROJECT inventories audio-owned captions, imported Caption/captionData,
 recognized source transcription, logical audio uses and separate dynamic-caption
 displays. audioUses supplies logical/physical IDs, source selection, clocks and
-nearest-first containers even when a recognized clip has no closed parameter. map
+nearest-first containers even when a recognized clip has no closed parameter.
+sourceFileOffset is inventoried without conversion. Nonzero Mac 2026.2.4 AMFile
+offsets are nonnegative whole audio samples, converted with the selected stream
+sampleRate, independently of its range/editRate. They skip physical audio but do
+not shift native closed cues or recognized-word display clocks. map reports
+audioFileOffsets with physical clip/source/stream IDs, samples, sampleRate and
+exact caption-clock ticks. Do not treat these nominal word times as aligned
+speech cuts when the offset is nonzero. Mapping/retiming checks the consumed
+physical audio bound after the skip; all edits preserve the saved offset. map
 PROJECT --clip-id ID maps closed-cue holds and eligible recognized word holds
 through a source clip's trim, inverse speed, placement and Group ancestors.
 Linked AV clocks are mirrors, never summed. A source trim omits earlier dynamic
@@ -318,14 +326,7 @@ def validate_caption_clock(
         "StitchedMedia",
     ):
         raise ValueError("select a Caption or speech-bearing audio/linked AV clip")
-    attributes = audio.get("attributes", {})
-    if (
-        not isinstance(attributes, dict)
-        or project.number(attributes.get("sourceFileOffset", 0)) != 0
-    ):
-        raise ValueError(
-            "capture caption mapping for nonzero/unknown audio sourceFileOffset separately"
-        )
+    audio_offset(doc, audio)
     clocks = [owner]
     if owner.get("_type") == "UnifiedMedia":
         video = owner.get("video")
@@ -573,6 +574,27 @@ def audio_stream(
     return source_stream(doc, owner, 2)
 
 
+def audio_offset(doc: dict[str, Any], owner: dict[str, Any]) -> Fraction:
+    """Physical audio-file sample skip; native cue/word clocks do not shift."""
+    attributes = owner.get("attributes", {})
+    if not isinstance(attributes, dict):
+        raise ValueError("inspect native attributes before reading sourceFileOffset")
+    samples = project.number(attributes.get("sourceFileOffset", 0))
+    if samples == 0:
+        return Fraction(0)
+    require_native(doc, dynamic=True)
+    if owner.get("_type") != "AMFile" or samples < 0 or samples.denominator != 1:
+        raise ValueError("retain a nonnegative whole-sample AMFile sourceFileOffset")
+    _, stream = audio_stream(doc, owner)
+    try:
+        rate = project.number(stream.get("sampleRate"))
+    except ValueError as exc:
+        raise ValueError("read the native audio sampleRate for sourceFileOffset") from exc
+    if rate <= 0 or rate.denominator != 1:
+        raise ValueError("read the native positive audio sampleRate for sourceFileOffset")
+    return samples * RATE / rate
+
+
 def capacity(doc: dict[str, Any], owner: dict[str, Any]) -> Fraction:
     if owner.get("_type") == "StitchedMedia":
         children = stitched_children(doc, owner)
@@ -594,6 +616,8 @@ def capacity(doc: dict[str, Any], owner: dict[str, Any]) -> Fraction:
         ):
             raise ValueError("capture the caption mapping for nonzero/unknown source ranges")
         bound = project.number(span[1]) * RATE / rate
+        if owner["_type"] == "AMFile":
+            bound -= audio_offset(doc, owner)
     if bound <= 0:
         raise ValueError("retain a positive source/caption media bound")
     return bound
@@ -1280,6 +1304,31 @@ def map_captions(doc: dict[str, Any], clip_id: int, *, closed_only: bool = False
     require_native(doc)
     _, owner, audio, ancestors = closed_clock(doc, clip_id)
     bound, result = capacity(doc, audio), dict(clipId=owner["id"], clock=RATE)
+    sources = (
+        [
+            child["audio"] if child["_type"] == "UnifiedMedia" else child
+            for child in stitched_children(doc, audio)
+            if child["_type"] != "ScreenIMFile"
+        ]
+        if audio["_type"] == "StitchedMedia"
+        else [audio]
+    )
+    offsets = []
+    for child in sources:
+        ticks = audio_offset(doc, child)
+        if ticks:
+            offsets.append(
+                dict(
+                    audioClipId=child["id"],
+                    sourceId=child["src"],
+                    sourceTrack=child["trackNumber"],
+                    samples=exact(project.number(child["attributes"]["sourceFileOffset"])),
+                    sampleRate=exact(project.number(audio_stream(doc, child)[1]["sampleRate"])),
+                    ticks=exact(ticks),
+                )
+            )
+    if offsets:
+        result["audioFileOffsets"] = offsets
     key = "captionData" if audio["_type"] == "Caption" else "captions"
     parameters = audio.get("parameters", {})
     if not isinstance(parameters, dict):
@@ -1410,6 +1459,11 @@ def inventory(doc: dict[str, Any]) -> dict[str, Any]:
                     path=path,
                     sourceId=audio.get("src"),
                     sourceTrack=audio.get("trackNumber"),
+                    sourceFileOffset=copy.deepcopy(
+                        audio.get("attributes", {}).get("sourceFileOffset", 0)
+                    )
+                    if isinstance(audio.get("attributes", {}), dict)
+                    else None,
                     clocks={k: owner.get(k) for k in effects.CLOCK_FIELDS},
                     containers=[
                         dict(clipId=n.get("id"), ownerType=n.get("_type")) for _, n in parents

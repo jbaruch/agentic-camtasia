@@ -606,7 +606,7 @@ class CaptionTests(unittest.TestCase):
         self.assertEqual(captions.retime(result, 3, request), result)
         self.assertEqual(words(result), words(doc))
 
-    def test_source_file_offsets_need_an_independent_caption_clock_contract(self):
+    def test_nonzero_source_file_offset_requires_a_native_sample_rate(self):
         doc = fixture()
         audio(doc)["attributes"]["sourceFileOffset"] = 48000
         with self.assertRaisesRegex(ValueError, "sourceFileOffset"):

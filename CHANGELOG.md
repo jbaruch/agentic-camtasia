@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.57.0 — 2026-11-07
+
+### Added
+
+- Caption mapping, cue edits and retiming retain nonzero native audio-file
+  sample offsets on audio, linked recordings, Groups and moving/held stitches.
+  Physical source skips leave native cue/highlight clocks unchanged; inspection
+  and mapping expose that distinction, and bounds include the skipped samples.
+- Seven primary native movies verify all 1,230 cue/highlight frames. Four
+  same-process reopen pairs repeat decoded RGB/PCM and saved bytes; thirteen
+  movies total 74 seconds and 2,220 frames. Sample-sized WAV controls and an
+  independent native recording control verify physical speech advancement.
+  Multiscene clocks, other RTF forms and remaining display controls stay pending.
+
 ## 0.56.0 — 2026-11-07
 
 ### Added
