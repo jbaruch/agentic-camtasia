@@ -683,7 +683,7 @@ def sequence_scenes(doc: dict[str, Any], spec: dict[str, Any]) -> dict[str, Any]
         parameters, attributes = node.get("parameters", {}), node.get("attributes", {})
         if (
             isinstance(parameters, dict)
-            and {"toc", "quiz"} & parameters.keys()
+            and {"toc", "quiz", "interactiveHotspot"} & parameters.keys()
             or isinstance(attributes, dict)
             and "hotspot" in attributes
         ):

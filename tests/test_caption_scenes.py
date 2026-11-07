@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import copy
-from contextlib import redirect_stdout
+from contextlib import redirect_stderr, redirect_stdout
 import io
 import json
 from pathlib import Path
@@ -237,6 +237,32 @@ class CaptionSceneTests(unittest.TestCase):
             with self.subTest(kind=kind), self.assertRaises(ValueError):
                 captions.sequence_scenes(doc, dict(schema_version=1, durations=[4, 4]))
             self.assertEqual(doc, before)
+
+    def test_parameter_hotspot_refuses_library_and_cli_without_creating_a_candidate(self):
+        doc = scenes()
+        root(doc)["video"]["parameters"]["interactiveHotspot"] = {"type": "string", "keyframes": []}
+        before = copy.deepcopy(doc)
+        with self.assertRaisesRegex(ValueError, "hotspot destinations"):
+            captions.sequence_scenes(doc, dict(schema_version=1, durations=[4, 4]))
+        self.assertEqual(doc, before)
+        with tempfile.TemporaryDirectory() as temporary:
+            folder = Path(temporary)
+            source = folder / "input.tscproj"
+            spec = folder / "spec.json"
+            output = folder / "candidate.json"
+            raw = project.encode_document(doc)
+            source.write_bytes(raw)
+            spec.write_text(json.dumps(dict(schema_version=1, durations=[4, 4])))
+            stdout, stderr = io.StringIO(), io.StringIO()
+            with redirect_stdout(stdout), redirect_stderr(stderr):
+                status = captions.main(
+                    ["sequence-scenes", str(source), "--spec", str(spec), "--output", str(output)]
+                )
+            self.assertEqual(status, 1)
+            self.assertEqual(stdout.getvalue(), "")
+            self.assertIn("hotspot destinations", json.loads(stderr.getvalue())["error"])
+            self.assertFalse(output.exists())
+            self.assertEqual(source.read_bytes(), raw)
 
     def test_conflicting_flags_metadata_indices_and_duplicate_ids_refuse(self):
         for kind in [
