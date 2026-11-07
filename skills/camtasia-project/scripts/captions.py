@@ -9,6 +9,15 @@ The verified caption/word clock is 705600000 ticks/sec, independently of each
 source stream's sample/edit rate. Nested/stitched/multiscene mappings refuse.
 
 set-text PROJECT --clip-id ID --spec SPEC corrects existing plain closed points.
+set-rtf-text uses edits [{index, expected, replacements:[{start,end,text}]}] for
+native text-only Cocoa RTF cues. expected is the complete decoded cue; half-open
+substring ranges count original Unicode code points. Replacements inherit the
+first removed character's style, insertions the following character's style,
+and end insertions the last character's style. Unchanged text and all existing
+format controls/groups are preserved byte for byte. Removed encoded spans leave
+empty groups as lexical separators. Empty RTF insertion requires
+the native editor to establish a style. Complex/unsupported RTF refuses. Inspect
+RTF with rtf-text PROJECT --clip-id ID before choosing ranges. No timing changes.
 correct-words PROJECT --source-id ID --source-track INDEX --spec SPEC corrects
 actual saved Mac 2026.2.4 transcription. Both specs have schema_version 1 and
 edits [{index, expected, text}]. Only value/text changes; point times, unknown
@@ -55,8 +64,7 @@ Only the observed Mac 2026.2.4 format-10 style contract is supported. Native fon
 availability, text fitting and transparency still require rendered checks.
 
 Edits require the observed Mac 2025.0.3/format 9 or 2026.2.4/format 10 and exact
-caption clock; source-backed dynamic edits require the latter. RTF captions are
-inspectable but need a native/RTF-aware editing route. JSON stdout schema_version
+caption clock; source-backed dynamic and RTF edits require the latter. JSON stdout schema_version
 1 owner camtasia-captions reports hashes, inventory, changed/written and
 nativeVerified false. Staging is exclusive or an identical no-op. Follow project
 validate/diff/apply, matching native save/reopen and actual caption/highlight or
@@ -71,6 +79,7 @@ import copy
 from fractions import Fraction
 import json
 from pathlib import Path
+import re
 import sys
 from typing import Any
 
@@ -395,6 +404,261 @@ def correct_text(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dic
     result = copy.deepcopy(doc)
     correction_edits(spec, point_frames(closed_target(result, clip_id)[2], "caption"), words=False)
     return result
+
+
+# The text-only Cocoa form captured from the native caption editor. Unknown
+# controls refuse: a general RTF reader can have additional text destinations.
+RTF_FORMAT = frozenset(
+    "rtf ansi ansicpg cocoartf cocoatextscaling cocoaplatform pard tx pardirnatural "
+    "partightenfactor f fs cf b i ul ulnone strike plain ql qc qr qj li ri fi "
+    "sa sb sl slmult kerning expnd expndtw charrsid lang langfe langnp "
+    "ltrch rtlch ltrpar rtlpar af adeflang deff deflang viewkind vieww viewh "
+    "paperw paperh margl margr margt margb widowctrl hyphauto fet adeflangfe "
+    "CocoaLigature fsmilli expansion obliqueness outl strokewidth strokec "
+    "ulc ulstyle strikec strikestyle nosupersub super sub highlight cb cbpat "
+    "pardeftab qnatural slleading slmaximum slminimum".split()
+)
+RTF_CHARACTERS = {
+    "par": "\n",
+    "line": "\n",
+    "tab": "\t",
+    "emdash": "—",
+    "endash": "–",
+    "bullet": "•",
+    "lquote": "‘",
+    "rquote": "’",
+    "ldblquote": "“",
+    "rdblquote": "”",
+}
+RTF_CONTROL = re.compile(r"\\(?:([A-Za-z]+)(-?\d+)? ?|'([0-9a-fA-F]{2})|([^A-Za-z]))", re.DOTALL)
+
+
+def rtf_characters(text: str) -> list[tuple[str, list[tuple[int, int]]]]:
+    """Map native text-only RTF Unicode scalars to their exact encoded spans."""
+    if not text.startswith(r"{\rtf1\ansi\ansicpg1252") or not text.endswith("}"):
+        raise ValueError("capture the native text-only ANSI/1252 Cocoa RTF caption first")
+    # Each group scopes destination and Unicode fallback count. Header groups
+    # are copied, not interpreted as cue text. Binary/attachment/field forms and
+    # other destinations are intentionally outside this editing contract.
+    stack: list[tuple[bool, int]] = []
+    skip, uc, fallback, pos = False, 1, 0, 0
+    units: list[tuple[str, list[tuple[int, int]]]] = []
+    while pos < len(text):
+        start, char = pos, text[pos]
+        if char in "{}":
+            fallback = 0
+            if char == "{":
+                stack.append((skip, uc))
+            elif not stack:
+                raise ValueError("repair unmatched RTF braces in the native caption editor")
+            else:
+                skip, uc = stack.pop()
+                if not stack and pos != len(text) - 1:
+                    raise ValueError("retain exactly one complete native RTF root group")
+            pos += 1
+            continue
+        if not stack:
+            raise ValueError("retain all caption RTF data inside its root group")
+        if char in "\r\n":
+            pos += 1
+            continue
+        word, number, visible = None, None, None
+        if char == "\\":
+            match = RTF_CONTROL.match(text, pos)
+            if match is None:
+                raise ValueError("repair malformed RTF escapes in the native caption editor")
+            word, numeric, hexadecimal, symbol = match.groups()
+            number = int(numeric) if numeric is not None else None
+            pos = match.end()
+            if hexadecimal is not None:
+                try:
+                    visible = bytes([int(hexadecimal, 16)]).decode("cp1252")
+                except UnicodeDecodeError as exc:
+                    raise ValueError(
+                        "replace undefined RTF codepage bytes in the native editor"
+                    ) from exc
+            elif symbol is not None:
+                symbols = {
+                    "\\": "\\",
+                    "{": "{",
+                    "}": "}",
+                    "~": "\u00a0",
+                    "_": "‑",
+                    "-": "\u00ad",
+                    "\n": "\n",
+                    "\r": "\n",
+                }
+                if symbol == "*" and text[start + 2 :].startswith("\\expandedcolortbl"):
+                    skip = True
+                elif symbol in symbols:
+                    visible = symbols[symbol]
+                else:
+                    raise ValueError("use the native editor for unsupported RTF control symbols")
+        else:
+            if not " " <= char <= "~":
+                raise ValueError(
+                    "retain native escaped ANSI/Unicode RTF text; re-save in the editor"
+                )
+            visible, pos = char, pos + 1
+        if word in {"bin", "pict", "object", "field", "NeXTGraphic", "upr", "ud"}:
+            raise ValueError("use the native editor for embedded/binary/alternate-destination RTF")
+        if fallback:
+            units[-1][1].append((start, pos))
+            fallback -= 1
+            continue
+        if word in {"fonttbl", "colortbl"}:
+            if len(stack) != 2:
+                raise ValueError("retain native RTF header destinations at root depth")
+            skip = True
+        if skip:
+            if word == "fcharset" and number != 0:
+                raise ValueError("use the native editor for font-specific RTF character sets")
+            if word == "cpg" and number != 1252:
+                raise ValueError("use the native editor for font-specific RTF codepages")
+            continue
+        if word == "uc":
+            if number is None or not 0 <= number <= 16:
+                raise ValueError("retain a bounded native RTF Unicode fallback count")
+            uc = number
+        elif word == "u":
+            if number is None or not -32768 <= number <= 65535:
+                raise ValueError("retain native signed/unsigned UTF-16 RTF Unicode controls")
+            visible, fallback = chr(number % 65536), uc
+        elif word in RTF_CHARACTERS:
+            visible = RTF_CHARACTERS[word]
+        elif word == "ansicpg" and number != 1252:
+            raise ValueError("use the native editor for other RTF codepages")
+        elif word is not None and word not in RTF_FORMAT:
+            raise ValueError("use the native editor for unsupported RTF control: " + word)
+        if visible is not None:
+            units.append((visible, [(start, pos)]))
+    if stack:
+        raise ValueError("repair unclosed RTF groups in the native caption editor")
+    result: list[tuple[str, list[tuple[int, int]]]] = []
+    index = 0
+    while index < len(units):
+        char, spans = units[index]
+        code = ord(char)
+        if 0xD800 <= code <= 0xDBFF and index + 1 < len(units):
+            low, more = units[index + 1]
+            if 0xDC00 <= ord(low) <= 0xDFFF:
+                result.append(
+                    (chr(0x10000 + (code - 0xD800) * 1024 + ord(low) - 0xDC00), spans + more)
+                )
+                index += 2
+                continue
+        if 0xD800 <= code <= 0xDFFF:
+            raise ValueError("repair unpaired RTF Unicode surrogates in the native editor")
+        result.append((char, spans))
+        index += 1
+    return result
+
+
+def rtf_encode(text: str) -> str:
+    chunks = [r"{\uc0 "]
+    for char in text:
+        code = ord(char)
+        if char in "\\{}":
+            chunks.append("\\" + char)
+        elif char == "\n":
+            chunks.append("\\\n")
+        elif char == "\t":
+            chunks.append(r"\tab ")
+        elif " " <= char <= "~":
+            chunks.append(char)
+        elif code < 32 or 0xD800 <= code <= 0xDFFF or code == 127:
+            raise ValueError(
+                "supply Unicode caption text without control characters or lone surrogates"
+            )
+        else:
+            encoded = char.encode("utf-16-le")
+            for offset in range(0, len(encoded), 2):
+                unit = int.from_bytes(encoded[offset : offset + 2], "little")
+                chunks.append("\\u" + str(unit if unit < 32768 else unit - 65536) + " ")
+    return "".join(chunks) + "}"
+
+
+def replace_rtf(text: str, expected: str, replacements: Any) -> str:
+    chars = rtf_characters(text)
+    current = "".join(c for c, _ in chars)
+    if current != expected:
+        raise ValueError("RTF visible text differs from expected; inspect the native cue again")
+    if not isinstance(replacements, list) or not replacements:
+        raise ValueError("supply nonempty ordered RTF substring replacements")
+    changes: list[tuple[int, int, str]] = []
+    previous_end, previous_start = -1, -1
+    for edit in replacements:
+        if not isinstance(edit, dict) or set(edit) != {"start", "end", "text"}:
+            raise ValueError("supply each RTF replacement as start, end and text")
+        start, end, replacement = edit["start"], edit["end"], edit["text"]
+        if (
+            type(start) is not int
+            or type(end) is not int
+            or not 0 <= start <= end <= len(chars)
+            or start < previous_end
+            or start == previous_start
+            or not isinstance(replacement, str)
+        ):
+            raise ValueError("use ordered nonoverlapping original Unicode code-point ranges")
+        previous_start, previous_end = start, end
+        encoded = rtf_encode(replacement)
+        if current[start:end] == replacement:
+            continue
+        if not chars:
+            raise ValueError(
+                "add text to an empty RTF cue in the native editor to establish its style"
+            )
+        anchor = chars[start][1][0][0] if start < len(chars) else chars[-1][1][-1][1]
+        if replacement:
+            changes.append((anchor, anchor, encoded))
+        removed: list[tuple[int, int]] = []
+        for _, spans in chars[start:end]:
+            for a, b in spans:
+                if removed and removed[-1][1] == a:
+                    removed[-1] = (removed[-1][0], b)
+                else:
+                    removed.append((a, b))
+        # Empty groups separate every removed chunk, including chunks after
+        # retained style controls. Removing a control's delimiter must never
+        # turn e.g. \b\par text into the different control \btext.
+        changes.extend((a, b, "{}") for a, b in removed)
+    for start, end, replacement in sorted(changes, reverse=True):
+        text = text[:start] + replacement + text[end:]
+    return text
+
+
+def correct_rtf(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str, Any]:
+    require_native(doc, dynamic=True)
+    spec_keys(spec, {"edits"}, {"edits"})
+    edits, seen = spec["edits"], set()
+    if not isinstance(edits, list) or not edits:
+        raise ValueError("supply nonempty occurrence-specific RTF cue edits")
+    result = copy.deepcopy(doc)
+    frames = point_frames(closed_target(result, clip_id)[2], "caption")
+    for edit in edits:
+        if not isinstance(edit, dict) or set(edit) != {"index", "expected", "replacements"}:
+            raise ValueError("supply RTF edits as index, expected visible text and replacements")
+        index = edit["index"]
+        if type(index) is not int or not 0 <= index < len(frames) or index in seen:
+            raise ValueError("select distinct existing RTF caption point indices")
+        seen.add(index)
+        value = frames[index]["value"]
+        if value.get("textAttributes", "missing") is not None or not isinstance(
+            edit["expected"], str
+        ):
+            raise ValueError("select native RTF-only caption text with null textAttributes")
+        value["text"] = replace_rtf(value["text"], edit["expected"], edit["replacements"])
+    return result
+
+
+def inspect_rtf(doc: dict[str, Any], clip_id: int) -> list[dict[str, Any]]:
+    require_native(doc, dynamic=True)
+    frames = point_frames(closed_target(doc, clip_id)[2], "caption")
+    return [
+        dict(index=i, text="".join(c for c, _ in rtf_characters(frame["value"]["text"])))
+        for i, frame in enumerate(frames)
+        if frame["value"]["text"].startswith(r"{\rtf")
+    ]
 
 
 def correct_words(
@@ -797,6 +1061,8 @@ def main(argv: list[str] | None = None) -> int:
         "inspect",
         "map",
         "set-text",
+        "rtf-text",
+        "set-rtf-text",
         "set-cues",
         "correct-words",
         "retime",
@@ -810,7 +1076,7 @@ def main(argv: list[str] | None = None) -> int:
         if name == "correct-words":
             command.add_argument("--source-id", type=int, required=True)
             command.add_argument("--source-track", type=int, required=True)
-        if name not in ("inspect", "map"):
+        if name not in ("inspect", "map", "rtf-text"):
             command.add_argument("--spec", type=Path, required=True)
             command.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
@@ -823,6 +1089,8 @@ def main(argv: list[str] | None = None) -> int:
             report.update(inventory(doc))
         elif args.command == "map":
             report["mapping"] = map_captions(doc, args.clip_id)
+        elif args.command == "rtf-text":
+            report["cues"] = inspect_rtf(doc, args.clip_id)
         else:
             spec = project.load(args.spec)[0]
             if args.command == "correct-words":
@@ -832,6 +1100,7 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 operation = {
                     "set-text": correct_text,
+                    "set-rtf-text": correct_rtf,
                     "set-cues": set_cues,
                     "retime": retime,
                     "set-display": set_display,
