@@ -10,6 +10,10 @@ across all remaining gaps in this plan, including closed/deferred issue families
 The [feature-completion plan](feature-completion-plan.md) tracks that requirement.
 An issue's closed/deferred state alone does not establish 1.0 completion.
 
+Version 0.53.0 adds root and Group-contained linked moving recording caption
+clocks, source-word mapping, cue edits and mirrored retiming. Recording
+holds/stitches and the other caption gaps below remain pending.
+
 The source repository and feature backlog are public. ACR 0.2.1 resolves GitHub
 installs from versioned package releases.
 

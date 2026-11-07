@@ -244,6 +244,12 @@ parent-crop behavior are verified in [Group source-word clocks](captions.md#grou
 placement and lane/transition validation. Source retiming accepts recognized
 Group audio without requiring a separate closed-cue parameter.
 
+[Linked moving recording caption clocks](captions.md#linked-moving-recording-caption-clocks)
+extend these commands to root and Group-contained recording wrappers/audio.
+`validate_caption_clock` owns their selection and mirror checks. Recording
+source data and cursor metadata survive timing edits; recording holds and
+stitched recordings remain separate pending forms.
+
 For ordinary same-source AV or audio stitches, select the `StitchedMedia` parent. Its closed parameter
 supports text/cue edits, mapping and parent retiming. The same script's
 `stitched_children` and `stitched_word_holds` own internal validation and virtual

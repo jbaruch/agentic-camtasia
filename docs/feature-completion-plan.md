@@ -14,6 +14,10 @@ References define existing support and preserve the remaining limitations.
 Closed historical issues retain their original scope; this checklist tracks the
 additional 1.0 work independently of those issue states.
 
+Root and Group-contained linked moving recording caption clocks ship in 0.53.0,
+including source-word mapping, cue edits and mirrored retiming. The caption row
+remains pending for recording holds/stitches and its other named gaps.
+
 | Status | Remaining gap | Contract and tracking |
 | --- | --- | --- |
 | Pending | Further effect-specific point/resource controls and linked held/stitched/container forms. | [#2](https://github.com/jbaruch/agentic-camtasia/issues/2), [effects](../skills/camtasia-project/references/advanced-features.md), [cursor paths](../skills/camtasia-project/references/cursors.md). |
