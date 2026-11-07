@@ -16,6 +16,9 @@
 - The native foreground-alpha limit is explicit: zero removes glyph fill while
   leaving a readable black outline. RGBA inputs retain native saved units without
   promising linear blending or physical font/resource closure.
+- Caption top-level and subcommand help now use the versioned JSON owner
+  envelope with a help string. Help exits successfully without reading a project;
+  syntax errors retain their JSON stderr and exit-code contract.
 
 ## 0.46.0 — 2026-11-06
 

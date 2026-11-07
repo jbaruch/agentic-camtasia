@@ -189,6 +189,7 @@ object or null when absent. Select clip/source IDs and source-track
 indices from inspection. Native Add Caption/import supplies the closed parameter;
 word correction requires actual saved recognition/transcription. Read the script
 anchors above for supported builds, clocks, selectors, controls and refusals.
+Top-level and subcommand help return a JSON envelope containing a help string.
 
 Every edit spec has `schema_version: 1`. Closed cue authoring supplies `clock`
 and `cues` containing start/end seconds and text, for example:

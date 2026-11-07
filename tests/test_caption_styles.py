@@ -47,6 +47,36 @@ def spec() -> dict:
 
 
 class CaptionStyleTests(unittest.TestCase):
+    def test_all_caption_help_is_versioned_json_without_loading_a_project(self):
+        for command in [
+            [],
+            ["inspect"],
+            ["map"],
+            ["set-text"],
+            ["set-cues"],
+            ["correct-words"],
+            ["retime"],
+            ["set-display"],
+            ["set-style"],
+        ]:
+            with (
+                self.subTest(command=command),
+                patch("sys.stdout", new_callable=io.StringIO) as stream,
+                patch.object(
+                    project, "load", side_effect=AssertionError("help must not load files")
+                ),
+                self.assertRaises(SystemExit) as error,
+            ):
+                captions.main([*command, "--help"])
+            self.assertEqual(error.exception.code, 0)
+            report = json.loads(stream.getvalue())
+            self.assertEqual(report["schema_version"], 1)
+            self.assertEqual(report["owner"], "camtasia-captions")
+            self.assertTrue(report["ok"])
+            self.assertIn("usage:", report["help"])
+            self.assertIn("--help", report["help"])
+            self.assertIn(command[0] if command else "set-style", report["help"])
+
     def test_literal_global_style_preserves_complete_cues_clocks_sources_and_dynamic_displays(self):
         for form in ["audio", "linked", "imported", "dynamic"]:
             doc = document(form)

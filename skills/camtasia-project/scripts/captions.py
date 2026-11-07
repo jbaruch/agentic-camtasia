@@ -61,7 +61,8 @@ inspectable but need a native/RTF-aware editing route. JSON stdout schema_versio
 nativeVerified false. Staging is exclusive or an identical no-op. Follow project
 validate/diff/apply, matching native save/reopen and actual caption/highlight or
 Smart Player CC checks. Exit 0 success, 1 input/I/O refusal, 2 CLI syntax (JSON
-stderr). --help prints plaintext stdout. Python 3.11+, standard library only.
+stderr). --help emits the versioned JSON owner envelope with a help string.
+Python 3.11+, standard library only.
 """
 
 from __future__ import annotations
@@ -95,6 +96,19 @@ DISPLAY_NUMBERS = frozenset(
     }
     | {"dynamic-caption-current-word-color-" + ch for ch in ("red", "green", "blue", "alpha")}
 )
+
+
+class JsonHelpParser(annotations.JsonArgumentParser):
+    def format_help(self) -> str:
+        return (
+            json.dumps(
+                dict(
+                    schema_version=1, owner="camtasia-captions", ok=True, help=super().format_help()
+                ),
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
 
 
 def require_native(doc: dict[str, Any], *, dynamic: bool = False) -> None:
@@ -777,7 +791,7 @@ def inventory(doc: dict[str, Any]) -> dict[str, Any]:
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = annotations.JsonArgumentParser(description=__doc__)
+    parser = JsonHelpParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     for name in (
         "inspect",
