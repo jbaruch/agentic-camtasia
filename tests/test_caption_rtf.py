@@ -8,8 +8,8 @@ import tempfile
 import unittest
 from contextlib import redirect_stdout, redirect_stderr
 
-import captions
 from test_captions import closed, fixture
+import captions
 
 
 # Independently fixed text-only native Cocoa spelling, including header text
