@@ -614,9 +614,14 @@ class GroupCaptionTests(unittest.TestCase):
                 )
                 self.assertTrue(json.loads(out.getvalue())["written"])
             self.assertEqual(leaf(json.loads(output.read_text()))["mediaStart"], 4 * R)
+            with redirect_stdout(io.StringIO()) as out:
+                self.assertEqual(captions.main(["map", str(source), "--clip-id", "3"]), 0)
+                mapped = json.loads(out.getvalue())["mapping"]
+                self.assertEqual(mapped["ancestors"], [100, 101, 102])
+                self.assertEqual(mapped["words"][0]["value"], "useful")
             with redirect_stderr(io.StringIO()) as err:
-                self.assertEqual(captions.main(["map", str(source), "--clip-id", "3"]), 1)
-                self.assertIn("root", json.loads(err.getvalue())["error"])
+                self.assertEqual(captions.main(["map", str(source), "--clip-id", "999"]), 1)
+                self.assertIn("unique saved clip ID", json.loads(err.getvalue())["error"])
             self.assertEqual(source.read_bytes(), raw)
 
 

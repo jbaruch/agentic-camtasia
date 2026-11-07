@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.50.0 — 2026-11-06
+
+### Added
+
+- Default caption mapping includes recognized source words through Group clocks.
+  A selected audio-source trim omits earlier onsets; parent cropping carries an
+  already active word hold. Exact rational gaps, signed offsets and linked mirrors
+  retain their own source and parent-clock roles. Closed-only mapping stays separate.
+- Inspection exposes logical audio uses, physical IDs, source selection and
+  container clocks even when recognized media has no closed-cue parameter.
+- Group source retiming accepts actual transcription without closed cues.
+  Dynamic display bounds accept explicit parent-clock start/duration, including
+  signed placement, while retaining every ancestor and unrelated rich/style data.
+- Nineteen native exports verify all fifteen spoken words, gap clearing, nested
+  trims/speed, display bounds and independent source/display ownership. All 3,960
+  mapped highlight/gap and bound-window frames pass; four reopened pairs have
+  identical decoded streams. An assembled root display over grouped audio remains
+  blank, establishing a measured binding limit rather than missing recognition.
+- Signed audio placement reproduces the equivalent Group-trim picture but changes
+  decoded samples around the opening. The measured boundary difference is documented;
+  source/clock preservation does not imply identity between alternate audio layouts.
+
 ## 0.49.0 — 2026-11-06
 
 ### Added

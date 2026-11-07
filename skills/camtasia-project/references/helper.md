@@ -163,7 +163,7 @@ available and verify the candidate in the matching native editor.
 ## Caption JSON editing
 
 Use `skills/camtasia-project/scripts/captions.py` for plain closed cues, existing
-plain and native RTF caption text, recognized source-word corrections, root or Group closed-clock mapping/retiming,
+plain and native RTF caption text, recognized source-word corrections, root or Group clock mapping/retiming,
 global closed-caption style and existing dynamic display controls.
 Its module docstring, `RATE`, `root_clock`,
 `point_frames`, `correction_edits`, `capacity`, `mapped_holds` and `set_display`
@@ -189,10 +189,13 @@ python3 -B "{camtasia_skill_root}/scripts/captions.py" set-display "<project>" -
 python3 -B "{camtasia_skill_root}/scripts/captions.py" set-style "<project>" --spec "<style.json>" --output "<candidate.json>"
 ```
 
-Inspection returns separate `closed`, `transcriptions` and `displays` arrays
+Inspection returns separate `closed`, `transcriptions`, `audioUses` and `displays` arrays
 with physical paths and saved payloads, plus the global `captionAttributes`
 object or null when absent. Select clip/source IDs and source-track
-indices from inspection. Native Add Caption/import supplies the closed parameter;
+indices from inspection. `audioUses` supplies logical owner/physical audio IDs,
+source selection, raw clocks and nearest-first containers without counting linked
+audio twice. This inventory does not certify an unfamiliar owner clock.
+Native Add Caption/import supplies the closed parameter;
 word correction requires actual saved recognition/transcription. Read the script
 anchors above for supported builds, clocks, selectors, controls and refusals.
 Top-level and subcommand help return a JSON envelope containing a help string.
@@ -225,20 +228,29 @@ Start/duration/trim inputs use seconds; scalar is inverse speed. Retiming change
 owner clocks and retains source cue/word points. Mapping returns source indices,
 exact timeline ticks and rational seconds; empty mapped results are valid.
 
-For Group-contained closed captions, use `map --closed-only`. The same script's
+To map only closed cues, use `map --closed-only`. The same script's
 `closed_clock`, `closed_interval`, `closed_source_tick`, `set_cues` and `retime`
 own ancestry, cropping, inverse authoring and immediate-parent clock selection.
 This mode returns `scope: "closed"` and ancestor IDs without source words.
 Group-child retiming requires `"clock":"parent"` in the clock spec. Read
 [Group closed-caption verification](captions.md#group-contained-closed-caption-clocks)
-for native scope and audio-boundary limits. Default mapping retains its existing
-root caption-and-word contract.
+for native scope and audio-boundary limits. Default mapping also includes actual
+recognized source words through Group ancestors. Its source-trim eligibility and
+parent-crop behavior are verified in [Group source-word clocks](captions.md#group-source-word-and-dynamic-display-clocks).
+`caption_context`, `placement_ticks` and `caption_lane_fit` in
+`skills/camtasia-project/scripts/captions.py` own shared Group ancestry, signed
+placement and lane/transition validation. Source retiming accepts recognized
+Group audio without requiring a separate closed-cue parameter.
 
 A display spec supplies independent start/duration seconds, `definition` and/or
 `rich` changes, for example:
 `{"schema_version":1,"start":1,"duration":3,"definition":{"dynamic-caption-new-paragraph-for-each-sentence":1},"rich":{"fgColor":"(255,255,255,255)"}}`.
 Select existing control names from the script's display contract. The native
 placeholder, other rich ranges, default fonts and style IDs remain unchanged.
+Group display bounds require `"clock":"parent"`; start/duration use the
+immediate parent's clock and retain all ancestors. Source-word mapping does not
+infer the independent display's binding or visibility. Read the Group verification
+above before placing a display across container boundaries.
 Verify physical fonts, fitting and actual word highlighting on the rendering host.
 
 A global style spec supplies a nonempty `style` object, for example:
