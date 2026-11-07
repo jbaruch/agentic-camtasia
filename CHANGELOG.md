@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.52.0 — 2026-11-07
+
+### Added
+
+- Ordinary same-source audio-only stitched parents support closed-cue mapping,
+  text/cue edits, recognized-word clocks and parent retiming, including Group
+  ancestry. Internal audio/source IDs remain explicit, source skips retain joined
+  holds, and audio cuts preserve exact subframe ticks independently of displays.
+- The exact Mac 2026.2.4 profile admits native ordinary-audio closed points while
+  retaining other parameter and recording-type checks. The shared stitch guard
+  distinguishes homogeneous audio/AV children from mixed, recording or held forms.
+- Fifteen native exports cover all 3,270 closed-cue and word-presence states;
+  3,255 highlights match projected clocks, with fifteen observed one-frame delays
+  at exact word boundaries retained as explicit native limits. Three independent
+  reopen pairs reproduce complete decoded streams. Common-Group speed preserves
+  uniform highlights; alternate native audio layouts can still differ in samples.
+
 ## 0.51.0 — 2026-11-07
 
 ### Added

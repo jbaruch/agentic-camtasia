@@ -490,8 +490,83 @@ The continuous unit-speed stitched picture matches the independent flat control.
 audio differs between these native layouts; preserved source bytes do not
 establish sample identity after stitching. Compare edits against the same
 stitched layout and verify its own independent reopen/export. Recording holds,
-audio-only/multiple-source stitches, nonzero source-file offsets and multiple
-scenes remain separate work. Completed disposable data is removed.
+multiple-source stitches, nonzero source-file offsets and multiple scenes remain
+separate work. Audio-only additions follow below. Completed disposable data is removed.
+
+## Audio-only stitched caption clocks
+
+Version 0.52.0 adds ordinary same-source audio-only stitched parents to the
+[caption helper contract](helper.md#caption-json-editing). The native parent
+owns closed cues; its children are plain `AMFile` nodes. Source and physical
+audio IDs coincide for these children. Parent text/cue edits and retiming retain
+every child, its parameters and source transcription. AV/audio mixtures,
+recording holds, other sources and multiscene clocks remain separate forms.
+
+Locally observed on Mac 2026.2.4 (2026.132), format 10. An eight-second mono
+48-kHz WAV contains synthetic speech. Native Bebas word-red generation saves
+fifteen words and one gap in the project tick clock. Native Split at four
+seconds duplicates closed points on both audio halves. Stitch Selected Media
+moves those points to one parent, removes the child parameters and keeps all
+source points unchanged. The exact-build schema profile also admits the strict
+caption-point form on ordinary `AMFile`, without changing the generic parameter
+map or recording-specific types.
+
+A native stitch of source 0–3 and 5–8 seconds produces parent closed points at
+0/2/3/4/5. Its `Every` onset at 2.961 holds across the join until `blue` at
+virtual 3.442. The unstitched control instead clears words at second 3 until
+`blue`. All original source points remain available to other uses.
+
+A parent trim at 0.7, placed at global second 1, omits earlier word onsets and
+begins with `tools` at 1.23. An outer Group crop instead carries `useful`, whose
+source onset is 0.5. The native Group retains the display's text Quick Property
+and its global geometry through an observed local-position rebase.
+
+Audio-only parent retiming accepts exact subframe cuts. A 0.01-second trim and
+placement, with 7.99-second duration, saves and reopens without video-frame
+quantization. A helper-authored `AUDIO EDIT` cue renders at global seconds 2–4,
+while internal children and source points remain unchanged. The independent
+display stays on its own video frame bounds.
+
+Parent 2× and slowed controls reproduce the final-child display projection
+observed for AV stitches. Keep using `words` for nominal source-word timing and
+`displayWords` for the measured display projection. A unit-speed audio stitch
+and display inside a 2× common Group match the independent sped flat control's
+complete picture. Existing source/Group crop distinctions remain intact.
+
+Exact mapped onsets do not guarantee a native pixel change on that same frame.
+The source word `clear` starts at 1.6 seconds. At 30 fps, both unit-speed flat
+and stitched movies retain `with` on frame 48 and switch to `clear` on frame 49.
+Their 2× controls likewise switch one frame after the exact mapped boundary.
+Some slowed, subframe and Group layouts show the same one-frame delay at
+`useful` or `clear`. The source points and exact map ticks are preserved; no
+general offset or rounding repair is inferred. Inspect exports when a specific
+video frame matters. The internal cause is unestablished.
+
+Fifteen exports total 109 seconds and 3,270 frames. All closed-cue states and
+word-presence/gap states match. Exactly 3,255 highlights match the projected
+holds; the remaining fifteen frames are the explicit one-frame boundary
+observations above, each followed by the expected word. Five inspected reference
+sheets cover every word in the full, trimmed, slowed and joined/separate layouts.
+Three independent reopen pairs reproduce complete decoded RGB and PCM, and the
+three saved projects reopen byte-identically. Thirteen whole-payload comparisons
+allow only observed thumbnail/duration caches, Group numeric serialization,
+track defaults, ID/Quick Property remapping and display-position rebasing. All
+sixteen source points and thirteen bundled WAV copies remain unchanged. All 37
+input/saved checks pass the exact-build profile and native guards, with raw
+upstream discrepancies retained separately.
+
+The unit-speed, trimmed and common-Group-speed pictures match their independent
+flat controls. Decoded audio also matches for the trim control, but differs for
+the unit-speed and Group-speed layouts. Use the same layout's independently
+reopened output as its audio control; source preservation does not promise
+sample identity across native layouts.
+
+One source-skip opening crashed with a background memory-corruption trap while
+the main thread initialized the tool palette. The old process exited; a fresh
+matching process opened, saved and exported the same candidate normally. This
+does not establish a project-parser rejection. Original saved bytes stayed
+unchanged and the original editor window was restored. Completed disposable
+projects, media, exports, screenshots and audit records are removed after shipping.
 
 ## Global closed-caption styling
 

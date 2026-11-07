@@ -5,7 +5,7 @@ Schema validity, editor acceptance, and rendered behavior are separate results.
 The compatibility profile is restricted to its observed editor build and format.
 The format-10 audit view permits omitted Caption metadata only with Group-only
 ancestry. Root Captions retain required metadata; source documents stay unchanged.
-Captioned stitches must pass the caption helper's observed ordinary-AV predicate;
+Captioned stitches must pass the caption helper's observed ordinary AV/audio predicate;
 unsupported source/child layouts produce explicit compatibility errors.
 Install jsonschema through the repository's verification extra or the documented
 isolated uv invocation. Fetch downloads data only and never executes it.
