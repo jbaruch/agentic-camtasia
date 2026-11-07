@@ -249,7 +249,9 @@ extend these commands to root and Group-contained recording wrappers/audio.
 `validate_caption_clock` owns their selection and mirror checks. Recording
 source data and cursor metadata survive timing edits. The same commands support
 [moving recording stitched parents](captions.md#linked-moving-recording-stitched-captions).
-Recording holds remain pending.
+[Recording holds](captions.md#moving-and-held-recording-captions) preserve silent
+joins and parent cue ownership. Standalone frozen pictures use separate Caption
+media for closed cues.
 
 For same-source ordinary AV/audio or moving recording stitches, select the
 `StitchedMedia` parent. Its closed parameter

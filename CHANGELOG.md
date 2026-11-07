@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.55.0 — 2026-11-07
+
+### Added
+
+- Same-source moving/held recording stitches support parent closed cues,
+  source/display word clocks and parent retiming at root or inside Groups.
+  Silent frozen children preserve native frame/cursor data, introduce no word
+  onset, and retain the last word across the hold. Final moving-child highlight
+  projection remains separate from nominal speech timing.
+- Native trailing/middle holds, Group crops, source trims, speed changes and
+  parent-authored hold notes have exact frame controls. A separate Caption layer
+  renders notes over a standalone silent hold without inventing an audio owner.
+  All 3,600 primary cue/highlight frames match their maps; fourteen hold windows
+  contain only zero decoded PCM samples. Four same-process reopen pairs repeat
+  complete decoded video/audio and saved project bytes; the eighteen exports
+  total 152 seconds and 4,560 frames. Other caption gaps remain pending for
+  feature-complete 1.0.
+
 ## 0.54.0 — 2026-11-07
 
 ### Added
