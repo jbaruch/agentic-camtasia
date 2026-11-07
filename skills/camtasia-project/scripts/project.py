@@ -309,13 +309,14 @@ def native_lane_collisions(doc: dict[str, Any]) -> list[str]:
 
 
 def native_group_reopen_hazards(doc: dict[str, Any]) -> list[str]:
-    """Reject the reproduced format-10 trimmed 2x Group duration drift.
+    """Reject reproduced format-10 trimmed 2x and 0.5x Group duration drift.
 
     Two fresh native loads grow the exercised Group from 2 to 2.5 to 3 seconds
     while retaining its positive in-point. Its unanimated one-video counterpart
     retains source intervals and marker positions after rebasing the internal
     timeline to an in-point of zero; fresh saves and renders then repeat.
-    This guard does not infer behavior at other unexercised Group speeds.
+    The separate animated-text 0.5x probe shrinks from 4 to 3.5 to 3 seconds
+    on fresh loads with a half-second in-point. No other speeds are inferred.
     """
     client = {"name": "Camtasia", "platform": "Mac", "version": "2026.2.4"}
     if doc.get("version") != "10.0" or doc.get("authoringClientName") != client:
@@ -325,15 +326,21 @@ def native_group_reopen_hazards(doc: dict[str, Any]) -> list[str]:
         if node.get("_type") != "Group":
             continue
         try:
+            scalar = number(node.get("scalar"))
             affected = (
-                number(node.get("scalar")) == Fraction(1, 2) and number(node.get("mediaStart")) > 0
+                scalar in (Fraction(1, 2), Fraction(2)) and number(node.get("mediaStart")) > 0
             )
         except ValueError:
             # validate() reports malformed clip clocks independently.
             continue
         if affected:
+            symptom = (
+                "2x Group with a positive in-point grows"
+                if scalar == Fraction(1, 2)
+                else "0.5x Group with a positive in-point shrinks"
+            )
             errors.append(
-                f"{path}: a 2x Group with a positive in-point grows on native reopen "
+                f"{path}: a {symptom} on native reopen "
                 "in Mac 2026.2.4. Rebase a plain unanimated Group to in-point zero "
                 "while preserving child source intervals; derive and verify a stable "
                 "constructor for animated Groups before applying"

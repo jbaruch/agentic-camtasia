@@ -220,7 +220,7 @@ class RichStepTests(unittest.TestCase):
                 annotations.clear_rich_steps(doc, 3, 1)
             self.assertEqual(doc, before)
 
-    def test_rate_speed_and_unverified_nested_clocks_refuse(self):
+    def test_rate_speed_and_unverified_container_clocks_refuse(self):
         for field, value in [("editRate", 0), ("scalar", 0), ("duration", 0), ("mediaStart", -1)]:
             doc = document()
             (doc if field == "editRate" else clip(doc))[field] = value
@@ -229,9 +229,9 @@ class RichStepTests(unittest.TestCase):
         doc = document()
         owner = clip(doc)
         project.scene_tracks(doc)[0][0]["medias"] = [
-            dict(_type="Group", id=10, tracks=[dict(medias=[owner])])
+            dict(_type="StitchedMedia", id=10, tracks=[dict(medias=[owner])])
         ]
-        with self.assertRaisesRegex(ValueError, "root annotation"):
+        with self.assertRaisesRegex(ValueError, "Group-only"):
             annotations.set_rich_steps(doc, 3, setting())
 
     def test_cli_stages_repeat_clear_and_refusal_without_writing_original_or_partial_output(self):

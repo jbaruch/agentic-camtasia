@@ -358,7 +358,7 @@ Timed styles use separate commands and their own schema-1 spec:
 
 | Command | Required inputs | Output and side effects |
 | --- | --- | --- |
-| `set-rich-steps PROJECT --clip-id ID --spec SPEC --output CANDIDATE` | Root remix annotation, optional initial rich/range changes, ordered timed steps | Separate candidate; replaces the complete rich-state sequence with cumulative discrete style points. Text, geometry, visual intervals, default fonts and unrelated payload survive. |
+| `set-rich-steps PROJECT --clip-id ID --spec SPEC --output CANDIDATE` | Root or Group-contained remix annotation, optional initial rich/range changes, ordered timed steps | Separate candidate; replaces the complete rich-state sequence with cumulative discrete style points. Text, geometry, visual intervals, default fonts and all ancestor payload survive. |
 | `clear-rich-steps PROJECT --clip-id ID --at SECONDS --output CANDIDATE` | Timed annotation and visible clip-relative selection time | Separate candidate; retains the complete effective style as one static zero-time frame. Independent movement and intervals survive. |
 
 ```json
@@ -369,6 +369,8 @@ The helper contract above owns clock conversion, timing/order, existing-frame
 validation and replacement behavior. These are discrete style changes. Read the
 [native timed-style verification](annotation-rich-ranges.md#timed-rich-style-steps)
 for Auto Animate's static result and the rendered source-clock controls.
+The [Group verification](annotation-rich-ranges.md#group-contained-rich-style-steps)
+covers child-local timing, parent cropping and independent continuous outlines.
 
 Inspection reports declared fonts with `fontFilesVerified: false`. Resolve actual
 fonts and glyph coverage on the rendering host. Staging reports hashes,

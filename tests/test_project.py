@@ -196,8 +196,41 @@ class ProjectTests(unittest.TestCase):
         self.assertEqual(project.native_group_reopen_hazards(self.doc), [])
         self.doc["version"] = "10.0"
         self.doc["authoringClientName"]["version"] = "2026.2.4"
-        for scalar, media_start in ((1, 100), ("1/2", 0), ("1/4", 100)):
+        for scalar, media_start in ((1, 100), ("1/2", 0), (2, 0), ("1/4", 100), (3, 100)):
             group.update(scalar=scalar, mediaStart=media_start)
+            self.assertEqual(project.native_group_reopen_hazards(self.doc), [])
+
+    def test_trimmed_half_speed_animated_text_group_shrink_is_refused_without_repair(self) -> None:
+        self.doc["version"] = "10.0"
+        self.doc["authoringClientName"]["version"] = "2026.2.4"
+        child = clip(
+            21, "Callout", start=50, duration=200, mediaStart=100, mediaDuration=400, scalar="1/2"
+        )
+        child.pop("src")
+        child["def"] = {"kind": "remix", "text": "A café"}
+        group = clip(
+            20,
+            "Group",
+            start=50,
+            duration=400,
+            mediaStart=50,
+            mediaDuration=200,
+            scalar=2,
+            tracks=[{"medias": [child]}],
+        )
+        group.pop("src")
+        self.lane()["medias"] = [group]
+        before = copy.deepcopy(self.doc)
+        report = project.validate(self.doc, self.root)
+        self.assertFalse(report["ok"])
+        self.assertTrue(
+            any(
+                "0.5x Group with a positive in-point shrinks" in error for error in report["errors"]
+            )
+        )
+        self.assertEqual(self.doc, before)
+        for version in ["2025.0.3", "2026.2.5"]:
+            self.doc["authoringClientName"]["version"] = version
             self.assertEqual(project.native_group_reopen_hazards(self.doc), [])
 
     def test_behavior_is_not_misclassified_as_a_clip(self) -> None:

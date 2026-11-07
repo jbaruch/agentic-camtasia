@@ -89,11 +89,16 @@ text_style, with EMPTY_STYLE_REQUIRED and optional kerning; no font defaults or
 cached typing styles are inferred. Text edits require static native rich data.
 Declared font names do not establish physical font availability or glyph coverage.
 set-rich-steps PROJECT --clip-id ID --spec SPEC --output CANDIDATE replaces
-rich states on a root remix text annotation. Schema 1 has optional initial
+rich states on a root or Group-contained remix text annotation. All clip
+ancestors must be Groups; other containers and multiple scenes refuse.
+Schema 1 has optional initial
 rich/rich_ranges edits and nonempty steps, each with at (positive rational local
 seconds) and rich/rich_ranges. Changes accumulate from the initial complete
 zero-time state. Times increase strictly, remain inside the visible duration
-and map to exact source ticks through mediaStart/inverse speed. The initial
+and map to exact source ticks through the selected child's mediaStart/inverse
+speed. Ancestor placement, trims and inverse speeds do not enter that local
+conversion. Parent bounds/durations can crop a child; no ancestor is expanded
+or retimed. The initial
 zero-time fallback remains; later frames are discrete points, not interpolated
 font/color ramps. Native Auto Animate font-size edits remain static. Existing
 point states are explicitly replaced; interval/unknown frames refuse. Existing
@@ -102,7 +107,7 @@ clear-rich-steps PROJECT --clip-id ID --at SECONDS --output CANDIDATE keeps the
 complete state effective at that visible local time as a static zero-time frame.
 Both commands validate complete per-property UTF-8 partitions. General set still
 refuses timed rich text; clear explicitly before changing its text. No text
-content, RTF, nested-owner clock or font-file closure is inferred.
+content, RTF, other container clocks or font-file closure is inferred.
 No proprietary presets, SVGs or fonts are distributed by this helper.
 
 No original, media or editor is written. Exclusive/identical candidate staging
@@ -778,9 +783,11 @@ def rich_source_time(doc: dict[str, Any], clip_id: int, at: Any) -> int:
     clip = target(doc, clip_id)
     path, _ = hotspots.visual_target(doc, clip_id, visual_types=frozenset({"Callout"}))
     if len(project.scene_tracks(doc)) != 1 or any(
-        path.startswith(parent + "/") for parent, _ in hotspots.clips(doc) if parent != path
+        node.get("_type") != "Group"
+        for parent, node in hotspots.clips(doc)
+        if path.startswith(parent + "/")
     ):
-        raise ValueError("select a root annotation for the verified timed-rich source clock")
+        raise ValueError("select a single-scene annotation with Group-only clip ancestors")
     rate, scalar = project.number(doc.get("editRate")), project.number(clip.get("scalar"))
     duration, start = project.number(clip.get("duration")), project.number(clip.get("mediaStart"))
     point = project.number(at)
