@@ -120,15 +120,17 @@ the UI-saved definition. Both native exports have identical complete decoded
 RGB and PCM; the inspected frame shows the rounded navy block and green active-
 word rectangle behind the red word. No font or proprietary preset is distributed.
 
-The root-display batch contains six four-second movies and 720 checked
-highlight frames. Three complete decoded RGB/PCM comparisons match: native UI
-against helper, helper against its same-process reopen, and zero background
-alpha against the baseline. The independent block-only control has no word
-rectangle; every movie retains identical decoded audio. Three helper candidates
-retain the complete project payload apart from native thumbnail/duration caches,
-including unchanged source data and bundled recording/WAV bytes. The reopened
-helper's saved JSON is byte-identical. Native Group background rendering remains
-unverified; the current Group fixture checks helper preservation only.
+The batch contains nine four-second movies and 1,080 checked highlight frames.
+Five complete decoded RGB/PCM comparisons match: native UI against helper,
+helper against its same-process reopen, zero background alpha against baseline,
+root against Group containment, and Group against its same-process reopen.
+Independent block-only and word-only controls isolate both backgrounds; every
+movie retains identical decoded audio. Five helper candidates retain their
+payloads, source data and bundled recording/WAV bytes. Native saves change
+thumbnail/duration caches; the Group additionally remaps clip IDs, fills neutral
+child lane defaults and drops its unused neutral root-lane attributes. The
+reopened root helper's saved JSON is byte-identical; the Group changes only its
+thumbnail cache. These checks retain each caption/source/ancestor clock.
 
 ## Longer vertical edits and export checks
 

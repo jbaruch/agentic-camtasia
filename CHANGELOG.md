@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.59.0 — 2026-11-07
+
+### Added
+
+- `set-display` edits existing block and active-word caption background RGBA,
+  corner radius, word padding/scale and movement time. Saved units and static
+  parameter representations survive; source words, rich ranges and clocks stay
+  unchanged. Native UI Scale 20% uses 0.2 in the helper.
+- Nine native movies verify 1,080 highlight frames and five identical decoded
+  video/audio comparisons, including UI/helper parity, transparent backgrounds
+  and root/Group save/reopen. Independent controls isolate each background;
+  every movie retains identical audio. Other caption gaps remain pending.
+
+### Changed
+
+- The operator deferred quizzes and their SCORM session follow-ups, Snagit and
+  Audiate from the feature-complete 1.0 gate. Their remaining work is skipped;
+  Rev/Zoom/cloud imports and other active backlog families remain in scope.
+
 ## 0.58.0 — 2026-11-07
 
 ### Added
