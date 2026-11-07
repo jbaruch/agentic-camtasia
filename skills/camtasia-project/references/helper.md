@@ -253,6 +253,11 @@ source data and cursor metadata survive timing edits. The same commands support
 joins and parent cue ownership. Standalone frozen pictures use separate Caption
 media for closed cues.
 
+For [mixed-source sequences](captions.md#mixed-source-caption-compositions), use a
+native Group and map/edit its inspected caption children. `inspect` reports each
+logical audio use with its physical audio ID and source/stream selection. Native
+stitching remains under its same-source contract.
+
 For same-source ordinary AV/audio or moving recording stitches, select the
 `StitchedMedia` parent. Its closed parameter
 supports text/cue edits, mapping and parent retiming. The same script's

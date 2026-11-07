@@ -37,6 +37,8 @@ retain silent moving/held joins and their one-tick frame selection. They add no
 source words; composed words can hold across them. A final frozen child has no
 final-child word projection. Other mixed-owner or multi-source stitches and
 multiscene mapping refuse. Standalone frozen pictures use separate Caption media.
+Use native Groups for mixed/multiple-source compositions and select each caption
+child by its inspected audio/source IDs. Group mapping retains per-source clocks.
 
 set-text PROJECT --clip-id ID --spec SPEC corrects existing plain closed points.
 set-rtf-text uses edits [{index, expected, replacements:[{start,end,text}]}] for
@@ -429,7 +431,9 @@ def stitched_children(doc: dict[str, Any], owner: dict[str, Any]) -> list[dict[s
             child["video"]["_type"] if linked else None,
         )
         if source is not None and source != selection:
-            raise ValueError("capture mixed-owner or multi-source stitched captions separately")
+            raise ValueError(
+                "use a Group for mixed-owner or multi-source captions; select its caption children"
+            )
         source = selection
         for stream in (audio, child["video"]) if linked else (audio,):
             ident = stream.get("id")

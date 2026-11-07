@@ -490,7 +490,7 @@ The continuous unit-speed stitched picture matches the independent flat control.
 audio differs between these native layouts; preserved source bytes do not
 establish sample identity after stitching. Compare edits against the same
 stitched layout and verify its own independent reopen/export. Recording holds
-and audio-only additions follow below. Multiple-source stitches, nonzero
+and audio-only additions follow below. Mixed-source composition follows below. Nonzero
 source-file offsets and multiple scenes remain separate work. Completed
 disposable data is removed.
 
@@ -500,9 +500,8 @@ Version 0.52.0 adds ordinary same-source audio-only stitched parents to the
 [caption helper contract](helper.md#caption-json-editing). The native parent
 owns closed cues; its children are plain `AMFile` nodes. Source and physical
 audio IDs coincide for these children. Parent text/cue edits and retiming retain
-every child, its parameters and source transcription. AV/audio mixtures,
-other sources and multiscene clocks remain separate forms. Recording holds
-follow below.
+every child, its parameters and source transcription. Recording holds and
+mixed-source composition follow below. Multiscene clocks remain separate work.
 
 Locally observed on Mac 2026.2.4 (2026.132), format 10. An eight-second mono
 48-kHz WAV contains synthetic speech. Native Bebas word-red generation saves
@@ -627,8 +626,8 @@ Activity Monitor force-quit only the stalled test editor. Opening a staged
 existing bundle avoided that filename-panel path; ordinary saves and local
 exports completed in the fresh matching editor. No cloud setting, system
 service or original project was changed. Nonzero
-source-file offsets, mixed/multiple-source owners and multiscene clocks remain
-separate pending work. Moving-recording stitches and holds follow below.
+source-file offsets and multiscene clocks remain separate pending work.
+Moving-recording stitches, holds and mixed-source Groups follow below.
 
 ## Linked moving recording stitched captions
 
@@ -687,7 +686,7 @@ decoded RGB and PCM streams and byte-identical saved projects. The nineteen
 exports total 123 seconds and 3,690 frames. The unit-speed flat/stitch pair
 matches decoded video and audio; the root/Group unit pair matches decoded video.
 These are manual reopens, not fresh-process or adapter runs. Recording holds
-follow below. Mixed-family/multiple-source stitches, source-file offsets and
+follow below. Mixed-source Groups follow below too. Source-file offsets and
 multiscene clocks remain pending. Completed disposable verification data is
 removed after shipping.
 
@@ -755,8 +754,71 @@ eighteen exports total 152 seconds and 4,560 frames. The native/helper unit pair
 matches decoded video and audio; root/Group unit video also matches. These are
 same-process manual reopens, not fresh-process or adapter runs. Word-hold
 intervals include silence; retain source/audio provenance for speech cuts.
-Mixed/multiple-source or other container forms,
-source-file offsets, multiscene clocks and the other caption gaps remain pending.
+Mixed-source Groups follow below. Source-file offsets, multiscene clocks and
+the other caption gaps remain pending.
+
+## Mixed-source caption compositions
+
+Version 0.56.0 provides the native Group workflow for nonoverlapping captioned
+clips from different sources. On Mac 2026.2.4 (2026.132), format 10, both the
+linked-recording/WAV selection and two audio clips from separate files disable
+**Edit → Stitch Selected Media**. **Group** is enabled and creates a common
+container without merging their audio owners or source records. Keep the
+same-source stitch contract above; use the exercised Group workflow for these
+mixed-source sequences.
+
+Inspect `audioUses` from the caption helper before editing. Each logical use
+reports `clipId`, `audioClipId`, `sourceId`, `sourceTrack` and container ancestry.
+Map or edit the selected caption child, not the Group or an assumed lane number.
+Use the reported source ID/stream for `correct-words`. `caption_context` and
+`closed_clock` in `scripts/captions.py` own ancestry/clock selection;
+`correct_words` and `transcription` own source-specific corrections. The Group
+keeps common placement, cropping and speed independently of each child clock.
+
+The native probe combines a four-second linked speech recording and four seconds
+of a separate eight-second synthetic WAV. The recording selects audio stream
+one; the WAV selects stream zero. Both streams use edit rate 44100, while their
+recognized points use the separate 705600000 caption clock. Native adding a
+dynamic-caption style generates twelve WAV points, including its first `a` at
+705600 ticks and its final `%GAP` at 2742667201. The recording's original 92
+points remain unchanged. Adding native closed captions creates a separate
+audio-owned parameter on the WAV. The duplicate generation display is removed;
+one bounded dynamic display spans the eight-second sequence.
+
+Two native Groups cover the linked-recording/WAV and two-audio layouts. Each
+keeps separate caption parameters and the two source records. Closed texts
+`RECORDING`, `VOICE`, `SECOND` and `WAV` occupy seconds zero–two, two–four,
+four–six and six–eight. The shared dynamic display changes to the WAV's words
+at the source handoff and clears its last highlight at the measured pause.
+It does not compose a cross-file source transcription or virtual stitched word
+hold. Keep each selected child's map and source provenance separate.
+
+A common Group at 2× speed maps both voices/cues through its parent clock.
+Cropping that Group into source two carries the active `another` word and its
+sentence. Trimming only the WAV child to source second one omits earlier word
+onsets, starts at the later `story,` onset and shortens the displayed sentence;
+the recording and both raw transcriptions stay intact. A separate correction
+changes only WAV point eight from `brightened` to `brighten`, retaining every
+point time and the recording's source. Global cue authoring on that same child
+places `SECOND EDIT` at 4.5–5.5 seconds without altering the recording's cues.
+
+Eight primary exports cover 57 seconds and 1,710 frames. Every closed-cue and
+highlight/pause state matches its source-specific map, including zero masks
+during expected blanks. Four strict candidate comparisons retain both complete
+source entries, TREC/WAV bytes, caption maps and other payload after the known
+thumbnail/duration and Group numeric/track-default serialization. Twenty-four
+current input/saved/native snapshots pass the exact-build profile and native
+compatibility checks. Three normal save/close/reopen/export pairs reproduce
+complete decoded RGB and PCM. The speed and correction projects also repeat
+their saved bytes; the newly created audio Group adds only the known first-track
+`{"IsLocked":"False"}` metadata default on reopening. All eleven exports total
+78 seconds and 2,340 frames. Each root/Group layout pair matches complete decoded
+video/audio in this probe. The rendered WAV interval has 0.999764 zero-lag
+correlation with 176,400 actual input samples; both voices have nonzero measured
+audio. These are same-process manual reopens, not fresh-process or adapter runs.
+Completed disposable verification data is removed after shipping.
+Additional scene clocks, nonzero source-file offsets,
+other RTF forms and remaining display controls stay separate pending work.
 
 ## Global closed-caption styling
 
