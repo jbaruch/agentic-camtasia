@@ -44,12 +44,13 @@ owns the read-only Group-only ancestry exception. Root Caption metadata stays
 required; present metadata still requires an object. Original documents and raw
 community-schema checks retain their actual saved fields.
 
-Native ordinary AV/audio stitching on Mac 2026.2.4 moves audio-owned closed cues into
+Native ordinary AV/audio and moving-recording stitching on Mac 2026.2.4 moves audio-owned closed cues into
 `StitchedMedia.parameters.captions`; see [stitched captions](captions.md#ordinary-av-stitched-caption-clocks).
 The format-10 profile replaces only that clip family's parameter-map reference
 with a map admitting the existing strict caption-point schema at `captions`.
 Other parameters retain the upstream parameter-map checks. The same script's
-`audit` requires captioned stitches to pass the shared ordinary AV/audio predicate;
+`audit` requires captioned stitches to pass the shared caption-owner predicate in
+`stitched_children` in `skills/camtasia-project/scripts/captions.py`;
 unverified child/source layouts produce native-compatibility errors. Stitches
 without that caption parameter retain their existing audit behavior. Raw schema
 failures, other clip families and original documents remain unchanged.

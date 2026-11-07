@@ -12,10 +12,10 @@ word onsets; ancestor cropping carries a word already active in the Group.
 The verified caption/word clock is 705600000 ticks/sec, independently of each
 source stream's sample/edit rate. Group mapping requires Mac 2026.2.4 and returns
 ancestors nearest first. map --closed-only omits source recognition and requires
-existing closed cues. Mac 2026.2.4 stitched ordinary AV/audio parents own their closed
-cues in the virtual stitch clock. Select that parent, rather than its internal
-children. Word mapping composes eligible child onsets before forming holds, so
-the last retained word can span a source skip. Returned stitched words retain
+existing closed cues. Mac 2026.2.4 stitched ordinary AV/audio and linked moving
+recording parents own closed cues in the virtual stitch clock. Select that parent,
+rather than its internal children. Word mapping composes eligible child onsets
+before forming holds, so the last retained word can span a source skip. Returned stitched words retain
 source index/time and add stitchTime, sourceClipId, audioClipId, sourceId and
 sourceTrack. A stitched source trim omits earlier virtual onsets; Group cropping
 carries an active hold. Stitched map also returns displayWords for the measured
@@ -27,10 +27,12 @@ visible eligibility. Outer Group speed alone does not cause this projection.
 Keep the stitched scalar at one and speed its common audio/display Group when
 uniform highlight timing is required. At exact frame boundaries, native exports
 can retain the previous word for one frame; projected ticks are not shifted.
-stitched_children owns internal validation.
+stitched_children owns internal validation. A final recording child can extend
+beyond its parent's visible interval; preserve that available source window.
+Projected holds can lie between video frames; mapping retains their exact ticks.
 Mac 2026.2.4 linked moving recordings use the same root/Group caption clock.
 Their ScreenVMFile/AMFile source selection and complete mirrored clocks are
-validated before mapping or retiming. Recording holds/stitches, mixed-owner or
+validated before mapping or retiming. Recording holds, mixed-owner or
 multi-source stitches and multiscene mapping refuse.
 
 set-text PROJECT --clip-id ID --spec SPEC corrects existing plain closed points.
@@ -328,13 +330,12 @@ def validate_caption_clock(
             )
         if video["_type"] == "ScreenVMFile":
             require_native(doc, dynamic=True)
-            effects.constructor_owners(
-                doc,
-                owner["id"],
-                visual_types=effects.LINKED_RECORDING_TYPES,
-                linked_recordings=True,
-                grouped_recordings=True,
-            )
+            if (
+                audio["_type"] != "AMFile"
+                or type(video.get("src")) is not int
+                or video["src"] != audio.get("src")
+            ):
+                raise ValueError("retain a linked moving recording with same-source AMFile audio")
             source_stream(doc, video, 0)
             audio_stream(doc, audio)
         clocks += [video, audio]
@@ -353,7 +354,7 @@ def validate_caption_clock(
 
 
 def stitched_children(doc: dict[str, Any], owner: dict[str, Any]) -> list[dict[str, Any]]:
-    """Validate homogeneous ordinary AV or audio stitches, not recording holds."""
+    """Validate homogeneous ordinary AV/audio or moving-recording stitches."""
     require_native(doc, dynamic=True)
     children = owner.get("medias")
     if (
@@ -370,9 +371,10 @@ def stitched_children(doc: dict[str, Any], owner: dict[str, Any]) -> list[dict[s
             raise ValueError("capture stitched recording/hold caption forms separately")
         linked = child["_type"] == "UnifiedMedia"
         if linked and (
-            not isinstance(child.get("video"), dict) or child["video"].get("_type") != "VMFile"
+            not isinstance(child.get("video"), dict)
+            or child["video"].get("_type") not in ("VMFile", "ScreenVMFile")
         ):
-            raise ValueError("capture stitched recording/hold caption forms separately")
+            raise ValueError("capture stitched held caption forms separately")
         audio = child.get("audio") if linked else child
         validate_caption_clock(doc, child, audio)
         assert isinstance(audio, dict)  # Validated by the caption clock selector.
@@ -396,6 +398,7 @@ def stitched_children(doc: dict[str, Any], owner: dict[str, Any]) -> list[dict[s
             audio.get("src"),
             audio.get("trackNumber"),
             child["video"].get("trackNumber") if linked else None,
+            child["video"]["_type"] if linked else None,
         )
         if source is not None and source != selection:
             raise ValueError("capture mixed-owner or multi-source stitched captions separately")

@@ -575,8 +575,8 @@ moving recordings on Mac 2026.2.4 / format 10. The recording's `UnifiedMedia`
 contains a `ScreenVMFile` video and same-source `AMFile` audio. Native closed
 cues remain on the audio child; recognized words remain on its selected source
 stream. Select the logical wrapper or its audio child. `validate_caption_clock`
-in `scripts/captions.py` owns the supported recording predicate, using the shared
-linked-recording owner selector. `stitched_children` retains its separate scope.
+in `scripts/captions.py` owns the recording source and mirror checks.
+`stitched_children` owns the separate parent/child selection contract.
 
 The current native recording captures synthetic speech played in one selected
 browser window, with screen and application audio enabled and camera/microphone
@@ -624,9 +624,69 @@ file read. Recovery JSON and the TREC were copied and hash-verified before nativ
 Activity Monitor force-quit only the stalled test editor. Opening a staged
 existing bundle avoided that filename-panel path; ordinary saves and local
 exports completed in the fresh matching editor. No cloud setting, system
-service or original project was changed. Recording holds/stitches, nonzero
+service or original project was changed. Recording holds, nonzero
 source-file offsets, mixed/multiple-source owners and multiscene clocks remain
-separate pending work.
+separate pending work. Moving-recording stitches follow below.
+
+## Linked moving recording stitched captions
+
+Version 0.54.0 adds same-source moving-recording stitched parents, at root or
+inside Groups, on Mac 2026.2.4 (2026.132) / format 10. The existing caption
+commands select the parent for closed-cue mapping, text/cue edits and retiming.
+Word mapping retains the separate nominal `words` and projected `displayWords`
+clocks and every internal source/audio ID. `stitched_children` in
+`scripts/captions.py` owns the verified child-family and source predicate;
+the effect constructors retain their separate owner scope.
+
+Native splitting of the eight-second speech recording at four seconds copies
+the complete audio-cue parameter to both linked halves. Native stitching moves
+those cues to the `StitchedMedia` parent and removes both child parameters.
+The `ScreenVMFile`/`AMFile` children retain mirrored clocks and the selected TREC
+source streams. Parent scale/cursor/audio companions survive editing. All 92
+native source transcription points remain unchanged.
+
+The final internal moving child extends to the native available recording end,
+not just the visible parent end. The first child spans zero–four seconds; the
+second starts at four, selects source second four, and retains a 58 1/30-second
+duration despite the eight-second parent. Preserve that window. Retiming the
+parent can expose more recorded source without changing any child clocks.
+
+Native joining of source windows zero–three and five–eight creates parent cues
+`ONE` at zero, `TWO` at two, `THREE` at three, `FOUR` at four and clear at five.
+The stitched word `clear` holds across the join until the next retained source
+onset, unlike the separately rendered unstitched source-skip control. Its
+assembled paragraph omits the skipped words; source transcription stays intact.
+
+The existing final-child projection also applies to recordings. Parent speed,
+slowing, trims inside the final child and a three-child control with a different
+final boundary match `displayWords`. The nominal source-word map stays separate
+for speech cuts. Removing closed cues preserves every dynamic-highlight state.
+Ten frames have one–three different pixels in the 20,020-pixel
+highlight masks; the decoded masks are not pixel-identical across this control.
+A common sped Group containing the unit-speed stitch and display
+keeps uniform timing; speeding the stitched child inside an unsped Group retains
+the owner-local projection. Parent cropping carries an active word and its full
+sentence; trimming the stitched source omits earlier onsets and shortens that
+sentence. Captions and display bounds remain independent.
+
+A positive mapped hold need not contain a video frame. One projected `follows`
+interval spans 4.9845625–5 seconds; the last 30 fps output frame is at 4 29/30
+seconds and still highlights `word`. The logical hold remains in the map.
+No timestamp shift or rounding repair is inferred from this unsampled interval.
+
+Sixteen primary exports cover 3,210 frames with every closed-cue and highlighted
+word/gap state checked against its exact map. Inspected reference frames cover
+the source skip, future projected words, final trims, slowing, Group crop and
+authored cues/clearing. Strict comparisons retain all source entries, bundled
+TREC bytes, caption maps and other payload after the observed thumbnail/duration
+caches, Group numeric serialization and track-default addition. Three normal
+save/close/reopen/export pairs in the same editor process reproduce complete
+decoded RGB and PCM streams and byte-identical saved projects. The nineteen
+exports total 123 seconds and 3,690 frames. The unit-speed flat/stitch pair
+matches decoded video and audio; the root/Group unit pair matches decoded video.
+These are manual reopens, not fresh-process or adapter runs. Recording holds,
+mixed-family/multiple-source stitches, source-file offsets and multiscene clocks
+remain pending. Completed disposable verification data is removed after shipping.
 
 ## Global closed-caption styling
 
