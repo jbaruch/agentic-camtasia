@@ -45,6 +45,35 @@ sample offsets ship in 0.57.0 with distinct physical and nominal caption clocks.
 | Deferred | Audiate and Snagit companion handoffs. Operator deferred both on 2026-11-07; skip this work for 1.0. | [#13](https://github.com/jbaruch/agentic-camtasia/issues/13), [integrations](../skills/camtasia-project/references/advanced-features.md#companion-apps-and-connected-imports). |
 | Pending | Remaining Library lifecycle operations, including permanent deletion, root/ancestor return and modifier/multiple-selection moves. | [#14](https://github.com/jbaruch/agentic-camtasia/issues/14), [Library](../skills/camtasia-project/references/library.md). |
 
+## Caption completion tasks
+
+The caption family remains pending. Its next concrete operations are:
+
+- Finish active-word stroke color and glow verification for the proposed 0.60.0:
+  observe the combined export's return, compare native and helper output, isolate
+  glow, and verify root/Group save, reopen and rendering. Implementation and
+  deterministic checks pass; staged payload preservation does not finish these
+  native checks.
+- Capture and exercise block-transition selection and reversal. Existing
+  transition-duration editing does not establish these separate controls.
+- Exercise dynamic-caption alignment, wrapping, outline placement, sizing and
+  ligature controls through the existing annotation route. A file-level probe
+  preserves unrelated data and passes structural validation; native caption
+  save/reopen and output remain unverified. Reuse that route where its native
+  results hold rather than adding a duplicate caption interface.
+- Capture remaining line-spacing and rich-style operations. The current native
+  placeholder has partial rich ranges; a uniform annotation-rich edit refuses
+  that specimen. Preserve its word binding and ranges when establishing the
+  remaining editing contract.
+- Inventory the other RTF representations against the existing caption-text
+  contract, obtain concrete native/imported specimens and implement or exercise
+  their remaining operations. Text-only Cocoa RTF support in 0.48.0 does not
+  establish complex document content or every imported representation.
+
+Keep unknown operations pending during this inventory. The
+[caption reference](../skills/camtasia-project/references/captions.md) records
+existing native observations and verification limits.
+
 ## Completion audit
 
 - Expand each remaining family into the concrete operations its source contract

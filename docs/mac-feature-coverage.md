@@ -29,6 +29,10 @@ references define each supported representation; the
 
 ## Known follow-ups
 
+The operator's quiz, Snagit and Audiate deferrals in the
+[completion plan](feature-completion-plan.md) are excluded from the 1.0 gate.
+The follow-ups below include those deferred capabilities for reference.
+
 - Further effect/behavior controls, further animated annotation styles, other caption RTF forms/display controls and additional themed/animated Quick Property controls.
 - Additional requested Library lifecycle operations and theme resource combinations.
 - Further owner/container/scene clocks in matte, hotspot and quiz editing.

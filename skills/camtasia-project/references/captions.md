@@ -141,6 +141,12 @@ active text. Glow's contribution is subtler with that thick outline; a clean
 comparison retaining the same text and color with word extra width zero is
 prepared.
 
+The complete native before/after payload differs only at those five definition
+entries and the observed reset/command bookkeeping. Staged root and Group
+edits differ only at the five entries. Their recognized-word and cue maps,
+source-bin data, bundled recording and WAV bytes remain unchanged. These staged
+checks are separate from the outstanding native candidate verification.
+
 Verification is in progress. The combined export's UI return, helper/native
 comparison, clean glow comparison, save/reopen and Group rendering remain
 pending while the native window is unavailable. The prepared candidates and
