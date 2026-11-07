@@ -290,8 +290,8 @@ Caption form, actual native audio-caption/recognition captures and saved output.
 
 These checks cover the exercised plain values, root clocks and display controls.
 RTF editing, Group closed clocks and Group source-word/display clocks have separate
-contracts below. Other stitched/multiscene mapping, nonzero audio source-file offsets,
-physical font closure and other requested delivery settings retain their own
+contracts below. Audio source-file offsets also follow below. Other multiscene
+mapping, physical font closure and other requested delivery settings retain their own
 checks. Native definitions, recognition models, fonts and media remain outside
 the package. Completed disposable projects, exports, screenshots and diagnostics
 are deleted after incorporating the findings and generated-fixture tests.
@@ -411,8 +411,8 @@ the existing raw `transcriptionSet` discrepancy remains separate.
 The negative audio-placement and equivalent Group-trim movies differ in audio
 only around global seconds 0.996–1.368. Their seconds 2–7 are sample-identical;
 the cause of the opening difference is unestablished. Read-only word mapping
-does not promise audio identity across alternate native clock layouts. Source
-offsets, other stitched/recording variants, multiple scenes and remaining dynamic
+does not promise audio identity across alternate native clock layouts. Audio source-file offsets follow below. Other stitched/recording variants,
+multiple scenes and remaining dynamic
 controls retain separate work. Completed disposable data is removed.
 
 ## Ordinary-AV stitched caption clocks
@@ -490,8 +490,8 @@ The continuous unit-speed stitched picture matches the independent flat control.
 audio differs between these native layouts; preserved source bytes do not
 establish sample identity after stitching. Compare edits against the same
 stitched layout and verify its own independent reopen/export. Recording holds
-and audio-only additions follow below. Mixed-source composition follows below. Nonzero
-source-file offsets and multiple scenes remain separate work. Completed
+and audio-only additions follow below. Mixed-source composition and audio source-file offsets follow below.
+Multiple scenes remain separate work. Completed
 disposable data is removed.
 
 ## Audio-only stitched caption clocks
@@ -625,8 +625,8 @@ file read. Recovery JSON and the TREC were copied and hash-verified before nativ
 Activity Monitor force-quit only the stalled test editor. Opening a staged
 existing bundle avoided that filename-panel path; ordinary saves and local
 exports completed in the fresh matching editor. No cloud setting, system
-service or original project was changed. Nonzero
-source-file offsets and multiscene clocks remain separate pending work.
+service or original project was changed. Audio source-file offsets follow below;
+multiscene clocks remain pending.
 Moving-recording stitches, holds and mixed-source Groups follow below.
 
 ## Linked moving recording stitched captions
@@ -686,8 +686,8 @@ decoded RGB and PCM streams and byte-identical saved projects. The nineteen
 exports total 123 seconds and 3,690 frames. The unit-speed flat/stitch pair
 matches decoded video and audio; the root/Group unit pair matches decoded video.
 These are manual reopens, not fresh-process or adapter runs. Recording holds
-follow below. Mixed-source Groups follow below too. Source-file offsets and
-multiscene clocks remain pending. Completed disposable verification data is
+follow below. Mixed-source Groups and audio source-file offsets follow below too.
+Multiscene clocks remain pending. Completed disposable verification data is
 removed after shipping.
 
 ## Moving and held recording captions
@@ -754,8 +754,8 @@ eighteen exports total 152 seconds and 4,560 frames. The native/helper unit pair
 matches decoded video and audio; root/Group unit video also matches. These are
 same-process manual reopens, not fresh-process or adapter runs. Word-hold
 intervals include silence; retain source/audio provenance for speech cuts.
-Mixed-source Groups follow below. Source-file offsets, multiscene clocks and
-the other caption gaps remain pending.
+Mixed-source Groups and audio source-file offsets follow below. Multiscene
+clocks and the other caption gaps remain pending.
 
 ## Mixed-source caption compositions
 
@@ -817,8 +817,64 @@ video/audio in this probe. The rendered WAV interval has 0.999764 zero-lag
 correlation with 176,400 actual input samples; both voices have nonzero measured
 audio. These are same-process manual reopens, not fresh-process or adapter runs.
 Completed disposable verification data is removed after shipping.
-Additional scene clocks, nonzero source-file offsets,
-other RTF forms and remaining display controls stay separate pending work.
+Audio source-file offsets follow below. Additional scene clocks, other RTF
+forms and remaining display controls stay separate pending work.
+
+## Audio source-file offsets
+
+Version 0.57.0 supports retained nonzero `AMFile.attributes.sourceFileOffset`
+through the caption helper on Mac 2026.2.4 (2026.132), format 10. This is a
+JSON-authored native probe, not an inferred UI command for changing audio sync.
+`audio_offset`, `capacity` and `map_captions` in `scripts/captions.py` own units,
+accepted values, physical bounds and the separate `audioFileOffsets` report.
+Cue authoring, word corrections and retiming preserve each offset.
+
+The native WAV controls independently distinguish one sample, 44,100 samples
+and 705,600,000 samples. One sample advances speech by one 44.1-kHz sample;
+44,100 advances it by one second. The project-tick-sized value runs beyond the
+physical file and renders silent audio. All four controls have identical decoded
+video: neither audio-owned closed cues nor dynamic word highlights move with
+this physical skip. Do not subtract the offset from caption points or assume
+recognized text remains synchronized to the shifted speech. A new transcription
+or explicitly verified editorial alignment is a separate operation.
+
+The sample rate converts the skip; the source range/edit rate bounds its
+available duration. A deliberately inconsistent WAV range/edit-rate control
+is repaired by native save to the real 44.1-kHz file metadata and reproduces
+the one-second control. Read the actual saved stream, not invented metadata.
+Negative offsets save but the export returns without a final movie and leaves
+an empty temporary output in this probe. Negative/fractional skips, missing
+sample rates and consumption beyond the physical source remain refused.
+
+A helper candidate keeps the one-second offset, trims a further source second,
+plays four logical source seconds at 2× and places the result at timeline
+seconds one–three. Global cue edits render `OFFSET EDIT` then `SECOND CUE`;
+the nominal word sequence starts with `story,`. The audio therefore consumes
+physical seconds two–six while cue/word clocks retain logical seconds one–five.
+A native mixed-source Group retains independent one-second recording/WAV skips;
+its picture/caption stream matches the zero-offset control. A moving/held
+recording stitch retains its audio-child offset and unchanged parent cues,
+frozen frame and held last word. Neither source transcription is rewritten.
+
+Seven primary movies cover 41 seconds and all 1,230 cue/highlight frames,
+including exact blank masks. Inspected reference frames confirm the edited
+cues, source handoff, shortened sentence and held word. Four same-process
+save/close/reopen pairs reproduce complete decoded RGB/PCM and saved project
+bytes. The thirteen accepted movies, including two unit/metadata diagnostics,
+total 74 seconds and 2,220 frames. Four strict candidate comparisons retain
+all other payload and both bundled file hashes after thumbnail/duration caches.
+The initial flattened audio control also reallocates clip IDs and removes its
+copied Group-only lane flags. Thirty-four input/saved/current profile audits
+pass without native compatibility errors; raw schema omissions remain separate.
+
+Known-shift comparisons against the actual WAV exceed 0.99966 correlation;
+the recording's one-second skip exceeds 0.99901 against a separate native
+zero-offset render. Raw TREC decoding is not used as that alignment reference.
+The silent hold's interior at 8.05–10 seconds contains only zero PCM samples;
+the first 0.05 seconds retains a small native AAC boundary tail. These are
+manual reopens in the same editor process, not fresh-process adapter runs.
+Completed disposable verification data is removed after shipping. Multiscene
+clocks, other RTF forms and remaining dynamic display controls stay pending.
 
 ## Global closed-caption styling
 

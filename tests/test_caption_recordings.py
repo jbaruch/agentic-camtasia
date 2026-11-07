@@ -121,7 +121,7 @@ class RecordingCaptionTests(unittest.TestCase):
             lambda d: audio(d).update(trackNumber=0),
             lambda d: root(d)["video"].update(duration=7 * R),
             lambda d: audio(d).update(mediaStart=R),
-            lambda d: audio(d)["attributes"].update(sourceFileOffset=1),
+            lambda d: audio(d)["attributes"].update(sourceFileOffset=-1),
         ):
             doc = recording()
             mutate(doc)

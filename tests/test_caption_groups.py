@@ -523,7 +523,7 @@ class GroupCaptionTests(unittest.TestCase):
                 doc["version"] = "9.0"
                 doc["authoringClientName"]["version"] = "2025.0.3"
             elif mutation == "offset":
-                leaf(doc)["audio"]["attributes"]["sourceFileOffset"] = 1
+                leaf(doc)["audio"]["attributes"]["sourceFileOffset"] = -1
             elif mutation == "mirror":
                 leaf(doc)["audio"]["start"] = 0
             else:

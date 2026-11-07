@@ -211,7 +211,7 @@ class AudioStitchedCaptionTests(unittest.TestCase):
             elif mutation == "consumption":
                 children[1]["mediaDuration"] = R
             elif mutation == "offset":
-                children[0]["attributes"]["sourceFileOffset"] = 1
+                children[0]["attributes"]["sourceFileOffset"] = -1
             else:
                 children[0]["parameters"]["captions"] = copy.deepcopy(
                     parent(doc)["parameters"]["captions"]

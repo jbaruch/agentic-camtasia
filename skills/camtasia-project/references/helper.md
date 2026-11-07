@@ -166,7 +166,7 @@ Use `skills/camtasia-project/scripts/captions.py` for plain closed cues, existin
 plain and native RTF caption text, recognized source-word corrections, root or Group clock mapping/retiming,
 global closed-caption style and existing dynamic display controls.
 Its module docstring, `RATE`, `root_clock`,
-`point_frames`, `correction_edits`, `capacity`, `mapped_holds` and `set_display`
+`point_frames`, `correction_edits`, `audio_offset`, `capacity`, `mapped_holds` and `set_display`
 own the clock, source, value, preservation and refusal contracts.
 `CLOSED_STYLE_FIELDS`, `CLOSED_FONTS`, `closed_style_value` and `set_style` in
 that script own global style inputs, field validation and preservation. Read
@@ -193,8 +193,11 @@ Inspection returns separate `closed`, `transcriptions`, `audioUses` and `display
 with physical paths and saved payloads, plus the global `captionAttributes`
 object or null when absent. Select clip/source IDs and source-track
 indices from inspection. `audioUses` supplies logical owner/physical audio IDs,
-source selection, raw clocks and nearest-first containers without counting linked
-audio twice. This inventory does not certify an unfamiliar owner clock.
+source selection, raw `sourceFileOffset`, raw clocks and nearest-first containers
+without counting linked audio twice. Nonzero supported offsets add mapping
+`audioFileOffsets`; the script anchors above own units and bounds. See the
+[source-offset evidence](captions.md#audio-source-file-offsets) before using
+nominal caption/word timing for a speech cut. This inventory does not certify an unfamiliar owner clock.
 Native Add Caption/import supplies the closed parameter;
 word correction requires actual saved recognition/transcription. Read the script
 anchors above for supported builds, clocks, selectors, controls and refusals.

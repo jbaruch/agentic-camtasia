@@ -57,6 +57,7 @@ class GroupWordTests(unittest.TestCase):
                     path="/timeline/sceneTrack/scenes/0/csml/tracks/0/medias/0/tracks/0/medias/0/tracks/0/medias/0/tracks/0/medias/0",
                     sourceId=1,
                     sourceTrack=1,
+                    sourceFileOffset=0,
                     clocks=dict(
                         start=R, duration=3 * R, mediaStart=2 * R, mediaDuration=6 * R, scalar="1/2"
                     ),
@@ -178,7 +179,7 @@ class GroupWordTests(unittest.TestCase):
             elif mutation == "shape":
                 words(doc)["keyframes"][1]["duration"] = 1
             elif mutation == "offset":
-                leaf(doc)["audio"]["attributes"]["sourceFileOffset"] = 1
+                leaf(doc)["audio"]["attributes"]["sourceFileOffset"] = -1
             else:
                 child_clock(doc, duration=9 * R, mediaDuration=9 * R)
             before = copy.deepcopy(doc)
