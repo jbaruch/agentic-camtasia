@@ -530,9 +530,7 @@ class CaptionTests(unittest.TestCase):
                     ):
                         self.assertEqual(captions.main(args), 1)
                     self.assertEqual(stdout.getvalue(), "")
-                    self.assertIn(
-                        "root owner's numeric clip ID", json.loads(stderr.getvalue())["error"]
-                    )
+                    self.assertIn("owner's numeric clip ID", json.loads(stderr.getvalue())["error"])
                     self.assertFalse(output.exists())
                     self.assertEqual(source.read_bytes(), before)
             duplicate = fixture()

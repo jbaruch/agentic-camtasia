@@ -840,7 +840,6 @@
           "mediaStart",
           "mediaDuration",
           "scalar",
-          "metadata",
           "animationTracks"
         ],
         "additionalProperties": false,

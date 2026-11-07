@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.49.0 — 2026-11-06
+
+### Added
+
+- Closed-caption `map --closed-only` composes and crops Group clocks without
+  including unverified Group source-word mappings. Plain cue authoring accepts
+  source-media or visible global timeline seconds. Explicit parent-clock retiming
+  changes the selected child and linked mirrors while retaining ancestor payloads.
+- Twenty-two native exports verify trimmed/speed-adjusted Groups, three-level
+  ancestry, both closed-caption forms, authored cues and retiming. All 3,825
+  cue/clear frames pass; three reopened pairs reproduce complete decoded streams.
+  Same-layout audio survives caption edits. Native grouping has separately
+  documented audio-boundary differences from flat controls.
+
+### Fixed
+
+- The Mac 2026.2.4 profile accepts omitted Caption metadata observed in native
+  Group saves. Present values still require objects; other fields stay strict.
+
 ## 0.48.0 — 2026-11-06
 
 ### Added

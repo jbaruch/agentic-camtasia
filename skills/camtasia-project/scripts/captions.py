@@ -6,7 +6,9 @@ recognized source transcription and separate dynamic-caption displays. map
 PROJECT --clip-id ID maps closed-cue holds and in-range word onsets through a single root clip's
 trim, inverse speed and placement. Linked AV clocks are mirrors, never summed.
 The verified caption/word clock is 705600000 ticks/sec, independently of each
-source stream's sample/edit rate. Nested/stitched/multiscene mappings refuse.
+source stream's sample/edit rate. map --closed-only maps existing closed holds
+through ancestor Groups on Mac 2026.2.4, cropping at every clock and returning
+ancestors nearest first. Group source-word, stitched and multiscene mappings refuse.
 
 set-text PROJECT --clip-id ID --spec SPEC corrects existing plain closed points.
 set-rtf-text uses edits [{index, expected, replacements:[{start,end,text}]}] for
@@ -31,8 +33,10 @@ rational seconds. Nonoverlapping cues compile to native hold/clear points,
 including a final clear. Existing opaque per-point data or RTF/styled values
 refuse replacement; use set-text for preserving point fields. Parameter, clip,
 source and global style payload survive; the existing caption enabled flag turns on.
+Group-contained cues support media or global timeline seconds. Timeline cues must
+fit entirely inside the child's visible interval through every ancestor Group.
 
-retime PROJECT --clip-id ID --spec SPEC changes a clean root Caption/audio/linked
+retime PROJECT --clip-id ID --spec SPEC changes a clean Caption/audio/linked
 AV clock. Supply schema_version 1, start, duration, media_start (rational seconds)
 and positive scalar (inverse speed). Complete mirrored clocks change together;
 source words/cues and dynamic displays do not change. Consumed source bounds,
@@ -40,6 +44,9 @@ lane collisions and transitions are checked. Effects/animations need their own
 retiming contract. Bound the independent display with set-display separately.
 Linked-video cut inputs and edited display bounds must align with the document's
 video frame grid. Recognized onsets and intentional subframe audio stay unchanged.
+Group descendants require clock parent: placement is in the containing Group's
+clock and all ancestor clocks and durations survive unchanged. Closed-only Group
+operations refuse known native Group save/reopen drift configurations.
 
 set-display PROJECT --clip-id ID --spec SPEC edits an existing native dynamic
 display. Spec schema_version 1 accepts start/duration seconds, definition (existing
@@ -250,13 +257,16 @@ def root_clock(
             "select a root Caption/audio/linked AV owner; nested/stitched clocks need native evidence"
         )
     track, owner, audio = matches[0]
+    validate_caption_clock(doc, owner, audio)
+    return track, owner, audio
+
+
+def validate_caption_clock(doc: dict[str, Any], owner: dict[str, Any], audio: Any) -> None:
     if type(owner.get("id")) is not int:
-        raise ValueError(
-            "repair the root owner's numeric clip ID before caption mapping or retiming"
-        )
+        raise ValueError("repair the owner's numeric clip ID before caption mapping or retiming")
     selected(doc, owner["id"])
     if not isinstance(audio, dict) or audio.get("_type") not in ("AMFile", "Caption"):
-        raise ValueError("select a root Caption or speech-bearing audio/linked AV clip")
+        raise ValueError("select a Caption or speech-bearing audio/linked AV clip")
     attributes = audio.get("attributes", {})
     if (
         not isinstance(attributes, dict)
@@ -283,7 +293,86 @@ def root_clock(
             raise ValueError("retain complete positive native caption owner clocks")
         if any(project.number(owner[key]) != values[key] for key in effects.CLOCK_FIELDS):
             raise ValueError("repair conflicting complete linked AV caption clocks")
-    return track, owner, audio
+
+
+def closed_clock(
+    doc: dict[str, Any], clip_id: int
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], list[dict[str, Any]]]:
+    """Select one logical closed-caption clock, with nearest Group first."""
+    root_tracks(doc)
+    path, owner = selected(doc, clip_id)
+    nodes = hotspots.clips(doc)
+    linked = [(p, n) for p, n in nodes if n.get("_type") == "UnifiedMedia" and path == p + "/audio"]
+    if linked:
+        if len(linked) != 1:
+            raise ValueError("repair ambiguous linked caption ownership")
+        path, owner = linked[0]
+    ancestors = sorted(
+        [(p, n) for p, n in nodes if path.startswith(p + "/")],
+        key=lambda item: len(item[0]),
+        reverse=True,
+    )
+    if not ancestors:
+        track, owner, audio = root_clock(doc, clip_id)
+        return track, owner, audio, []
+    if doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
+        raise ValueError("use the verified Mac 2026.2.4 Group closed-caption clock contract")
+    if any(n.get("_type") != "Group" for _, n in ancestors):
+        raise ValueError("select Group-only caption ancestry; capture other container clocks first")
+    audio = owner.get("audio") if owner.get("_type") == "UnifiedMedia" else owner
+    if owner.get("_type") not in ("AMFile", "Caption", "UnifiedMedia") or not isinstance(
+        audio, dict
+    ):
+        raise ValueError("select a Group-contained Caption/audio/ordinary linked AV owner")
+    validate_caption_clock(doc, owner, audio)
+    for _, group in ancestors:
+        if type(group.get("id")) is not int:
+            raise ValueError("repair numeric Group IDs before caption clock editing")
+        selected(doc, group["id"])
+        values = {k: project.number(group.get(k)) for k in effects.CLOCK_FIELDS}
+        if (
+            values["start"] < 0
+            or values["mediaStart"] < 0
+            or any(values[k] <= 0 for k in ("duration", "mediaDuration", "scalar"))
+        ):
+            raise ValueError("retain complete positive native ancestor Group clocks")
+    for problem in project.native_group_reopen_hazards(doc):
+        if any(problem.startswith(p + ":") for p, _ in ancestors):
+            raise ValueError(problem)
+    lane_path = path.rsplit("/medias/", 1)[0]
+    tracks = [n for p, n in project.objects(doc) if p == lane_path]
+    if (
+        len(tracks) != 1
+        or not isinstance(tracks[0].get("medias"), list)
+        or any(not isinstance(n, dict) for n in tracks[0]["medias"])
+    ):
+        raise ValueError("repair the selected Group child's native lane before editing clocks")
+    return tracks[0], owner, audio, [n for _, n in ancestors]
+
+
+def closed_interval(
+    begin: Fraction, end: Fraction, owner: dict[str, Any], ancestors: list[dict[str, Any]]
+) -> tuple[Fraction, Fraction] | None:
+    """Crop each interval in its immediate source clock, then apply placement."""
+    for node in [owner, *ancestors]:
+        start, duration, inpoint, scalar = (
+            project.number(node[k]) for k in ("start", "duration", "mediaStart", "scalar")
+        )
+        begin, end = max(begin, inpoint), min(end, inpoint + duration / scalar)
+        if begin >= end:
+            return None
+        begin, end = (start + (value - inpoint) * scalar for value in (begin, end))
+    return begin, end
+
+
+def closed_source_tick(
+    point: Fraction, owner: dict[str, Any], ancestors: list[dict[str, Any]]
+) -> Fraction:
+    for node in reversed([owner, *ancestors]):
+        point = project.number(node["mediaStart"]) + (
+            point - project.number(node["start"])
+        ) / project.number(node["scalar"])
+    return point
 
 
 def source_stream(
@@ -731,7 +820,7 @@ def set_cues(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[st
             raise ValueError(
                 "preserve opaque per-point data with set-text; capture a plain replacement template"
             )
-    _, owner, audio = root_clock(result, clip_id)
+    _, owner, audio, ancestors = closed_clock(result, clip_id)
     bound, points, previous = capacity(result, audio), {0: ""}, Fraction(-1)
     for cue in spec["cues"]:
         if (
@@ -745,11 +834,14 @@ def set_cues(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[st
         plain(dict(text=cue["text"], textAttributes=None))
         begin, end = (project.number(cue[k]) * RATE for k in ("start", "end"))
         if spec["clock"] == "timeline":
-            begin, end = (
-                project.number(owner["mediaStart"])
-                + (p - project.number(owner["start"])) / project.number(owner["scalar"])
-                for p in (begin, end)
-            )
+            if ancestors:
+                visible = closed_interval(Fraction(0), bound, owner, ancestors)
+                if visible is None or begin < visible[0] or end > visible[1]:
+                    raise ValueError(
+                        "place timeline cues inside the child's visible Group window; "
+                        "use the media clock to author cropped source cues"
+                    )
+            begin, end = (closed_source_tick(p, owner, ancestors) for p in (begin, end))
         if (
             begin < 0
             or begin < previous
@@ -780,10 +872,15 @@ def set_cues(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[st
 def retime(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str, Any]:
     require_native(doc)
     keys = {"start", "duration", "media_start", "scalar"}
-    spec_keys(spec, keys, keys)
-    map_captions(doc, clip_id)
+    spec_keys(spec, keys | {"clock"}, keys)
+    if "clock" in spec and spec["clock"] != "parent":
+        raise ValueError("use explicit clock parent for Group-child retiming")
+    _, _, _, ancestors = closed_clock(doc, clip_id)
+    if ancestors and spec.get("clock") != "parent":
+        raise ValueError("set clock parent to retime a Group child in its immediate parent clock")
+    map_captions(doc, clip_id, closed_only=bool(ancestors))
     result = copy.deepcopy(doc)
-    track, owner, audio = root_clock(result, clip_id)
+    track, owner, audio, ancestors = closed_clock(result, clip_id)
     start, duration, media_start = (
         hotspots.ticks(result, spec[k]) for k in ("start", "duration", "media_start")
     )
@@ -827,6 +924,16 @@ def retime(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str,
         raise ValueError(
             "resolve destination lane collisions before caption retiming: " + collisions[0]
         )
+    if ancestors:
+        for other in track["medias"]:
+            if other is owner:
+                continue
+            left = project.number(other.get("start"))
+            right = left + project.number(other.get("duration"))
+            if max(start, left) < min(start + duration, right):
+                raise ValueError(
+                    "keep the retimed Group child and its lane siblings nonoverlapping"
+                )
     for transition in transitions.transition_list(track):
         transitions.check_fit(track, transition, transition)
     return result
@@ -934,10 +1041,15 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
 
 
 def mapped_holds(
-    frames: list[dict[str, Any]], owner: dict[str, Any], bound: Fraction, *, words: bool
+    frames: list[dict[str, Any]],
+    owner: dict[str, Any],
+    bound: Fraction,
+    *,
+    words: bool,
+    ancestors: list[dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
-    start, duration, media_start, scalar = (
-        project.number(owner[k]) for k in ("start", "duration", "mediaStart", "scalar")
+    duration, media_start, scalar = (
+        project.number(owner[k]) for k in ("duration", "mediaStart", "scalar")
     )
     limit = media_start + duration / scalar
     if limit > bound:
@@ -952,7 +1064,10 @@ def mapped_holds(
         end = min(Fraction(frames[index + 1]["time"]) if index + 1 < len(frames) else bound, limit)
         if begin >= end:
             continue
-        left, right = (start + (p - media_start) * scalar for p in (begin, end))
+        mapped = closed_interval(begin, end, owner, ancestors or [])
+        if mapped is None:
+            continue
+        left, right = mapped
         result.append(
             dict(
                 index=index,
@@ -967,19 +1082,34 @@ def mapped_holds(
     return result
 
 
-def map_captions(doc: dict[str, Any], clip_id: int) -> dict[str, Any]:
+def map_captions(doc: dict[str, Any], clip_id: int, *, closed_only: bool = False) -> dict[str, Any]:
     require_native(doc)
-    _, owner, audio = root_clock(doc, clip_id)
+    if closed_only:
+        _, owner, audio, ancestors = closed_clock(doc, clip_id)
+    else:
+        _, owner, audio = root_clock(doc, clip_id)
+        ancestors = []
     bound, result = capacity(doc, audio), dict(clipId=owner["id"], clock=RATE)
     key = "captionData" if audio["_type"] == "Caption" else "captions"
     parameters = audio.get("parameters", {})
     if not isinstance(parameters, dict):
         raise ValueError("inspect native audio/caption parameter objects")
     result["closed"] = (
-        mapped_holds(point_frames(parameters[key], "caption"), owner, bound, words=False)
+        mapped_holds(
+            point_frames(parameters[key], "caption"),
+            owner,
+            bound,
+            words=False,
+            ancestors=ancestors,
+        )
         if key in parameters
         else []
     )
+    if closed_only:
+        if key not in parameters:
+            raise ValueError("select saved closed captions before requesting closed-only mapping")
+        result.update(scope="closed", ancestors=[group["id"] for group in ancestors])
+        return result
     recognized = False
     if audio["_type"] == "AMFile":
         source, stream = audio_stream(doc, audio)
@@ -1076,6 +1206,8 @@ def main(argv: list[str] | None = None) -> int:
         if name == "correct-words":
             command.add_argument("--source-id", type=int, required=True)
             command.add_argument("--source-track", type=int, required=True)
+        if name == "map":
+            command.add_argument("--closed-only", action="store_true")
         if name not in ("inspect", "map", "rtf-text"):
             command.add_argument("--spec", type=Path, required=True)
             command.add_argument("--output", type=Path, required=True)
@@ -1088,7 +1220,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "inspect":
             report.update(inventory(doc))
         elif args.command == "map":
-            report["mapping"] = map_captions(doc, args.clip_id)
+            report["mapping"] = map_captions(doc, args.clip_id, closed_only=args.closed_only)
         elif args.command == "rtf-text":
             report["cues"] = inspect_rtf(doc, args.clip_id)
         else:

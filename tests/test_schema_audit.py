@@ -922,6 +922,11 @@ class SchemaAuditTests(unittest.TestCase):
         doc["timeline"] = {"clip": caption}
         self.assertFalse(schema_audit.audit(doc, baseline)["ok"])
         self.assertTrue(schema_audit.audit(doc, baseline, profile)["ok"])
+        caption.pop("metadata")
+        self.assertTrue(schema_audit.audit(doc, baseline, profile)["ok"])
+        caption["metadata"] = "repair this malformed native metadata"
+        self.assertFalse(schema_audit.audit(doc, baseline, profile)["ok"])
+        caption.pop("metadata")
         value["textAttributes"] = {"font": "Unobserved style"}
         self.assertFalse(schema_audit.audit(doc, baseline, profile)["ok"])
 
