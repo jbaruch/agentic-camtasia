@@ -148,9 +148,9 @@ retained point times 0/4 seconds in their media clock. Native exports changed
 caption at timeline second 2, following
 `timelineStart + (captionTime - mediaStart) * scalar`. Frames at 1.9667 and
 2.0333 seconds confirmed the boundary. Native SRT export produced cues
-1.000–2.000 and 2.000–4.000, matching trim, speed, and offset. Nested groups
-and stitched captions still need their container mappings; this probe does not
-establish their internal clock contracts.
+1.000–2.000 and 2.000–4.000, matching trim, speed, and offset. This probe
+establishes root clocks. The Group contract below adds closed-cue mapping;
+stitched captions retain their separate clock investigation.
 
 `timeline.captionAttributes` enabled captions and supplied font, colors,
 language, alignment, and background settings. These observed companions do
@@ -288,11 +288,69 @@ remains the import contract. This helper verification uses the known unstyled
 Caption form, actual native audio-caption/recognition captures and saved output.
 
 These checks cover the exercised plain values, root clocks and display controls.
-RTF editing has the separate contract below. Nested/stitched/multiscene mapping, nonzero audio source-file offsets,
+RTF editing and Group closed clocks have separate contracts below.
+Group source-word and stitched/multiscene mapping, nonzero audio source-file offsets,
 physical font closure and other requested delivery settings retain their own
 checks. Native definitions, recognition models, fonts and media remain outside
 the package. Completed disposable projects, exports, screenshots and diagnostics
 are deleted after incorporating the findings and generated-fixture tests.
+
+## Group-contained closed-caption clocks
+
+Version 0.49.0 adds closed-cue mapping, plain cue authoring and selected-child
+retiming through Group-only ancestry. The
+[caption helper contract](helper.md#caption-json-editing) owns selectors, clocks,
+cropping, exact rational output and refusal rules. Source-word mapping through
+Groups remains pending; closed holds and recognized word onsets have different
+trim behavior. Stitched, multiscene and dynamic-display Group clocks remain separate.
+
+Locally observed on Mac 2026.2.4 (2026.132), format 10. Native **Edit → Group**
+keeps the closed parameter on its linked audio child and leaves cue points in
+the source clock. Native-template JSON assemblies then exercise a trimmed 1×
+Group, zero-in-point 2× and 0.5× Groups, and three nested Groups around a trimmed,
+2× child. Both audio-owned cues and standalone `Caption.captionData` render
+the same closed holds. Parent cropping carries the cue already active at the
+visible opening. The three-level case shows source cue TWO at global seconds
+1–1.5, THREE at 1.5–2.5, FOUR at 2.5–3 and blank output at 3–3.5.
+
+Helper-authored media and global timeline cues match independently written
+source-point expectations in both forms. Timeline ALPHA at 1.25–1.75 and BETA
+at 2.25–2.75 survive native save and render with the intervening blanks.
+Retiming the linked child or standalone Caption in its immediate parent clock
+retains every ancestor. Shortening an eight-second child to six seconds leaves
+its Group eight seconds long; the last two seconds render blank, and decoded
+audio after second 6.1 is silent.
+The helper does not resize parents to the edited child's extent.
+
+Signed child and nested-Group starts retain their container-relative meaning;
+root placement stays nonnegative. A regression combines inner-Group and child
+starts of −1 second beneath a root Group starting at 1. Both caption forms show
+TWO at 1–3, THREE at 3–5, FOUR at 5–6 and blank output at 6–7, matching an
+independent root clip trimmed to source second 2. Negative parent-clock retiming
+retains complete linked mirrors and all ancestors.
+
+Twenty-six native exports total 155.5 seconds at 640×360/30 fps with stereo
+44.1-kHz AAC. All 4,665 rendered frames pass cue/clear gates. Independent flat
+controls match complete decoded pictures for trims, speeds, nested holds and
+linked-child retiming. Five saved projects reopen byte-identically, and four
+reopened export pairs reproduce complete decoded video/audio. Cue authoring
+and standalone Caption retiming preserve the unchanged Group's decoded audio.
+
+Grouping is not an assertion of whole-stream audio equality with a flattened
+layout. The initial native grouping comparison changes samples only in the last
+0.0594 seconds; its interior seconds 1–7 are identical. The fast/nested layouts
+also differ from their flat audio controls while pictures match. The cause is
+unestablished. Compare caption edits against the same Group/audio layout.
+
+Native saves retain complete clocks and source/cue payloads, renumber the new
+nested IDs, serialize Group in-points/durations as floats and initialize lane
+flags. They omit empty Group-contained Caption metadata. The exact-build
+auditor permits that omission only with Group-only ancestry. Root metadata stays
+required and present values retain object validation; raw community errors remain
+separate. Forty-five input/saved schema checks
+pass the profile and native guards. Known positive-in-point accelerated/slowed
+Group reload drift remains refused. Other unexercised container forms and native
+speed combinations require their own evidence. Completed disposable data is removed.
 
 ## Global closed-caption styling
 

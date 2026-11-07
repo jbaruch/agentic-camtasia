@@ -163,7 +163,7 @@ available and verify the candidate in the matching native editor.
 ## Caption JSON editing
 
 Use `skills/camtasia-project/scripts/captions.py` for plain closed cues, existing
-plain and native RTF caption text, recognized source-word corrections, root clock mapping/retiming,
+plain and native RTF caption text, recognized source-word corrections, root or Group closed-clock mapping/retiming,
 global closed-caption style and existing dynamic display controls.
 Its module docstring, `RATE`, `root_clock`,
 `point_frames`, `correction_edits`, `capacity`, `mapped_holds` and `set_display`
@@ -224,6 +224,15 @@ Clock edits take
 Start/duration/trim inputs use seconds; scalar is inverse speed. Retiming changes
 owner clocks and retains source cue/word points. Mapping returns source indices,
 exact timeline ticks and rational seconds; empty mapped results are valid.
+
+For Group-contained closed captions, use `map --closed-only`. The same script's
+`closed_clock`, `closed_interval`, `closed_source_tick`, `set_cues` and `retime`
+own ancestry, cropping, inverse authoring and immediate-parent clock selection.
+This mode returns `scope: "closed"` and ancestor IDs without source words.
+Group-child retiming requires `"clock":"parent"` in the clock spec. Read
+[Group closed-caption verification](captions.md#group-contained-closed-caption-clocks)
+for native scope and audio-boundary limits. Default mapping retains its existing
+root caption-and-word contract.
 
 A display spec supplies independent start/duration seconds, `definition` and/or
 `rich` changes, for example:
