@@ -108,6 +108,8 @@ parents retain exact subframe audio ticks.
 set-display PROJECT --clip-id ID --spec SPEC edits an existing native dynamic
 display. Spec schema_version 1 accepts start/duration seconds, definition (existing
 supported numeric controls), and rich (existing fontName/fontSize/fgColor).
+Active-word stroke RGBA uses 0..1; its glow radius is nonnegative in saved
+native units. Stroke width remains separate from the ordinary text outline.
 Background controls include block fill RGBA/corner radius and active-word
 rectangle RGBA/corner radius/extra size/transition time. RGBA uses 0..1; word
 extra size is a fraction (native Scale 20% is 0.2); radii and time use the saved
@@ -173,6 +175,7 @@ DISPLAY_NUMBERS = frozenset(
         "dynamic-caption-current-word-enabled",
         "dynamic-caption-current-word-extra-scale",
         "dynamic-caption-current-word-stroke-extra-width",
+        "dynamic-caption-current-word-glow-radius",
         "dynamic-caption-future-word-opacity",
         "dynamic-caption-past-word-opacity",
         "dynamic-caption-word-easing-duration",
@@ -186,6 +189,7 @@ DISPLAY_NUMBERS = frozenset(
     | {
         prefix + ch
         for prefix in (
+            "dynamic-caption-current-word-stroke-color-",
             "dynamic-caption-background-fill-color-",
             "dynamic-caption-word-rectangle-color-",
         )
@@ -1408,7 +1412,13 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
                 or (("-color-" in name or name.endswith("-opacity")) and not 0 <= number <= 1)
                 or (
                     name.endswith(
-                        ("-duration", "-corner-radius", "-extra-size", "-transition-time")
+                        (
+                            "-duration",
+                            "-corner-radius",
+                            "-extra-size",
+                            "-transition-time",
+                            "-glow-radius",
+                        )
                     )
                     and number < 0
                 )
