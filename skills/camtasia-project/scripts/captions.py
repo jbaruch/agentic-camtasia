@@ -48,6 +48,21 @@ multiscene mapping refuse. Standalone frozen pictures use separate Caption media
 Use native Groups for mixed/multiple-source compositions and select each caption
 child by its inspected audio/source IDs. Group mapping retains per-source clocks.
 
+sequence-scenes PROJECT --spec SPEC --output CANDIDATE explicitly converts a
+CSML-only multiscene document to one native timeline on Mac 2026.2.4. That build
+discards later scene entries on save. Spec schema_version 1 has durations: one
+positive rational duration in seconds per scene, in stored order. Each duration
+uses the document frame grid and encloses all its root clips. New scalar-one,
+zero-in-point Groups preserve scene-local tracks, clip IDs, sources, captions,
+words and nested clocks; scene placement is the cumulative supplied duration.
+Original global lane flags/metadata move into each scene Group; the new root
+lane is neutral. Track metadata conflicts, unknown scene fields, markers,
+quizzes and hotspots require separate clock/resource contracts and refuse.
+The source is never rewritten; inspect and apply the staged single-scene copy
+before opening it natively. Subsequent map/cue/retime/display commands use their
+existing Group contracts and global/parent clocks. Native preservation/rendering
+remains required; this does not claim direct native multiscene support.
+
 set-text PROJECT --clip-id ID --spec SPEC corrects existing plain closed points.
 set-rtf-text uses edits [{index, expected, replacements:[{start,end,text}]}] for
 native text-only Cocoa RTF cues. expected is the complete decoded cue; half-open
@@ -269,7 +284,9 @@ def closed_target(doc: dict[str, Any], clip_id: int) -> tuple[dict[str, Any], st
 def root_tracks(doc: dict[str, Any]) -> list[dict[str, Any]]:
     scenes = project.scene_tracks(doc)
     if len(scenes) != 1:
-        raise ValueError("capture multiscene caption mapping separately; use a single scene")
+        raise ValueError(
+            "stage sequence-scenes with explicit durations before multiscene caption mapping"
+        )
     for track in scenes[0]:
         medias = track.get("medias", [])
         if not isinstance(medias, list) or any(not isinstance(n, dict) for n in medias):
@@ -638,6 +655,165 @@ def transcription(doc: dict[str, Any], source_id: int, index: int) -> dict[str, 
     if not point_frames(value, "string"):
         raise ValueError("generate and save nonempty native recognition points before corrections")
     return value
+
+
+def sequence_scenes(doc: dict[str, Any], spec: dict[str, Any]) -> dict[str, Any]:
+    """Retain explicit scene intervals through native scalar-one Group clocks."""
+    require_native(doc, dynamic=True)
+    spec_keys(spec, {"durations"}, {"durations"})
+    collisions = project.native_lane_collisions(doc)
+    if collisions:
+        raise ValueError("resolve scene lane collisions before sequencing: " + collisions[0])
+    tracks_by_scene = project.scene_tracks(doc)
+    durations = spec["durations"]
+    if (
+        not isinstance(durations, list)
+        or len(durations) != len(tracks_by_scene)
+        or len(durations) < 2
+    ):
+        raise ValueError("supply one duration per stored scene in a multiscene document")
+    timeline = doc["timeline"]
+    scene_track = timeline["sceneTrack"]
+    if set(scene_track) != {"scenes"} or any(
+        set(scene) != {"csml"} or set(scene["csml"]) != {"tracks"}
+        for scene in scene_track["scenes"]
+    ):
+        raise ValueError("capture extra scene fields before sequencing; retain CSML-only scenes")
+    for _, node in project.objects(timeline):
+        parameters, attributes = node.get("parameters", {}), node.get("attributes", {})
+        if (
+            isinstance(parameters, dict)
+            and {"toc", "quiz"} & parameters.keys()
+            or isinstance(attributes, dict)
+            and "hotspot" in attributes
+        ):
+            raise ValueError(
+                "capture marker, quiz and hotspot destinations before sequencing scenes"
+            )
+    attributes = timeline.get("trackAttributes")
+    if (
+        not isinstance(attributes, list)
+        or not attributes
+        or any(not isinstance(a, dict) for a in attributes)
+    ):
+        raise ValueError("retain the native global trackAttributes array before sequencing")
+    if any({"trackIndex", "medias", "parameters", "transitions"} & a.keys() for a in attributes):
+        raise ValueError("capture structural global trackAttributes fields before sequencing")
+    if any(type(doc.get(k)) not in (int, float) for k in ("width", "height")) or any(
+        project.number(doc[k]) <= 0 for k in ("width", "height")
+    ):
+        raise ValueError("read positive numeric native canvas dimensions before sequencing scenes")
+    clip_ids = [n.get("id") for _, n in hotspots.clips(doc)]
+    if any(type(i) is not int for i in clip_ids) or len(set(clip_ids)) != len(clip_ids):
+        raise ValueError("retain globally unique numeric clip IDs before sequencing scenes")
+    ident = max((n["id"] for _, n in project.objects(doc) if type(n.get("id")) is int), default=0)
+    groups, cursor = [], 0
+    for index, (tracks, seconds) in enumerate(zip(tracks_by_scene, durations)):
+        duration = hotspots.ticks(doc, seconds)
+        require_frame_grid(doc, dict(duration=duration))
+        if duration <= 0:
+            raise ValueError("supply positive scene durations, including intentional blank time")
+        copied = copy.deepcopy(tracks)
+        seen = set()
+        for track in copied:
+            number = track.get("trackIndex")
+            if type(number) is not int or not 0 <= number < len(attributes) or number in seen:
+                raise ValueError(
+                    "retain distinct scene trackIndex values selecting global lane attributes"
+                )
+            seen.add(number)
+            for key, value in attributes[number].items():
+                if (
+                    key == "metadata"
+                    and isinstance(value, dict)
+                    and isinstance(track.get(key, {}), dict)
+                ):
+                    existing = track.get(key, {})
+                    if any(k in existing and existing[k] != v for k, v in value.items()):
+                        raise ValueError(
+                            "resolve conflicting scene/global track metadata before sequencing"
+                        )
+                    track[key] = {**copy.deepcopy(value), **existing}
+                elif key in track and track[key] != value:
+                    raise ValueError(
+                        "resolve conflicting scene/global lane flags before sequencing"
+                    )
+                else:
+                    track[key] = copy.deepcopy(value)
+            medias = track.get("medias", [])
+            if not isinstance(medias, list) or any(not isinstance(n, dict) for n in medias):
+                raise ValueError("repair scene lane media arrays before sequencing")
+            for node in medias:
+                start, span = (project.number(node.get(k)) for k in ("start", "duration"))
+                if (
+                    node.get("_type") not in project.KNOWN_CLIPS
+                    or start < 0
+                    or span <= 0
+                    or start + span > duration
+                ):
+                    raise ValueError("enclose each known scene root clip in its supplied duration")
+        for number, flags in enumerate(attributes):
+            if number not in seen:
+                copied.append(
+                    dict(copy.deepcopy(flags), trackIndex=number, parameters={}, medias=[])
+                )
+        groups.append(
+            dict(
+                id=ident + index + 1,
+                _type="Group",
+                start=cursor,
+                duration=duration,
+                mediaStart=0,
+                mediaDuration=duration,
+                scalar=1,
+                parameters=dict(
+                    geometryCrop0=0.0,
+                    geometryCrop1=0.0,
+                    geometryCrop2=0.0,
+                    geometryCrop3=0.0,
+                    volume=1.0,
+                ),
+                attributes=dict(
+                    ident="Scene " + str(index + 1),
+                    widthAttr=copy.deepcopy(doc["width"]),
+                    heightAttr=copy.deepcopy(doc["height"]),
+                    maxDurationAttr=0,
+                    gain=1.0,
+                    mixToMono=False,
+                    assetProperties=[],
+                ),
+                effects=[],
+                animationTracks={},
+                metadata=dict(
+                    audiateLinkedSession="",
+                    clipSpeedAttribute=dict(type="bool", value=False),
+                    colorAttribute=dict(type="color", value=[0, 0, 0, 0]),
+                    effectApplied="none",
+                    isOpen=dict(type="bool", value=False),
+                ),
+                tracks=copied,
+            )
+        )
+        cursor += duration
+    result = copy.deepcopy(doc)
+    result["timeline"]["sceneTrack"]["scenes"] = [
+        dict(csml=dict(tracks=[dict(trackIndex=0, parameters={}, medias=groups)]))
+    ]
+    result["timeline"]["trackAttributes"] = [
+        dict(
+            ident="",
+            audioMuted=False,
+            videoHidden=False,
+            magnetic=False,
+            matte=0,
+            solo=False,
+            metadata={"IsLocked": "False", "trackHeight": "78"},
+        )
+    ]
+    problems = project.native_hazards(result)
+    if problems:
+        raise ValueError("repair the sequenced candidate before native use: " + problems[0])
+    return result
 
 
 def correction_edits(spec: dict[str, Any], frames: list[dict[str, Any]], *, words: bool) -> None:
@@ -1537,10 +1713,11 @@ def main(argv: list[str] | None = None) -> int:
         "retime",
         "set-display",
         "set-style",
+        "sequence-scenes",
     ):
         command = commands.add_parser(name)
         command.add_argument("project", type=Path)
-        if name not in ("inspect", "correct-words", "set-style"):
+        if name not in ("inspect", "correct-words", "set-style", "sequence-scenes"):
             command.add_argument("--clip-id", type=int, required=True)
         if name == "correct-words":
             command.add_argument("--source-id", type=int, required=True)
@@ -1568,6 +1745,8 @@ def main(argv: list[str] | None = None) -> int:
                 candidate = correct_words(doc, args.source_id, args.source_track, spec)
             elif args.command == "set-style":
                 candidate = set_style(doc, spec)
+            elif args.command == "sequence-scenes":
+                candidate = sequence_scenes(doc, spec)
             else:
                 operation = {
                     "set-text": correct_text,

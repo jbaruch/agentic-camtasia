@@ -58,12 +58,15 @@ class LaneCollisionTests(unittest.TestCase):
         self.assertEqual(len(errors), 2)
         self.assertTrue(all("overlaps media 0" in error for error in errors))
 
-    def test_simultaneous_clips_on_separate_lanes_and_scenes_are_legal(self) -> None:
+    def test_separate_scenes_avoid_collisions_but_retain_the_scene_loss_guard(self) -> None:
         self.tracks.append({"trackIndex": 1, "medias": [clip(11)]})
         self.doc["timeline"]["sceneTrack"]["scenes"].append(
             {"csml": {"tracks": [{"medias": [clip(12)]}]}}
         )
-        self.assertEqual(project.native_hazards(self.doc), [])
+        self.assertEqual(project.native_lane_collisions(self.doc), [])
+        hazards = project.native_hazards(self.doc)
+        self.assertEqual(len(hazards), 1)
+        self.assertIn("drops later scenes", hazards[0])
 
     def test_linked_children_and_internal_stitched_offsets_are_not_flattened(self) -> None:
         self.tracks[0]["medias"] = [

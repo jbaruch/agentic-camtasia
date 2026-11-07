@@ -76,6 +76,11 @@ different file already occupying the cache path.
 
 ## Findings that structural conformance misses
 
+**Later scene entries can be discarded on save.** The exact-build
+[caption-scene contract](captions.md#sequencing-caption-scenes) records the
+observed loss, its native-compatibility guard and the explicit Group-based
+sequencing workflow. A schema-valid scene array is not preservation evidence.
+
 **Positive-time matte points can fail native parsing.** Mac 2026.2.4 format 10
 accepts the community-schema shape for linear Media Matte intensity frames with
 equal positive `time`/`endTime` and zero duration, then refuses native opening

@@ -290,8 +290,8 @@ Caption form, actual native audio-caption/recognition captures and saved output.
 
 These checks cover the exercised plain values, root clocks and display controls.
 RTF editing, Group closed clocks and Group source-word/display clocks have separate
-contracts below. Audio source-file offsets also follow below. Other multiscene
-mapping, physical font closure and other requested delivery settings retain their own
+contracts below. Audio source-file offsets and explicit caption-scene sequencing
+also follow below. Physical font closure and other requested delivery settings retain their own
 checks. Native definitions, recognition models, fonts and media remain outside
 the package. Completed disposable projects, exports, screenshots and diagnostics
 are deleted after incorporating the findings and generated-fixture tests.
@@ -303,8 +303,8 @@ retiming through Group-only ancestry. The
 [caption helper contract](helper.md#caption-json-editing) owns selectors, clocks,
 cropping, exact rational output and refusal rules. Version 0.50.0 adds the
 source-word and display-bound contract below. Closed holds and recognized word
-onsets retain their distinct source-trim behavior. Stitched and multiscene clocks
-remain separate.
+onsets retain their distinct source-trim behavior. Stitched clocks and explicit
+scene sequencing have separate contracts below.
 
 Locally observed on Mac 2026.2.4 (2026.132), format 10. Native **Edit → Group**
 keeps the closed parameter on its linked audio child and leaves cue points in
@@ -412,8 +412,8 @@ The negative audio-placement and equivalent Group-trim movies differ in audio
 only around global seconds 0.996–1.368. Their seconds 2–7 are sample-identical;
 the cause of the opening difference is unestablished. Read-only word mapping
 does not promise audio identity across alternate native clock layouts. Audio source-file offsets follow below. Other stitched/recording variants,
-multiple scenes and remaining dynamic
-controls retain separate work. Completed disposable data is removed.
+remaining dynamic controls retain separate work. Explicit scene sequencing
+follows below. Completed disposable data is removed.
 
 ## Ordinary-AV stitched caption clocks
 
@@ -491,7 +491,7 @@ audio differs between these native layouts; preserved source bytes do not
 establish sample identity after stitching. Compare edits against the same
 stitched layout and verify its own independent reopen/export. Recording holds
 and audio-only additions follow below. Mixed-source composition and audio source-file offsets follow below.
-Multiple scenes remain separate work. Completed
+Explicit caption-scene sequencing follows below. Completed
 disposable data is removed.
 
 ## Audio-only stitched caption clocks
@@ -501,7 +501,7 @@ Version 0.52.0 adds ordinary same-source audio-only stitched parents to the
 owns closed cues; its children are plain `AMFile` nodes. Source and physical
 audio IDs coincide for these children. Parent text/cue edits and retiming retain
 every child, its parameters and source transcription. Recording holds and
-mixed-source composition follow below. Multiscene clocks remain separate work.
+mixed-source composition and explicit scene sequencing follow below.
 
 Locally observed on Mac 2026.2.4 (2026.132), format 10. An eight-second mono
 48-kHz WAV contains synthetic speech. Native Bebas word-red generation saves
@@ -626,7 +626,7 @@ Activity Monitor force-quit only the stalled test editor. Opening a staged
 existing bundle avoided that filename-panel path; ordinary saves and local
 exports completed in the fresh matching editor. No cloud setting, system
 service or original project was changed. Audio source-file offsets follow below;
-multiscene clocks remain pending.
+explicit caption-scene sequencing follows below.
 Moving-recording stitches, holds and mixed-source Groups follow below.
 
 ## Linked moving recording stitched captions
@@ -687,7 +687,7 @@ exports total 123 seconds and 3,690 frames. The unit-speed flat/stitch pair
 matches decoded video and audio; the root/Group unit pair matches decoded video.
 These are manual reopens, not fresh-process or adapter runs. Recording holds
 follow below. Mixed-source Groups and audio source-file offsets follow below too.
-Multiscene clocks remain pending. Completed disposable verification data is
+Explicit caption-scene sequencing follows below. Completed disposable verification data is
 removed after shipping.
 
 ## Moving and held recording captions
@@ -754,8 +754,8 @@ eighteen exports total 152 seconds and 4,560 frames. The native/helper unit pair
 matches decoded video and audio; root/Group unit video also matches. These are
 same-process manual reopens, not fresh-process or adapter runs. Word-hold
 intervals include silence; retain source/audio provenance for speech cuts.
-Mixed-source Groups and audio source-file offsets follow below. Multiscene
-clocks and the other caption gaps remain pending.
+Mixed-source Groups, audio source-file offsets and explicit scene sequencing
+follow below. Other caption gaps remain pending.
 
 ## Mixed-source caption compositions
 
@@ -817,8 +817,8 @@ video/audio in this probe. The rendered WAV interval has 0.999764 zero-lag
 correlation with 176,400 actual input samples; both voices have nonzero measured
 audio. These are same-process manual reopens, not fresh-process or adapter runs.
 Completed disposable verification data is removed after shipping.
-Audio source-file offsets follow below. Additional scene clocks, other RTF
-forms and remaining display controls stay separate pending work.
+Audio source-file offsets and explicit scene sequencing follow below. Other
+RTF forms and remaining display controls stay pending.
 
 ## Audio source-file offsets
 
@@ -873,8 +873,73 @@ zero-offset render. Raw TREC decoding is not used as that alignment reference.
 The silent hold's interior at 8.05–10 seconds contains only zero PCM samples;
 the first 0.05 seconds retains a small native AAC boundary tail. These are
 manual reopens in the same editor process, not fresh-process adapter runs.
-Completed disposable verification data is removed after shipping. Multiscene
-clocks, other RTF forms and remaining dynamic display controls stay pending.
+Completed disposable verification data is removed after shipping. Explicit scene
+sequencing follows below. Other RTF forms and remaining dynamic display controls
+stay pending.
+
+## Sequencing caption scenes
+
+Version 0.58.0 adds explicit scene sequencing through the
+[caption helper contract](helper.md#caption-json-editing). On Mac 2026.2.4
+(2026.132), format 10, a JSON-authored two-scene input opens as four seconds
+and native save drops its second scene. Its four-second movie contains only
+the first recording. The schema's scene array does not establish native
+preservation. The project/schema auditors now refuse that unsafe multiscene
+input on this exact build. Stage its explicit single-timeline composition
+before opening a copy in the editor.
+
+The positive workflow keeps each scene's local tracks and clips inside a
+native Group and places those Groups in supplied order. A recording scene and
+a WAV scene, each four seconds, render as an eight-second sequence. Root lane
+flags and metadata move into the scene Groups; the new root lane is neutral.
+Existing child IDs, Quick Property bindings, source entries, transcriptions,
+closed cues, displays and nested clocks survive staging. Native save then
+performs its explicit clip-ID and property-reference reallocation. The operation
+adds no media, recognition, vendor definitions or fonts.
+
+Supply scene durations explicitly, including blank time. Six-second scene
+intervals retain two-second black/silent gaps after their four-second content,
+including the final tail. A blank final scene remains three seconds after
+reopening. A separate one-frame gap retains the 30-fps boundary and unchanged
+subframe word onsets. A third scene uses standalone Caption media for
+`SCENE THREE` at global seconds eight–nine, followed by a clear to second ten.
+These are JSON-authored constructions verified by native saving and rendering;
+they do not establish a direct native multiscene editor command.
+
+After sequencing, inspect the new Group ancestry and select the logical audio
+or Caption owner. A WAV-only parent-clock trim/speed edit consumes logical
+source seconds one–five over global seconds four–six. A global cue edit places
+`SCENE EDIT` at 4.25–5.5 seconds; the first scene and both source transcripts
+remain unchanged. Its bounded dynamic display begins with `story,` and clears
+with the retimed audio. The retained source-file sample skip stays separate
+from these nominal caption/word clocks.
+
+Copied audio-mute flags produce the same picture/audio as a separate root-lane
+mute control. Native closed captions hide under that mute while dynamic words
+remain visible. Mapping still reports nominal cue/word clocks; it does not
+assert visibility under every lane control. Both decoded muted movies contain
+only zero PCM samples. Inspected blank-picture frames are exact black, and
+measured gap/tail interiors contain only zero samples.
+
+Seven primary exports verify all 1,831 cue/highlight frames, including blank
+masks, source handoffs and the one-frame gap. Seven strict candidate comparisons
+retain all other payload and bundled TREC/WAV bytes after native ID/property
+remapping, empty nested Caption metadata omission and thumbnail/duration caches.
+Forty-one single-scene input/saved/current profile audits pass; the raw
+multiscene input has its one expected native-compatibility refusal and no
+profile errors. The pinned raw schema omissions remain separately reported.
+
+Six normal save/close/reopen pairs reproduce complete decoded RGB/PCM and
+saved project bytes. Eighteen movies total 4,682 frames. The independently
+assembled padded constructor and mute controls match complete video/audio;
+the padded saved projects also match bytes. Flatter two-/three-scene controls
+match complete pictures but differ in audio. In the two-scene pair, every
+stereo sample outside 3.979–4.029 seconds matches; the largest join difference
+is 266 signed-16-bit units. Do not promise sample identity across different
+native Group hierarchies. These are same-process manual reopens, not
+fresh-process adapter runs. Completed disposable verification data is removed.
+Other RTF forms and remaining dynamic display controls stay pending. Scene
+marker, quiz and hotspot destinations retain their separate completion work.
 
 ## Global closed-caption styling
 

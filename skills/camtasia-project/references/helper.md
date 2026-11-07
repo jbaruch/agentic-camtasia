@@ -164,9 +164,9 @@ available and verify the candidate in the matching native editor.
 
 Use `skills/camtasia-project/scripts/captions.py` for plain closed cues, existing
 plain and native RTF caption text, recognized source-word corrections, root or Group clock mapping/retiming,
-global closed-caption style and existing dynamic display controls.
+global closed-caption style, explicit caption-scene sequencing and existing dynamic display controls.
 Its module docstring, `RATE`, `root_clock`,
-`point_frames`, `correction_edits`, `audio_offset`, `capacity`, `map_captions`, `mapped_holds` and `set_display`
+`point_frames`, `correction_edits`, `audio_offset`, `capacity`, `map_captions`, `mapped_holds`, `sequence_scenes` and `set_display`
 own the clock, source, value, preservation and refusal contracts.
 `CLOSED_STYLE_FIELDS`, `CLOSED_FONTS`, `closed_style_value` and `set_style` in
 that script own global style inputs, field validation and preservation. Read
@@ -187,6 +187,7 @@ python3 -B "{camtasia_skill_root}/scripts/captions.py" correct-words "<project>"
 python3 -B "{camtasia_skill_root}/scripts/captions.py" retime "<project>" --clip-id 3 --spec "<clock.json>" --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/captions.py" set-display "<project>" --clip-id 6 --spec "<display.json>" --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/captions.py" set-style "<project>" --spec "<style.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/captions.py" sequence-scenes "<project>" --spec "<scenes.json>" --output "<candidate.json>"
 ```
 
 Inspection returns separate `closed`, `transcriptions`, `audioUses` and `displays` arrays
@@ -255,6 +256,18 @@ source data and cursor metadata survive timing edits. The same commands support
 [Recording holds](captions.md#moving-and-held-recording-captions) preserve silent
 joins and parent cue ownership. Standalone frozen pictures use separate Caption
 media for closed cues.
+
+For [caption scenes](captions.md#sequencing-caption-scenes), stage
+`sequence-scenes` before native opening. The spec has `schema_version: 1` and
+`durations`, one rational-seconds value per stored scene in order, for example
+`{"schema_version":1,"durations":[4,4]}`. The helper stages one timeline of native
+scene Groups, preserving local clips, sources and lane controls. Read the script
+contract above for supported scene fields, frame alignment and refusal cases.
+Inspect the candidate's new Group/audio paths before global cue edits, parent-clock
+retiming or display-bound edits. Original root lanes become Group children;
+choose preservation selectors for the actual staged structure. This does not
+rewrite marker/quiz/hotspot destination clocks. Keep the full bundle companions
+and apply only to a saved, closed copy through the guarded project workflow.
 
 For [mixed-source sequences](captions.md#mixed-source-caption-compositions), use a
 native Group and map/edit its inspected caption children. `inspect` reports each
