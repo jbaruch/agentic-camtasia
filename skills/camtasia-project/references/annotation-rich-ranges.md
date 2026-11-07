@@ -131,8 +131,9 @@ movies, screenshots and measurements are deleted after incorporation.
 
 Version 0.46.0 extends both timed-style commands to selected remix text children
 with Group-only clip ancestors in one scene. Times use seconds from the selected
-child's visible beginning: `source = mediaStart + localSeconds * editRate / scalar`.
-Parent placement, trimming and speed do not enter this conversion. All ancestor
+child's visible beginning. `scripts/annotations.py` — `rich_source_time` owns
+the source-clock conversion. Parent placement, trimming and speed do not enter
+that conversion. All ancestor
 payload, child geometry, complete rich partitions and independent visual/outline
 intervals survive. Parents can crop a valid child-local point; the helper does
 not extend a Group or guarantee that its bounds expose the text. Other containers
