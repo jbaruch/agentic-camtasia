@@ -67,8 +67,8 @@ after incorporation into the plugin and generated-fixture tests.
 
 Locally observed in Camtasia Mac 2026.2.4 (2026.132), format 10. The annotation
 helper's `set-rich-steps` and `clear-rich-steps` commands add discrete timed
-styles to root or Group-contained remix text annotations. `scripts/annotations.py`'s
-module docstring and
+styles to root or Group-contained remix text annotations.
+`skills/camtasia-project/scripts/annotations.py` — the module docstring and
 `rich_step_frames`, `rich_source_time`, `set_rich_steps` and `clear_rich_steps`
 own the input, clock, replacement and preservation contracts. General `set`
 continues to require static rich text; clear timed styles explicitly before
