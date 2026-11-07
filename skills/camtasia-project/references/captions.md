@@ -825,7 +825,7 @@ forms and remaining display controls stay separate pending work.
 Version 0.57.0 supports retained nonzero `AMFile.attributes.sourceFileOffset`
 through the caption helper on Mac 2026.2.4 (2026.132), format 10. This is a
 JSON-authored native probe, not an inferred UI command for changing audio sync.
-`audio_offset`, `capacity` and `map_captions` in `scripts/captions.py` own units,
+The [caption helper contract](helper.md#caption-json-editing) owns units,
 accepted values, physical bounds and the separate `audioFileOffsets` report.
 Cue authoring, word corrections and retiming preserve each offset.
 

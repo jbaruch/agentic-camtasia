@@ -166,7 +166,7 @@ Use `skills/camtasia-project/scripts/captions.py` for plain closed cues, existin
 plain and native RTF caption text, recognized source-word corrections, root or Group clock mapping/retiming,
 global closed-caption style and existing dynamic display controls.
 Its module docstring, `RATE`, `root_clock`,
-`point_frames`, `correction_edits`, `audio_offset`, `capacity`, `mapped_holds` and `set_display`
+`point_frames`, `correction_edits`, `audio_offset`, `capacity`, `map_captions`, `mapped_holds` and `set_display`
 own the clock, source, value, preservation and refusal contracts.
 `CLOSED_STYLE_FIELDS`, `CLOSED_FONTS`, `closed_style_value` and `set_style` in
 that script own global style inputs, field validation and preservation. Read
