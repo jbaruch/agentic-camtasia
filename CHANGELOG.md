@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.47.0 — 2026-11-06
+
+### Added
+
+- Caption `set-style` stages edits to existing global closed-caption font, size
+  and foreground/background RGBA settings. Other global attributes, cue/RTF
+  bodies, clocks, source words and dynamic displays survive. Inspection exposes
+  the saved global settings. The native background-opacity control uses the
+  background color's alpha byte; the legacy opacity scalar stays unchanged.
+- Six native operation comparisons, four literal candidates and ten native
+  exports verify both caption-owner forms, native styling parity, saved reloads,
+  cue boundaries and audio preservation. Three independent repeat pairs and
+  all native/helper combined-style outputs have identical decoded streams.
+- The native foreground-alpha limit is explicit: zero removes glyph fill while
+  leaving a readable black outline. RGBA inputs retain native saved units without
+  promising linear blending or physical font/resource closure.
+- Caption top-level and subcommand help now use the versioned JSON owner
+  envelope with a help string. Help exits successfully without reading a project;
+  syntax errors retain their JSON stderr and exit-code contract.
+
 ## 0.46.0 — 2026-11-06
 
 ### Added

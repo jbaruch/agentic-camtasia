@@ -293,3 +293,67 @@ physical font closure and other requested delivery settings retain their own
 checks. Native definitions, recognition models, fonts and media remain outside
 the package. Completed disposable projects, exports, screenshots and diagnostics
 are deleted after incorporating the findings and generated-fixture tests.
+
+## Global closed-caption styling
+
+Version 0.47.0 adds `set-style` for existing `timeline.captionAttributes`.
+The [caption helper contract](helper.md#caption-json-editing) owns the spec,
+supported fields/fonts and refusal rules. This edits global closed-caption
+appearance independently of cue content, timing and dynamic-caption Callouts.
+RTF bodies are preserved; editing their content or resolving local rich-style
+overrides remains a separate contract. Physical font closure is unchanged.
+
+Locally observed in Camtasia Mac 2026.2.4 (2026.132), format 10. The native
+caption-options menu opens **Caption Settings**, with font, size, text color,
+background color and background opacity. Native size 32→48 changes only
+`fontSize`; `defaultFontSize` remains true. The font picker shows Arial,
+Trebuchet MS and Verdana. A native Trebuchet/48/orange/blue control retains all
+cue points and the existing global flags, language and legacy opacity value.
+
+The native background-opacity slider changes the alpha byte of
+`backgroundColor`. Moving its saved value from 204 to 128 leaves the separate
+legacy `opacity: 0.5` unchanged. Setting it to zero removes the panel. Changing
+background RGB through the color picker preserves that opacity when the dialog
+is applied. Foreground-alpha controls are JSON-authored and natively saved,
+reopened and rendered; no native foreground-opacity slider is inferred.
+
+An orange Verdana/40 control with transparent background has three foreground
+alpha states. Full and intermediate alpha produce different visible fills.
+At zero, the native black glyph outline remains readable: changing foreground
+alpha does not hide the complete caption. All saved alpha bytes survive native
+reopening. Rendered video pixels do not establish a general color/linear-alpha
+calibration. The blue panel stores RGBA 32/48/96/128 and an exercised interior
+pixel renders RGB 79/86/109 over gray video; native and helper controls agree.
+
+Six whole-document native/helper comparisons cover size, font, foreground RGB,
+background RGB, background alpha and a combined Verdana/size/clear-panel edit.
+The first save also normalizes the copied source's filename/channel metadata,
+IDs, unit-opacity default and track heights. Later comparisons differ only in
+thumbnail/command caches and requested style values. Four additional literal
+candidates verify complete style replacement, intermediate/zero foreground
+alpha and the standalone imported-caption owner. No native definition or font
+file is distributed.
+
+Seven eight-second variants use `First café & timing`, then
+`Second caption → end` at four seconds, with clearing at seven. Native Add
+Caption's audio-owned form and the standalone `Caption.captionData` form render
+the same global style. Six first-save comparisons preserve every other payload
+after thumbnail normalization and the standalone clip's four known initial
+metadata defaults. Four independent reopened saves are byte-identical.
+
+Ten native exports are 640×360 H.264 at 30 fps with stereo 44.1-kHz AAC.
+All three repeat pairs reproduce their complete 240 RGB frames and PCM.
+Both audio-owned helper exports and both standalone-caption exports reproduce
+the native combined-style control's decoded RGB exactly. All ten outputs have
+identical decoded audio. Three contact sheets contain 126 inspected phase
+frames; fourteen full-size views verify the accent, arrow, font/size, panel,
+fill and persistent outline. All 180 sampled cue/clear frames and 160 tone
+windows retain their expected behavior; RMS is 0.06786–0.06817 with 440-Hz tone
+power above 0.9996.
+
+Twenty-three snapshots pass the exact-build schema/profile and native hazard
+checks. Raw errors on the three standalone-Caption snapshots retain the pinned
+upstream schema's existing missing-branch diagnosis; no profile correction is
+added. Original and reusable baseline bytes remain unchanged; all seven bundled
+media hashes agree. Completed disposable projects, exports, screenshots and audit
+files are deleted after incorporation.

@@ -39,6 +39,21 @@ The native placeholder, partial rich ranges, style IDs and all other controls
 remain unchanged. Bound edits require an untrimmed scalar-one clean root display.
 No vendor definitions, fonts, media or recognition models are copied.
 
+set-style PROJECT --spec SPEC --output CANDIDATE edits existing global closed-
+caption appearance, not the separate dynamic-caption display. Schema version 1
+has a nonempty style object. CLOSED_STYLE_FIELDS and CLOSED_FONTS own the
+supported fields and native font choices. Font size is a positive integer;
+foreground/background colors are four integer RGBA bytes. Background opacity
+is the backgroundColor alpha byte, not the legacy opacity scalar.
+Foreground alpha changes glyph fill; the native black glyph outline remains
+visible even at zero. Background alpha zero removes the panel.
+No aliases, percent conversion, missing-field insertion or global default reconstruction
+is inferred. Every omitted style field, other global attribute, cue/RTF payload,
+source word, clip clock, display and unrelated value survives. The style applies
+globally to closed captions across the project, including later cue edits.
+Only the observed Mac 2026.2.4 format-10 style contract is supported. Native font
+availability, text fitting and transparency still require rendered checks.
+
 Edits require the observed Mac 2025.0.3/format 9 or 2026.2.4/format 10 and exact
 caption clock; source-backed dynamic edits require the latter. RTF captions are
 inspectable but need a native/RTF-aware editing route. JSON stdout schema_version
@@ -46,7 +61,8 @@ inspectable but need a native/RTF-aware editing route. JSON stdout schema_versio
 nativeVerified false. Staging is exclusive or an identical no-op. Follow project
 validate/diff/apply, matching native save/reopen and actual caption/highlight or
 Smart Player CC checks. Exit 0 success, 1 input/I/O refusal, 2 CLI syntax (JSON
-stderr). --help prints plaintext stdout. Python 3.11+, standard library only.
+stderr). --help emits the versioned JSON owner envelope with a help string.
+Python 3.11+, standard library only.
 """
 
 from __future__ import annotations
@@ -65,6 +81,8 @@ import project
 import transitions
 
 RATE = 705600000
+CLOSED_STYLE_FIELDS = frozenset({"fontName", "fontSize", "foregroundColor", "backgroundColor"})
+CLOSED_FONTS = frozenset({"Arial", "Trebuchet MS", "Verdana"})
 DISPLAY_NUMBERS = frozenset(
     {
         "dynamic-caption-new-paragraph-for-each-sentence",
@@ -78,6 +96,19 @@ DISPLAY_NUMBERS = frozenset(
     }
     | {"dynamic-caption-current-word-color-" + ch for ch in ("red", "green", "blue", "alpha")}
 )
+
+
+class JsonHelpParser(annotations.JsonArgumentParser):
+    def format_help(self) -> str:
+        return (
+            json.dumps(
+                dict(
+                    schema_version=1, owner="camtasia-captions", ok=True, help=super().format_help()
+                ),
+                ensure_ascii=False,
+            )
+            + "\n"
+        )
 
 
 def require_native(doc: dict[str, Any], *, dynamic: bool = False) -> None:
@@ -374,6 +405,49 @@ def correct_words(
     correction_edits(
         spec, point_frames(transcription(result, source_id, index), "string"), words=True
     )
+    return result
+
+
+def closed_style_value(name: str, value: Any, *, requested: bool) -> None:
+    if name == "fontName":
+        if (
+            not isinstance(value, str)
+            or not value.strip()
+            or (requested and value not in CLOSED_FONTS)
+        ):
+            raise ValueError("use an observed native closed-caption font choice")
+    elif name == "fontSize":
+        if type(value) is not int or value <= 0:
+            raise ValueError("use a positive integer closed-caption font size")
+    elif (
+        not isinstance(value, list)
+        or len(value) != 4
+        or any(type(channel) is not int or not 0 <= channel <= 255 for channel in value)
+    ):
+        raise ValueError("use four integer RGBA bytes for closed-caption colors")
+
+
+def set_style(doc: dict[str, Any], spec: dict[str, Any]) -> dict[str, Any]:
+    require_native(doc)
+    if doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
+        raise ValueError("use the verified Mac 2026.2.4 global closed-caption style contract")
+    spec_keys(spec, {"style"}, {"style"})
+    requested = spec["style"]
+    if not isinstance(requested, dict) or not requested or requested.keys() - CLOSED_STYLE_FIELDS:
+        raise ValueError("supply nonempty supported global closed-caption style fields")
+    timeline = doc.get("timeline")
+    current = timeline.get("captionAttributes") if isinstance(timeline, dict) else None
+    if not isinstance(current, dict):
+        raise ValueError("capture native global captionAttributes before editing style")
+    for name in requested:
+        if name not in current:
+            raise ValueError(
+                "retain existing captionAttributes fields; no missing defaults are inserted"
+            )
+        closed_style_value(name, current[name], requested=False)
+        closed_style_value(name, requested[name], requested=True)
+    result = copy.deepcopy(doc)
+    result["timeline"]["captionAttributes"].update(copy.deepcopy(requested))
     return result
 
 
@@ -705,11 +779,19 @@ def inventory(doc: dict[str, Any]) -> dict[str, Any]:
                         parameter=parameters["transcription"],
                     )
                 )
-    return dict(closed=closed, transcriptions=words, displays=displays)
+    timeline = doc.get("timeline")
+    return dict(
+        closed=closed,
+        transcriptions=words,
+        displays=displays,
+        captionAttributes=copy.deepcopy(
+            timeline.get("captionAttributes") if isinstance(timeline, dict) else None
+        ),
+    )
 
 
 def main(argv: list[str] | None = None) -> int:
-    parser = annotations.JsonArgumentParser(description=__doc__)
+    parser = JsonHelpParser(description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     for name in (
         "inspect",
@@ -719,10 +801,11 @@ def main(argv: list[str] | None = None) -> int:
         "correct-words",
         "retime",
         "set-display",
+        "set-style",
     ):
         command = commands.add_parser(name)
         command.add_argument("project", type=Path)
-        if name not in ("inspect", "correct-words"):
+        if name not in ("inspect", "correct-words", "set-style"):
             command.add_argument("--clip-id", type=int, required=True)
         if name == "correct-words":
             command.add_argument("--source-id", type=int, required=True)
@@ -744,6 +827,8 @@ def main(argv: list[str] | None = None) -> int:
             spec = project.load(args.spec)[0]
             if args.command == "correct-words":
                 candidate = correct_words(doc, args.source_id, args.source_track, spec)
+            elif args.command == "set-style":
+                candidate = set_style(doc, spec)
             else:
                 operation = {
                     "set-text": correct_text,
