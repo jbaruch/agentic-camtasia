@@ -44,6 +44,13 @@ owns the read-only Group-only ancestry exception. Root Caption metadata stays
 required; present metadata still requires an object. Original documents and raw
 community-schema checks retain their actual saved fields.
 
+Native ordinary-AV stitching on Mac 2026.2.4 moves audio-owned closed cues into
+`StitchedMedia.parameters.captions`; see [stitched captions](captions.md#ordinary-av-stitched-caption-clocks).
+The format-10 profile replaces only that clip family's parameter-map reference
+with a map admitting the existing strict caption-point schema at `captions`.
+Other parameters retain the upstream parameter-map checks. Raw schema failures,
+other clip families and original documents remain unchanged.
+
 Resolve this skill directory to absolute `camtasia_skill_root`, then run:
 
 ```bash

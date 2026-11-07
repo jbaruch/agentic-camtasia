@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from typing import Any
 import unittest
 from unittest.mock import patch
 from contextlib import redirect_stdout
@@ -29,6 +30,40 @@ def schema() -> dict:
         },
         "additionalProperties": False,
         "definitions": {
+            "parametersMap": {
+                "type": "object",
+                "additionalProperties": {
+                    "oneOf": [
+                        {"type": "number"},
+                        {"type": "string"},
+                        {"type": "boolean"},
+                        {"type": "array"},
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "enum": [
+                                        "double",
+                                        "int",
+                                        "point",
+                                        "string",
+                                        "textAttributeList",
+                                    ]
+                                }
+                            },
+                        },
+                    ]
+                },
+            },
+            "StitchedMedia": {
+                "type": "object",
+                "properties": {
+                    "_type": {"const": "StitchedMedia"},
+                    "parameters": {"$ref": "#/definitions/parametersMap"},
+                },
+                "required": ["_type", "parameters"],
+                "additionalProperties": False,
+            },
             "GenericBehaviorEffect": {
                 "type": "object",
                 "properties": {
@@ -150,12 +185,88 @@ def schema() -> dict:
                 },
                 "additionalProperties": False,
             },
-            "media": {"oneOf": [{"type": "object", "properties": {"_type": {"const": "VMFile"}}}]},
+            "media": {
+                "oneOf": [
+                    {"type": "object", "properties": {"_type": {"const": "VMFile"}}},
+                    {"$ref": "#/definitions/StitchedMedia"},
+                ]
+            },
         },
     }
 
 
 class SchemaAuditTests(unittest.TestCase):
+    def test_stitched_parent_captions_are_strict_and_do_not_relax_other_parameters(self):
+        original, _, profile = self.current_profile_fixture()
+        doc: dict[str, Any] = dict(
+            version="10.0",
+            authoringClientName=profile["appliesTo"]["authoringClient"],
+            timeline=dict(
+                clip=dict(
+                    _type="StitchedMedia",
+                    parameters=dict(
+                        captions=dict(
+                            type="caption",
+                            keyframes=[
+                                dict(
+                                    time=0,
+                                    endTime=0,
+                                    duration=0,
+                                    value=dict(text="ONE", textAttributes=None),
+                                )
+                            ],
+                        ),
+                        volume=0.7,
+                    ),
+                )
+            ),
+        )
+        baseline = copy.deepcopy(original)
+        before = copy.deepcopy(doc)
+        self.assertFalse(schema_audit.audit(doc, original)["ok"])
+        self.assertTrue(schema_audit.audit(doc, original, profile)["ok"])
+        for mutation in ["text", "duration", "extra", "other-parameter"]:
+            bad = copy.deepcopy(doc)
+            params = bad["timeline"]["clip"]["parameters"]
+            frame = params["captions"]["keyframes"][0]
+            if mutation == "text":
+                frame["value"]["text"] = 1
+            elif mutation == "duration":
+                frame["duration"] = 1
+            elif mutation == "extra":
+                frame["nativeUnknown"] = True
+            else:
+                params["volume"] = dict(type="caption", keyframes=[])
+            with self.subTest(mutation=mutation):
+                self.assertFalse(schema_audit.audit(bad, original, profile)["ok"])
+        self.assertEqual(original, baseline)
+        self.assertEqual(doc, before)
+
+    def test_profile_replacement_refuses_missing_or_changed_upstream_property(self):
+        original = schema()
+        change = dict(
+            operation="replace-property",
+            path=["definitions", "StitchedMedia", "properties"],
+            name="parameters",
+            expected={"$ref": "#/definitions/parametersMap"},
+            schema={"type": "object"},
+        )
+        self.assertEqual(
+            schema_audit.apply_profile(original, dict(changes=[change]))["definitions"][
+                "StitchedMedia"
+            ]["properties"]["parameters"],
+            {"type": "object"},
+        )
+        for value in [None, {"type": "array"}]:
+            altered = copy.deepcopy(original)
+            target = altered["definitions"]["StitchedMedia"]["properties"]
+            if value is None:
+                target.pop("parameters")
+            else:
+                target["parameters"] = value
+            with self.assertRaisesRegex(ValueError, "expected schema"):
+                schema_audit.apply_profile(altered, dict(changes=[change]))
+
     def setUp(self) -> None:
         self.profile = schema_audit.read_document(schema_audit.PROFILE_FILE)
         self.doc = {

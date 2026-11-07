@@ -12,7 +12,21 @@ word onsets; ancestor cropping carries a word already active in the Group.
 The verified caption/word clock is 705600000 ticks/sec, independently of each
 source stream's sample/edit rate. Group mapping requires Mac 2026.2.4 and returns
 ancestors nearest first. map --closed-only omits source recognition and requires
-existing closed cues. Stitched and multiscene mappings refuse.
+existing closed cues. Mac 2026.2.4 stitched ordinary-AV parents own their closed
+cues in the virtual stitch clock. Select that parent, rather than its internal
+children. Word mapping composes eligible child onsets before forming holds, so
+the last retained word can span a source skip. Returned stitched words retain
+source index/time and add stitchTime, sourceClipId, audioClipId, sourceId and
+sourceTrack. A stitched source trim omits earlier virtual onsets; Group cropping
+carries an active hold. Stitched map also returns displayWords for the measured
+Mac 2026.2.4 highlight clock; words retains nominal source-word timing for speech
+cuts. The final child receives an extra owner-local scalar in displayWords,
+anchored at max(final child start, owner mediaStart), before ordinary owner and
+Group mapping. Projected onsets, rather than nominal upper bounds, determine
+visible eligibility. Outer Group speed alone does not cause this projection.
+Keep the stitched scalar at one and speed its common audio/display Group when
+uniform highlight timing is required. stitched_children owns internal validation.
+Recording holds, audio-only/multi-source stitches and multiscene mapping refuse.
 
 set-text PROJECT --clip-id ID --spec SPEC corrects existing plain closed points.
 set-rtf-text uses edits [{index, expected, replacements:[{start,end,text}]}] for
@@ -41,7 +55,7 @@ Group-contained cues support media or global timeline seconds. Timeline cues mus
 fit entirely inside the child's visible interval through every ancestor Group.
 
 retime PROJECT --clip-id ID --spec SPEC changes a clean Caption/audio/linked
-AV clock. Supply schema_version 1, start, duration, media_start (rational seconds)
+AV or stitched-parent clock. Supply schema_version 1, start, duration, media_start (rational seconds)
 and positive scalar (inverse speed). Complete mirrored clocks change together;
 source words/cues and dynamic displays do not change. Consumed source bounds,
 lane collisions and transitions are checked. Effects/animations need their own
@@ -52,6 +66,8 @@ Group descendants require clock parent: placement is in the containing Group's
 clock and all ancestor clocks and durations survive unchanged. Closed-only Group
 operations accept signed child and nested-Group starts; root placement remains
 nonnegative. They refuse known native Group save/reopen drift configurations.
+Stitched retiming changes only the parent clock; every internal child survives.
+Stitched parent cuts also require the document video frame grid.
 
 set-display PROJECT --clip-id ID --spec SPEC edits an existing native dynamic
 display. Spec schema_version 1 accepts start/duration seconds, definition (existing
@@ -213,8 +229,14 @@ def closed_target(doc: dict[str, Any], clip_id: int) -> tuple[dict[str, Any], st
     _, owner = selected(doc, clip_id)
     if owner.get("_type") == "UnifiedMedia":
         owner = owner.get("audio")
-    if not isinstance(owner, dict) or owner.get("_type") not in ("AMFile", "Caption"):
+    if not isinstance(owner, dict) or owner.get("_type") not in (
+        "AMFile",
+        "Caption",
+        "StitchedMedia",
+    ):
         raise ValueError("select an audio-owned closed caption or imported Caption clip")
+    if owner["_type"] == "StitchedMedia":
+        stitched_children(doc, owner)
     key = "captionData" if owner["_type"] == "Caption" else "captions"
     parameters = owner.get("parameters")
     if not isinstance(parameters, dict) or key not in parameters:
@@ -277,7 +299,11 @@ def validate_caption_clock(
     if type(owner.get("id")) is not int:
         raise ValueError("repair the owner's numeric clip ID before caption mapping or retiming")
     selected(doc, owner["id"])
-    if not isinstance(audio, dict) or audio.get("_type") not in ("AMFile", "Caption"):
+    if not isinstance(audio, dict) or audio.get("_type") not in (
+        "AMFile",
+        "Caption",
+        "StitchedMedia",
+    ):
         raise ValueError("select a Caption or speech-bearing audio/linked AV clip")
     attributes = audio.get("attributes", {})
     if (
@@ -305,6 +331,53 @@ def validate_caption_clock(
             raise ValueError("retain complete positive native caption owner clocks")
         if any(project.number(owner[key]) != values[key] for key in effects.CLOCK_FIELDS):
             raise ValueError("repair conflicting complete linked AV caption clocks")
+    if owner.get("_type") == "StitchedMedia":
+        stitched_children(doc, owner)
+
+
+def stitched_children(doc: dict[str, Any], owner: dict[str, Any]) -> list[dict[str, Any]]:
+    """Validate the observed contiguous ordinary-AV stitch, not recording holds."""
+    require_native(doc, dynamic=True)
+    children = owner.get("medias")
+    if (
+        project.number(owner.get("minMediaStart")) != 0
+        or not isinstance(children, list)
+        or len(children) < 2
+    ):
+        raise ValueError("select a native zero-origin AV stitch with at least two saved children")
+    end, source = Fraction(0), None
+    for child in children:
+        if not isinstance(child, dict) or child.get("_type") != "UnifiedMedia":
+            raise ValueError("capture stitched recording/hold/audio-only caption forms separately")
+        audio = child.get("audio")
+        validate_caption_clock(doc, child, audio)
+        assert isinstance(audio, dict)  # Validated by the caption clock selector.
+        parameters = audio.get("parameters", {})
+        if not isinstance(parameters, dict) or "captions" in parameters:
+            raise ValueError(
+                "select the native stitched parent cue parameter; capture child caption ownership separately"
+            )
+        if (
+            project.number(child["start"]) != end
+            or project.number(child["scalar"]) != 1
+            or child["video"].get("src") != audio.get("src")
+        ):
+            raise ValueError("retain ordered contiguous scalar-one native stitched AV children")
+        selection = (audio.get("src"), audio.get("trackNumber"), child["video"].get("trackNumber"))
+        if source is not None and source != selection:
+            raise ValueError("capture multi-source stitched caption discovery separately")
+        source = selection
+        for stream in (audio, child["video"]):
+            ident = stream.get("id")
+            if type(ident) is not int:
+                raise ValueError("repair native stitched audio/video IDs before mapping provenance")
+            selected(doc, ident)
+            if project.number(child["mediaStart"]) + project.number(child["duration"]) > capacity(
+                doc, stream
+            ):
+                raise ValueError("repair stitched child consumption beyond its source stream")
+        end += project.number(child["duration"])
+    return children
 
 
 def caption_context(doc: dict[str, Any], path: str) -> tuple[dict[str, Any], list[dict[str, Any]]]:
@@ -321,7 +394,9 @@ def caption_context(doc: dict[str, Any], path: str) -> tuple[dict[str, Any], lis
     if ancestors and doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
         raise ValueError("use the verified Mac 2026.2.4 Group closed-caption clock contract")
     if any(n.get("_type") != "Group" for _, n in ancestors):
-        raise ValueError("select Group-only caption ancestry; capture other container clocks first")
+        raise ValueError(
+            "select Group-only ancestry or the stitched parent itself; capture other containers first"
+        )
     for _, group in ancestors:
         if type(group.get("id")) is not int:
             raise ValueError("repair numeric Group IDs before caption clock editing")
@@ -366,9 +441,12 @@ def closed_clock(
         track, owner, audio = root_clock(doc, clip_id)
         return track, owner, audio, []
     audio = owner.get("audio") if owner.get("_type") == "UnifiedMedia" else owner
-    if owner.get("_type") not in ("AMFile", "Caption", "UnifiedMedia") or not isinstance(
-        audio, dict
-    ):
+    if owner.get("_type") not in (
+        "AMFile",
+        "Caption",
+        "UnifiedMedia",
+        "StitchedMedia",
+    ) or not isinstance(audio, dict):
         raise ValueError("select a Group-contained Caption/audio/ordinary linked AV owner")
     validate_caption_clock(doc, owner, audio, nested=True)
     return track, owner, audio, ancestors
@@ -428,7 +506,10 @@ def audio_stream(
 
 
 def capacity(doc: dict[str, Any], owner: dict[str, Any]) -> Fraction:
-    if owner.get("_type") == "Caption":
+    if owner.get("_type") == "StitchedMedia":
+        children = stitched_children(doc, owner)
+        bound = sum((project.number(child["duration"]) for child in children), Fraction(0))
+    elif owner.get("_type") == "Caption":
         bound = project.number(owner.get("maxMediaDuration"))
     else:
         if owner.get("_type") not in ("AMFile", "VMFile"):
@@ -943,7 +1024,8 @@ def retime(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str,
     start = placement_ticks(result, spec["start"], nested=bool(ancestors))
     duration, media_start = (hotspots.ticks(result, spec[k]) for k in ("duration", "media_start"))
     scalar = project.number(spec["scalar"])
-    if owner is not audio:
+    visual = owner is not audio or owner.get("_type") == "StitchedMedia"
+    if visual:
         require_frame_grid(result, dict(start=start, duration=duration, mediaStart=media_start))
     streams = [audio] if owner is audio else [audio, owner["video"]]
     if (
@@ -957,7 +1039,7 @@ def retime(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str,
             "use positive duration/inverse speed and a consumed interval within every selected stream's source bounds"
         )
     media_duration = exact(Fraction(duration) / scalar)
-    if owner is not audio:
+    if visual:
         require_frame_grid(result, dict(mediaDuration=media_duration))
     nodes = [owner] if owner is audio else [owner, owner["video"], audio]
     for node in nodes:
@@ -1150,7 +1232,11 @@ def map_captions(doc: dict[str, Any], clip_id: int, *, closed_only: bool = False
     recognized = False
     if ancestors:
         result["ancestors"] = [group["id"] for group in ancestors]
-    if audio["_type"] == "AMFile":
+    if audio["_type"] == "StitchedMedia":
+        result["words"], result["displayWords"], recognized = stitched_word_holds(
+            doc, owner, bound, ancestors
+        )
+    elif audio["_type"] == "AMFile":
         source, stream = audio_stream(doc, audio)
         if stream.get("transcriptionSet") is True:
             require_native(doc, dynamic=True)
@@ -1167,6 +1253,67 @@ def map_captions(doc: dict[str, Any], clip_id: int, *, closed_only: bool = False
     if key not in parameters and not recognized:
         raise ValueError("select saved closed captions or actual recognized source transcription")
     return result
+
+
+def stitched_word_holds(
+    doc: dict[str, Any],
+    owner: dict[str, Any],
+    bound: Fraction,
+    ancestors: list[dict[str, Any]],
+) -> tuple[list[dict[str, Any]], list[dict[str, Any]], bool]:
+    """Keep speech timing distinct from the observed final-child display clock.
+
+    Mac 2026.2.4 applies an additional owner-local scalar to the final child's
+    displayed word onsets, rebased at the selected parent trim when it enters
+    that child. Outer Group speed does not cause this projection. The source
+    word map remains in the ordinary audio clock. Both clocks then hold through
+    the stitch and compose the owner's/ancestors' crop, placement and speed.
+    """
+    frames, origins, display_frames, display_origins = [], [], [], []
+    recognized = False
+    children = stitched_children(doc, owner)
+    trim, scalar = (project.number(owner[k]) for k in ("mediaStart", "scalar"))
+    anchor = max(project.number(children[-1]["start"]), trim)
+    for child in children:
+        audio = child["audio"]
+        source, stream = audio_stream(doc, audio)
+        if stream.get("transcriptionSet") is not True:
+            continue
+        recognized = True
+        start, duration, inpoint = (
+            project.number(child[k]) for k in ("start", "duration", "mediaStart")
+        )
+        points = point_frames(transcription(doc, source["id"], audio["trackNumber"]), "string")
+        for index, point in enumerate(points):
+            if not inpoint <= point["time"] < inpoint + duration:
+                continue
+            time = start + point["time"] - inpoint
+            frames.append(dict(time=time, value=point["value"]))
+            origins.append(
+                dict(
+                    index=index,
+                    sourceTime=point["time"],
+                    stitchTime=exact(time),
+                    sourceClipId=child["id"],
+                    audioClipId=audio["id"],
+                    sourceId=source["id"],
+                    sourceTrack=audio["trackNumber"],
+                )
+            )
+            if time >= trim:
+                displayed = anchor + (time - anchor) * scalar if child is children[-1] else time
+                display_frames.append(dict(time=displayed, value=point["value"]))
+                display_origins.append(origins[-1])
+
+    def holds(
+        points: list[dict[str, Any]], provenance: list[dict[str, Any]]
+    ) -> list[dict[str, Any]]:
+        rows = mapped_holds(points, owner, bound, words=True, ancestors=ancestors)
+        for row in rows:
+            row.update(provenance[row["index"]])
+        return rows
+
+    return holds(frames, origins), holds(display_frames, display_origins), recognized
 
 
 def inventory(doc: dict[str, Any]) -> dict[str, Any]:

@@ -150,7 +150,8 @@ caption at timeline second 2, following
 2.0333 seconds confirmed the boundary. Native SRT export produced cues
 1.000–2.000 and 2.000–4.000, matching trim, speed, and offset. This probe
 establishes root clocks. The Group contract below adds closed-cue mapping;
-stitched captions retain their separate clock investigation.
+The ordinary-AV stitched-parent contract below adds its separate virtual clock;
+recording and other stitched forms retain their own investigation.
 
 `timeline.captionAttributes` enabled captions and supplied font, colors,
 language, alignment, and background settings. These observed companions do
@@ -289,7 +290,7 @@ Caption form, actual native audio-caption/recognition captures and saved output.
 
 These checks cover the exercised plain values, root clocks and display controls.
 RTF editing, Group closed clocks and Group source-word/display clocks have separate
-contracts below. Stitched/multiscene mapping, nonzero audio source-file offsets,
+contracts below. Other stitched/multiscene mapping, nonzero audio source-file offsets,
 physical font closure and other requested delivery settings retain their own
 checks. Native definitions, recognition models, fonts and media remain outside
 the package. Completed disposable projects, exports, screenshots and diagnostics
@@ -411,8 +412,86 @@ The negative audio-placement and equivalent Group-trim movies differ in audio
 only around global seconds 0.996–1.368. Their seconds 2–7 are sample-identical;
 the cause of the opening difference is unestablished. Read-only word mapping
 does not promise audio identity across alternate native clock layouts. Source
-offsets, stitched/recording variants, multiple scenes and remaining dynamic
+offsets, other stitched/recording variants, multiple scenes and remaining dynamic
 controls retain separate work. Completed disposable data is removed.
+
+## Ordinary-AV stitched caption clocks
+
+Version 0.51.0 maps and edits the native stitched parent's closed cues and maps
+its recognized word sequence. Select the parent ID from closed inspection or
+the `StitchedMedia` container in `audioUses`. Internal child IDs identify source
+occurrences; they are not interchangeable parent selectors. The
+[caption helper contract](helper.md#caption-json-editing) owns the supported
+shape, source validation, returned provenance and refusal rules.
+
+Locally observed on Mac 2026.2.4 (2026.132), format 10. Native **Edit → Split**
+at four seconds duplicates the complete audio-cue parameter onto each linked
+half. Native **Stitch Selected Media** creates one `StitchedMedia`, moves the
+closed parameter to that parent's `parameters.captions` and removes it from
+both audio children. Source transcription remains on the source stream. The
+parent's closed clock is the virtual stitch, not either child's source trim.
+
+A second native stitch joins source seconds 0–3 and 5–8. Its closed points
+become `ONE` at 0, `TWO` at 2, `THREE` at 3, `FOUR` at 4 and empty at 5.
+Its word sequence retains only onsets inside the selected source windows.
+`Every` at 2.979375 holds across the join until `Blue` at 3.39875; the removed
+`word follows the speaker.` points do not appear in the rendered block.
+Forming independent per-child word holds would incorrectly clear that join.
+All sixteen original source word/gap points remain unchanged.
+
+A parent trim of 0.7 seconds, placed at global second 1, omits earlier virtual
+word onsets and starts highlighting `tools` at 1.18. The active closed cue
+still carries into the trim. Cropping the same stitched parent through an outer
+Group instead carries `useful` at second 1, then switches to `tools` at 1.18.
+The native Group contains the stitched parent and its independent display.
+
+Parent retiming preserves all internal children. A 2× parent and an independent
+flat control render an authored `STITCHED EDIT` cue at 1.5–2.5 seconds while
+source words retain their own onsets. Display bounds are edited separately.
+The exact-build schema profile admits the parent's strict caption-point form
+while retaining the upstream checks for every other parameter. Raw community
+errors remain visible; input documents stay unchanged.
+
+Default stitched mapping separates `words`, the nominal source-word clock, from
+`displayWords`, the measured visible-highlight clock. At unit parent speed they
+agree. At 2× parent speed, the first child follows the normal source clock, but
+onsets in the final child are projected earlier again. With a final child starting
+at virtual second 4 and placement at global second 1, `Blue` at source 5.39875
+has nominal time 3.699375 and visible highlight time 3.3496875. A three-child
+control with the same final boundary reproduces this behavior; moving that
+boundary to second 5 moves the projection. Slowing the parent produces the
+corresponding delayed final-window highlights. Removing closed cues leaves the
+highlight behavior unchanged. The helper implementation owns the projection;
+its internal cause in Camtasia is unestablished.
+
+Trimming into the final child rebases the measured display projection at that
+trim. Upper eligibility also follows projected display time: a parent consuming
+source seconds 0–5 at 2× highlights `Blue` and `Rivers`, whose original onsets
+are beyond second 5. `words` correctly omits those future source-word onsets;
+`displayWords` reports their actual visible holds while retaining original source
+provenance. Never use native highlight timing as an audio-cut clock.
+
+A separate native Group containing the unit-speed stitched parent and its display
+accepts 2× Group speed with uniform source/highlight timing. Keep the stitched
+parent at unit speed and apply speed to that common Group for this measured
+alternative. A slowed stitched parent inside an accelerated Group retains the
+owner-local display projection even when the nominal speeds cancel.
+
+Twenty-six native exports total 158.6 seconds and 4,758 frames. All frames pass
+both closed-cue and visible-highlight/gap checks using the corresponding map.
+Six independent reopen/fresh-process pairs reproduce complete decoded RGB and
+PCM. Three helper project reopens are byte-identical. Twenty-one whole-payload
+comparisons preserve source transcription, bundled media and all unrelated
+payload after only observed thumbnail/duration bookkeeping, crop-default
+normalization and Group serialization changes. All 52 input/saved schema checks
+pass the profile and native guards; raw upstream diagnostics remain separate.
+
+The continuous unit-speed stitched picture matches the independent flat control. Decoded
+audio differs between these native layouts; preserved source bytes do not
+establish sample identity after stitching. Compare edits against the same
+stitched layout and verify its own independent reopen/export. Recording holds,
+audio-only/multiple-source stitches, nonzero source-file offsets and multiple
+scenes remain separate work. Completed disposable data is removed.
 
 ## Global closed-caption styling
 

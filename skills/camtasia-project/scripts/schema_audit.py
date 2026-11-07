@@ -85,6 +85,12 @@ def apply_profile(schema: dict[str, Any], profile: dict[str, Any]) -> dict[str, 
             if change["name"] in target:
                 raise ValueError(f"profile would replace an existing property: {change['name']}")
             target[change["name"]] = change["schema"]
+        elif change["operation"] == "replace-property":
+            if target.get(change["name"]) != change["expected"]:
+                raise ValueError(
+                    f"profile replacement differs from its expected schema: {change['name']}"
+                )
+            target[change["name"]] = change["schema"]
         else:
             raise ValueError(f"unknown profile operation {change['operation']!r}")
     jsonschema.Draft7Validator.check_schema(result)

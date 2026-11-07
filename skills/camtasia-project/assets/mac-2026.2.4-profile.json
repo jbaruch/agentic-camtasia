@@ -12,6 +12,20 @@
   "upstreamSha256": "e8df2fab865f9a42b953985c01a47bfc898da3641b50dc7d0af80af53794f08a",
   "changes": [
     {
+      "operation": "replace-property",
+      "path": ["definitions", "StitchedMedia", "properties"],
+      "name": "parameters",
+      "expected": {"$ref": "#/definitions/parametersMap"},
+      "schema": {
+        "description": "Native stitching lifts ordinary AV closed captions to the stitched parent. Other parameters retain the upstream parameter-map checks.",
+        "type": "object",
+        "properties": {
+          "captions": {"$ref": "#/definitions/Caption/properties/parameters/properties/captionData"}
+        },
+        "additionalProperties": {"$ref": "#/definitions/parametersMap/additionalProperties"}
+      }
+    },
+    {
       "operation": "append-enum",
       "path": [
         "definitions",

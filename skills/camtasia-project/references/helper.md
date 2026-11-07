@@ -242,6 +242,20 @@ parent-crop behavior are verified in [Group source-word clocks](captions.md#grou
 placement and lane/transition validation. Source retiming accepts recognized
 Group audio without requiring a separate closed-cue parameter.
 
+For ordinary-AV stitches, select the `StitchedMedia` parent. Its closed parameter
+supports text/cue edits, mapping and parent retiming. The same script's
+`stitched_children` and `stitched_word_holds` own internal validation and virtual
+word composition, including the measured native display-speed projection.
+Stitched mapping returns `words` for nominal source-word timing and
+`displayWords` for visible native highlights. Use `words` for speech cuts;
+`displayWords` can differ at parent speed and can include projected onsets beyond
+the consumed audio window. Both arrays retain original source indices/times and
+add `stitchTime`, `sourceClipId`, `audioClipId`, `sourceId` and `sourceTrack`.
+These distinguish a child's source onset from its position inside the parent.
+Parent retiming retains every child; Group descendants still require an explicit
+parent clock. Read [stitched caption verification](captions.md#ordinary-av-stitched-caption-clocks)
+for native ownership, source skips, display-speed limits and the Group alternative.
+
 A display spec supplies independent start/duration seconds, `definition` and/or
 `rich` changes, for example:
 `{"schema_version":1,"start":1,"duration":3,"definition":{"dynamic-caption-new-paragraph-for-each-sentence":1},"rich":{"fgColor":"(255,255,255,255)"}}`.
