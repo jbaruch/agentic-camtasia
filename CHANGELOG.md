@@ -14,7 +14,10 @@
   source words retain the nominal speech clock. A unit-speed stitch inside a
   sped common audio/display Group provides the verified uniform-clock alternative.
 - The exact Mac 2026.2.4 schema profile admits native parent-owned caption points
-  without relaxing other parameter checks. Twenty-six native exports pass all
+  without relaxing other parameter checks. Captioned stitches require the shared
+  ordinary-AV predicate; unverified layouts remain audit failures. Timeline cues
+  must fit the selected clip's visible window, including trimmed root owners.
+  Twenty-six native exports pass all
   4,758 frames for closed cues and highlights; six reopened/fresh-process pairs
   repeat complete decoded streams. Recording and other stitch forms remain tracked.
 

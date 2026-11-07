@@ -346,6 +346,36 @@ class StitchedCaptionTests(unittest.TestCase):
             doc["timeline"]["captionAttributes"],
         )
 
+    def test_trimmed_root_stitch_rejects_timeline_cues_outside_visible_window(self):
+        doc = stitched()
+        parent(doc).update(start=R, duration=4 * R, mediaStart=2 * R, mediaDuration=4 * R)
+        before = copy.deepcopy(doc)
+        for begin, end in [(0, 2), (4, 6), (5, 6)]:
+            with (
+                self.subTest(begin=begin, end=end),
+                self.assertRaisesRegex(ValueError, "visible window"),
+            ):
+                captions.set_cues(
+                    doc,
+                    3,
+                    dict(
+                        schema_version=1,
+                        clock="timeline",
+                        cues=[dict(start=begin, end=end, text="CUE")],
+                    ),
+                )
+            self.assertEqual(doc, before)
+        timeline = captions.set_cues(
+            doc,
+            3,
+            dict(schema_version=1, clock="timeline", cues=[dict(start=1, end=5, text="CUE")]),
+        )
+        media = captions.set_cues(
+            doc, 3, dict(schema_version=1, clock="media", cues=[dict(start=2, end=6, text="CUE")])
+        )
+        self.assertEqual(timeline, media)
+        self.assertEqual(doc, before)
+
     def test_words_only_stitch_and_closed_only_remain_independent_of_recognition(self):
         doc = stitched()
         parent(doc)["parameters"].pop("captions")

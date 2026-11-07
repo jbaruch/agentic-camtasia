@@ -48,8 +48,11 @@ Native ordinary-AV stitching on Mac 2026.2.4 moves audio-owned closed cues into
 `StitchedMedia.parameters.captions`; see [stitched captions](captions.md#ordinary-av-stitched-caption-clocks).
 The format-10 profile replaces only that clip family's parameter-map reference
 with a map admitting the existing strict caption-point schema at `captions`.
-Other parameters retain the upstream parameter-map checks. Raw schema failures,
-other clip families and original documents remain unchanged.
+Other parameters retain the upstream parameter-map checks. The same script's
+`audit` requires captioned stitches to pass the shared ordinary-AV predicate;
+unverified child/source layouts produce native-compatibility errors. Stitches
+without that caption parameter retain their existing audit behavior. Raw schema
+failures, other clip families and original documents remain unchanged.
 
 Resolve this skill directory to absolute `camtasia_skill_root`, then run:
 

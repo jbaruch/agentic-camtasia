@@ -5,6 +5,8 @@ Schema validity, editor acceptance, and rendered behavior are separate results.
 The compatibility profile is restricted to its observed editor build and format.
 The format-10 audit view permits omitted Caption metadata only with Group-only
 ancestry. Root Captions retain required metadata; source documents stay unchanged.
+Captioned stitches must pass the caption helper's observed ordinary-AV predicate;
+unsupported source/child layouts produce explicit compatibility errors.
 Install jsonschema through the repository's verification extra or the documented
 isolated uv invocation. Fetch downloads data only and never executes it.
 """
@@ -22,6 +24,8 @@ from typing import Any, Iterator
 
 import jsonschema
 from jsonschema.exceptions import SchemaError
+
+import captions
 
 from project import clip_paths, load, native_hazards, nonfinite_errors, objects
 
@@ -173,6 +177,20 @@ def audit(
         )
         corrected_errors = errors_for(apply_profile(schema, profile), checked)
     hazards = native_hazards(doc) + nonfinite_errors(doc)
+    if profile is not None and profile["id"] == "mac-2026.2.4-format-10":
+        for path, node in objects(doc.get("timeline", {}), "/timeline"):
+            parameters = node.get("parameters")
+            if (
+                node.get("_type") == "StitchedMedia"
+                and isinstance(parameters, dict)
+                and "captions" in parameters
+            ):
+                try:
+                    captions.stitched_children(doc, node)
+                except ValueError as exc:
+                    hazards.append(
+                        f"{path}/parameters/captions: unverified captioned stitch: {exc}"
+                    )
     return {
         "ok": not corrected_errors and not hazards,
         "formatVersion": doc.get("version"),

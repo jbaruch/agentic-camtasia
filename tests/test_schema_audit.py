@@ -16,6 +16,7 @@ from contextlib import redirect_stdout
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "skills/camtasia-project/scripts"))
 import schema_audit  # noqa: E402
+from test_caption_stitches import stitched, parent  # noqa: E402
 
 
 def schema() -> dict:
@@ -196,8 +197,13 @@ def schema() -> dict:
 
 
 class SchemaAuditTests(unittest.TestCase):
-    def test_stitched_parent_captions_are_strict_and_do_not_relax_other_parameters(self):
+    def stitched_profile_fixture(self):
         original, _, profile = self.current_profile_fixture()
+        fixture = stitched()
+        owner = parent(fixture)
+        properties = original["definitions"]["StitchedMedia"]["properties"]
+        properties.update({name: {} for name in owner if name not in properties})
+        original["properties"]["editRate"] = {"type": "integer"}
         doc: dict[str, Any] = dict(
             version="10.0",
             authoringClientName=profile["appliesTo"]["authoringClient"],
@@ -221,6 +227,14 @@ class SchemaAuditTests(unittest.TestCase):
                 )
             ),
         )
+        owner["parameters"] = doc["timeline"]["clip"]["parameters"]
+        doc["timeline"]["clip"] = owner
+        doc["sourceBin"] = fixture["sourceBin"]
+        doc["editRate"] = fixture["editRate"]
+        return original, doc, profile
+
+    def test_stitched_parent_captions_are_strict_and_do_not_relax_other_parameters(self):
+        original, doc, profile = self.stitched_profile_fixture()
         baseline = copy.deepcopy(original)
         before = copy.deepcopy(doc)
         self.assertFalse(schema_audit.audit(doc, original)["ok"])
@@ -241,6 +255,48 @@ class SchemaAuditTests(unittest.TestCase):
                 self.assertFalse(schema_audit.audit(bad, original, profile)["ok"])
         self.assertEqual(original, baseline)
         self.assertEqual(doc, before)
+
+    def test_captioned_stitch_profile_refuses_unverified_children_without_mutation(self):
+        original, doc, profile = self.stitched_profile_fixture()
+        for mutation in ["missing", "recording", "audio-only", "multi-source", "held", "gap"]:
+            bad = copy.deepcopy(doc)
+            owner = bad["timeline"]["clip"]
+            if mutation == "missing":
+                owner.pop("medias")
+            elif mutation == "recording":
+                owner["medias"][0]["video"]["_type"] = "ScreenVM"
+            elif mutation == "audio-only":
+                owner["medias"][0] = owner["medias"][0]["audio"]
+            elif mutation == "multi-source":
+                owner["medias"][1]["audio"]["src"] = 99
+                owner["medias"][1]["video"]["src"] = 99
+            elif mutation == "held":
+                owner["medias"][0]["scalar"] = 2
+            else:
+                for node in [
+                    owner["medias"][1],
+                    owner["medias"][1]["video"],
+                    owner["medias"][1]["audio"],
+                ]:
+                    node["start"] += 1
+            before = copy.deepcopy(bad)
+            with self.subTest(mutation=mutation):
+                result = schema_audit.audit(bad, original, profile)
+                self.assertFalse(result["ok"])
+                self.assertEqual(result["errors"], [])
+                self.assertTrue(
+                    any(
+                        "unverified captioned stitch" in e
+                        for e in result["nativeCompatibilityErrors"]
+                    )
+                )
+                self.assertTrue(result["upstreamErrors"])
+                self.assertEqual(bad, before)
+        unknown = copy.deepcopy(doc)
+        owner = unknown["timeline"]["clip"]
+        owner.pop("medias")
+        owner["parameters"].pop("captions")
+        self.assertTrue(schema_audit.audit(unknown, original, profile)["ok"])
 
     def test_profile_replacement_refuses_missing_or_changed_upstream_property(self):
         original = schema()

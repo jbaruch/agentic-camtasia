@@ -225,7 +225,9 @@ save/reopen and render in the matching editor to check native glyphs and layout.
 Clock edits take
 `{"schema_version":1,"start":1,"duration":3,"media_start":2,"scalar":"1/2"}`.
 Start/duration/trim inputs use seconds; scalar is inverse speed. Retiming changes
-owner clocks and retains source cue/word points. Mapping returns source indices,
+owner clocks and retains source cue/word points. Timeline cue authoring requires
+each complete cue inside the selected clip's visible window, including root trims.
+Media-clock cues can remain outside that current visible window. Mapping returns source indices,
 exact timeline ticks and rational seconds; empty mapped results are valid.
 
 To map only closed cues, use `map --closed-only`. The same script's

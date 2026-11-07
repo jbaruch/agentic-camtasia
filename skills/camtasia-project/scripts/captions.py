@@ -52,7 +52,7 @@ including a final clear. Existing opaque per-point data or RTF/styled values
 refuse replacement; use set-text for preserving point fields. Parameter, clip,
 source and global style payload survive; the existing caption enabled flag turns on.
 Group-contained cues support media or global timeline seconds. Timeline cues must
-fit entirely inside the child's visible interval through every ancestor Group.
+fit entirely inside the clip's visible interval, at root and through every ancestor Group.
 
 retime PROJECT --clip-id ID --spec SPEC changes a clean Caption/audio/linked
 AV or stitched-parent clock. Supply schema_version 1, start, duration, media_start (rational seconds)
@@ -939,13 +939,12 @@ def set_cues(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[st
         plain(dict(text=cue["text"], textAttributes=None))
         begin, end = (project.number(cue[k]) * RATE for k in ("start", "end"))
         if spec["clock"] == "timeline":
-            if ancestors:
-                visible = closed_interval(Fraction(0), bound, owner, ancestors)
-                if visible is None or begin < visible[0] or end > visible[1]:
-                    raise ValueError(
-                        "place timeline cues inside the child's visible Group window; "
-                        "use the media clock to author cropped source cues"
-                    )
+            visible = closed_interval(Fraction(0), bound, owner, ancestors)
+            if visible is None or begin < visible[0] or end > visible[1]:
+                raise ValueError(
+                    "place timeline cues inside the clip's visible window; "
+                    "use the media clock to author cropped source cues"
+                )
             begin, end = (closed_source_tick(p, owner, ancestors) for p in (begin, end))
         if (
             begin < 0
