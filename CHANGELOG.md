@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.54.0 — 2026-11-07
+
+### Added
+
+- Same-source moving-recording stitched parents support closed-cue mapping,
+  cue/text edits, source/display word clocks and parent retiming at root or
+  inside Groups. Native extended trailing-child windows and source-skip word
+  holds remain intact, with explicit internal source/audio provenance.
+- Nineteen native exports cover 123 seconds and 3,690 frames; all 3,210 primary
+  caption and highlight frames match their maps. Three same-process reopen
+  pairs reproduce complete decoded video/audio and byte-identical saved
+  projects. Removing closed cues preserves highlight states, with small mask
+  pixel differences documented separately. Recording holds and the remaining
+  caption gaps stay pending for feature-complete 1.0.
+
 ## 0.53.0 — 2026-11-07
 
 ### Added
