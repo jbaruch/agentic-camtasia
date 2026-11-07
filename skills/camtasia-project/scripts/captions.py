@@ -32,8 +32,11 @@ beyond its parent's visible interval; preserve that available source window.
 Projected holds can lie between video frames; mapping retains their exact ticks.
 Mac 2026.2.4 linked moving recordings use the same root/Group caption clock.
 Their ScreenVMFile/AMFile source selection and complete mirrored clocks are
-validated before mapping or retiming. Recording holds, mixed-owner or
-multi-source stitches and multiscene mapping refuse.
+validated before mapping or retiming. Native same-source ScreenIMFile children
+retain silent moving/held joins and their one-tick frame selection. They add no
+source words; composed words can hold across them. A final frozen child has no
+final-child word projection. Other mixed-owner or multi-source stitches and
+multiscene mapping refuse. Standalone frozen pictures use separate Caption media.
 
 set-text PROJECT --clip-id ID --spec SPEC corrects existing plain closed points.
 set-rtf-text uses edits [{index, expected, replacements:[{start,end,text}]}] for
@@ -354,7 +357,7 @@ def validate_caption_clock(
 
 
 def stitched_children(doc: dict[str, Any], owner: dict[str, Any]) -> list[dict[str, Any]]:
-    """Validate homogeneous ordinary AV/audio or moving-recording stitches."""
+    """Validate ordinary AV/audio or same-source moving/held recording stitches."""
     require_native(doc, dynamic=True)
     children = owner.get("medias")
     if (
@@ -367,6 +370,31 @@ def stitched_children(doc: dict[str, Any], owner: dict[str, Any]) -> list[dict[s
         )
     end, source = Fraction(0), None
     for child in children:
+        if isinstance(child, dict) and child.get("_type") == "ScreenIMFile":
+            ident = child.get("id")
+            if type(ident) is not int:
+                raise ValueError("repair numeric frozen recording IDs before caption mapping")
+            selected(doc, ident)
+            source_stream(doc, child, 0)
+            parameters = child.get("parameters", {})
+            if (
+                source is None
+                or source[0] != "UnifiedMedia"
+                or source[4] != "ScreenVMFile"
+                or (child.get("src"), child.get("trackNumber")) != (source[1], source[3])
+                or project.number(child.get("start")) != end
+                or project.number(child.get("duration")) <= 0
+                or project.number(child.get("scalar")) != 1
+                or project.number(child.get("mediaDuration")) != 1
+                or not 0 <= project.number(child.get("mediaStart")) < capacity(doc, child)
+                or not isinstance(parameters, dict)
+                or "captions" in parameters
+            ):
+                raise ValueError(
+                    "retain a same-source native silent recording hold after moving media"
+                )
+            end += project.number(child["duration"])
+            continue
         if not isinstance(child, dict) or child.get("_type") not in ("UnifiedMedia", "AMFile"):
             raise ValueError("capture stitched recording/hold caption forms separately")
         linked = child["_type"] == "UnifiedMedia"
@@ -548,9 +576,9 @@ def capacity(doc: dict[str, Any], owner: dict[str, Any]) -> Fraction:
     elif owner.get("_type") == "Caption":
         bound = project.number(owner.get("maxMediaDuration"))
     else:
-        if owner.get("_type") not in ("AMFile", "VMFile", "ScreenVMFile"):
-            raise ValueError("select a Caption or ordinary audio/video source owner for bounds")
-        if owner["_type"] == "ScreenVMFile":
+        if owner.get("_type") not in ("AMFile", "VMFile", "ScreenVMFile", "ScreenIMFile"):
+            raise ValueError("select a Caption or verified audio/video/recording source for bounds")
+        if owner["_type"] in ("ScreenVMFile", "ScreenIMFile"):
             require_native(doc, dynamic=True)
         _, stream = source_stream(doc, owner, 2 if owner["_type"] == "AMFile" else 0)
         span, rate = stream.get("range"), project.number(stream.get("editRate"))
@@ -1304,8 +1332,9 @@ def stitched_word_holds(
 
     Mac 2026.2.4 applies an additional owner-local scalar to the final child's
     displayed word onsets, rebased at the selected parent trim when it enters
-    that child. Outer Group speed does not cause this projection. The source
-    word map remains in the ordinary audio clock. Both clocks then hold through
+    that child. A final frozen child adds no onsets or projection. Outer Group
+    speed does not cause this projection. The source word map remains in the
+    ordinary audio clock. Both clocks then hold through
     the stitch and compose the owner's/ancestors' crop, placement and speed.
     """
     frames, origins, display_frames, display_origins = [], [], [], []
@@ -1314,6 +1343,8 @@ def stitched_word_holds(
     trim, scalar = (project.number(owner[k]) for k in ("mediaStart", "scalar"))
     anchor = max(project.number(children[-1]["start"]), trim)
     for child in children:
+        if child["_type"] == "ScreenIMFile":
+            continue
         audio = child["audio"] if child["_type"] == "UnifiedMedia" else child
         source, stream = audio_stream(doc, audio)
         if stream.get("transcriptionSet") is not True:

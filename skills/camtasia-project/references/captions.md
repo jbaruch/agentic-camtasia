@@ -489,9 +489,10 @@ pass the profile and native guards; raw upstream diagnostics remain separate.
 The continuous unit-speed stitched picture matches the independent flat control. Decoded
 audio differs between these native layouts; preserved source bytes do not
 establish sample identity after stitching. Compare edits against the same
-stitched layout and verify its own independent reopen/export. Recording holds,
-multiple-source stitches, nonzero source-file offsets and multiple scenes remain
-separate work. Audio-only additions follow below. Completed disposable data is removed.
+stitched layout and verify its own independent reopen/export. Recording holds
+and audio-only additions follow below. Multiple-source stitches, nonzero
+source-file offsets and multiple scenes remain separate work. Completed
+disposable data is removed.
 
 ## Audio-only stitched caption clocks
 
@@ -500,7 +501,8 @@ Version 0.52.0 adds ordinary same-source audio-only stitched parents to the
 owns closed cues; its children are plain `AMFile` nodes. Source and physical
 audio IDs coincide for these children. Parent text/cue edits and retiming retain
 every child, its parameters and source transcription. AV/audio mixtures,
-recording holds, other sources and multiscene clocks remain separate forms.
+other sources and multiscene clocks remain separate forms. Recording holds
+follow below.
 
 Locally observed on Mac 2026.2.4 (2026.132), format 10. An eight-second mono
 48-kHz WAV contains synthetic speech. Native Bebas word-red generation saves
@@ -624,9 +626,9 @@ file read. Recovery JSON and the TREC were copied and hash-verified before nativ
 Activity Monitor force-quit only the stalled test editor. Opening a staged
 existing bundle avoided that filename-panel path; ordinary saves and local
 exports completed in the fresh matching editor. No cloud setting, system
-service or original project was changed. Recording holds, nonzero
+service or original project was changed. Nonzero
 source-file offsets, mixed/multiple-source owners and multiscene clocks remain
-separate pending work. Moving-recording stitches follow below.
+separate pending work. Moving-recording stitches and holds follow below.
 
 ## Linked moving recording stitched captions
 
@@ -684,9 +686,77 @@ save/close/reopen/export pairs in the same editor process reproduce complete
 decoded RGB and PCM streams and byte-identical saved projects. The nineteen
 exports total 123 seconds and 3,690 frames. The unit-speed flat/stitch pair
 matches decoded video and audio; the root/Group unit pair matches decoded video.
-These are manual reopens, not fresh-process or adapter runs. Recording holds,
-mixed-family/multiple-source stitches, source-file offsets and multiscene clocks
-remain pending. Completed disposable verification data is removed after shipping.
+These are manual reopens, not fresh-process or adapter runs. Recording holds
+follow below. Mixed-family/multiple-source stitches, source-file offsets and
+multiscene clocks remain pending. Completed disposable verification data is
+removed after shipping.
+
+## Moving and held recording captions
+
+Version 0.55.0 maps and edits existing moving/held recording stitches at root
+or inside Groups on Mac 2026.2.4 (2026.132) / format 10. The caption commands
+select the stitched parent for closed cues and retiming. `stitched_children`
+in `scripts/captions.py` owns child/source validation; `stitched_word_holds`
+owns composed word and display timing. The helper preserves native frozen
+pictures; it does not construct a hold from TREC internals.
+
+Native **Edit → Playhead → Extend Frame to Playhead** extends the eight-second
+linked speech recording to ten seconds. Its parent owns the unchanged closed
+points. The first child remains the moving `UnifiedMedia` pair; the second is
+a standalone silent `ScreenIMFile`. The frozen child starts at second eight,
+selects source frame 7 29/30 seconds, keeps `mediaDuration: 1`, scalar one and
+a 3,602-second virtual duration clipped by the ten-second parent. Preserve that
+window and the negative cursor point times. The selected frame field alone does
+not establish a general mapping for trimmed extensions; see the separate
+[native picture limitation](matte-recording-owners.md#frame-extensions-of-linked-recordings).
+
+A native middle extension fills seconds four–six between two moving pieces.
+Stitching flattens these into a moving child, a two-second frozen child and a
+final moving child. The latter starts at six, selects source second four and
+retains the native 58 1/30-second available duration beyond the visible parent.
+Parent closed points occur at zero/two/four/six/eight/ten; the equal `THREE`
+points at four and six are retained. Source transcription remains unchanged.
+
+Frozen children introduce no source word onset or speech audio. The last
+retained word holds across a silent interval until the next moving onset or
+parent end. The trailing example keeps `Flow.` highlighted through seconds
+eight–ten; the middle example keeps `captions.` through the gap. Unstitching
+the trailing example clears dynamic text at the audio endpoint, second eight.
+The existing final-moving-child projection still applies after a middle hold.
+A final frozen child has no such additional projection; its moving words keep
+the nominal parent-speed clock. Source word and display reports remain separate.
+
+Trimming the stitched source into the trailing hold omits earlier onsets and
+shows no dynamic text. Cropping its enclosing Group into the same hold carries
+the active `Flow.` word and full sentence. Parent cues can be authored inside
+either silent interval independently of those word clocks. Retiming changes
+only the selected parent clocks and retains all child/frame/source/cursor data.
+
+A standalone frozen owner has no audio child and native Add/Remove Captions
+are disabled. Use separate `Caption` media for a note over that held picture.
+The exercised ten-second unstitched project removes the moving clip's closed
+parameter and adds an independent caption layer. `SILENT HOLD NOTE` renders
+at 8.2–9.2 seconds with explicit clearing, while its dynamic display stays blank
+after second eight. Native save adds the ordinary caption metadata defaults and
+the new lane's track attributes. No audio stream or transcription is fabricated.
+
+Fourteen primary exports cover 120 seconds and 3,600 frames. Every closed-cue
+and highlight/gap state matches its map, including exact zero visible masks
+during expected blanks. Inspected frames confirm the held word, projected future
+words, parent note and separate caption layer. Fourteen decoded hold windows
+contain only zero PCM samples; moving speech remains present. Eleven strict
+candidate comparisons retain source entries, bundled TREC bytes and caption maps.
+Native serialization collapses nine named frozen crop/cursor/scale descriptors
+to equivalent constants, adds caption/lane defaults for the separate layer and
+retains the known Group numeric/track and thumbnail/duration cache changes.
+Other fields remain equal. Four normal save/close/reopen/export pairs reproduce
+complete decoded RGB and PCM streams and byte-identical saved projects. All
+eighteen exports total 152 seconds and 4,560 frames. The native/helper unit pair
+matches decoded video and audio; root/Group unit video also matches. These are
+same-process manual reopens, not fresh-process or adapter runs. Word-hold
+intervals include silence; retain source/audio provenance for speech cuts.
+Mixed/multiple-source or other container forms,
+source-file offsets, multiscene clocks and the other caption gaps remain pending.
 
 ## Global closed-caption styling
 
