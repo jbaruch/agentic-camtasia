@@ -380,7 +380,7 @@ def native_duplicate_track_indices(doc: dict[str, Any]) -> list[str]:
 
 
 def native_hazards(doc: dict[str, Any]) -> list[str]:
-    """Reject reproduced native parser hazards in their observed builds.
+    """Reject reproduced native parser/save hazards in their observed builds.
 
     A static double phase parameter with a redundant point keyframe at zero
     reaches AnimationTrack::mutex() during native loading. The same ten-preset
@@ -388,6 +388,8 @@ def native_hazards(doc: dict[str, Any]) -> list[str]:
     This guard claims no safety result for other animated behavior shapes.
     Mac 2026.2.4 separately refuses positive-time linear Media Matte intensity
     points with equal time/endTime and zero duration during native opening.
+    The same build drops later CSML scenes on save; explicit native Group
+    sequencing retains their content and intervals before native opening.
     """
     errors = (
         native_lane_collisions(doc)
@@ -399,6 +401,14 @@ def native_hazards(doc: dict[str, Any]) -> list[str]:
         "platform": "Mac",
         "version": "2026.2.4",
     }:
+        timeline = doc.get("timeline")
+        scene_track = timeline.get("sceneTrack") if isinstance(timeline, dict) else None
+        scenes = scene_track.get("scenes") if isinstance(scene_track, dict) else None
+        if isinstance(scenes, list) and len(scenes) > 1:
+            errors.append(
+                "/timeline/sceneTrack/scenes: Camtasia Mac 2026.2.4 drops later scenes on save; "
+                "stage captions.py sequence-scenes with explicit durations before native use"
+            )
         for path, node in objects(doc.get("timeline", {}), "/timeline"):
             if node.get("effectName") != "MediaMatte":
                 continue

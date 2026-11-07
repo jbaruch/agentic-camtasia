@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.58.0 — 2026-11-07
+
+### Added
+
+- `sequence-scenes` stages CSML-only caption scenes as native Groups with
+  explicit durations, preserved local clocks and copied lane controls. This
+  retains both scenes on Mac 2026.2.4, whose native save drops later raw scene
+  entries. Project/schema auditing now guards that demonstrated loss.
+- Seven native candidates cover all 1,831 cue/highlight frames: scene handoffs,
+  blank padding/end scenes, an exact frame gap, copied mute controls, a third
+  standalone-caption scene and global cue edits with selected-child retiming.
+  Six same-process reopen pairs repeat decoded video/audio and saved bytes;
+  eighteen movies total 4,682 frames. Native Group hierarchies can change audio
+  at the scene join. Other RTF forms and display controls remain pending for 1.0.
+
 ## 0.57.0 — 2026-11-07
 
 ### Added
