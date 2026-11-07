@@ -163,10 +163,13 @@ available and verify the candidate in the matching native editor.
 ## Caption JSON editing
 
 Use `skills/camtasia-project/scripts/captions.py` for plain closed cues, existing
-caption text, recognized source-word corrections, root clock mapping/retiming and
-existing dynamic display controls. Its module docstring, `RATE`, `root_clock`,
+caption text, recognized source-word corrections, root clock mapping/retiming,
+global closed-caption style and existing dynamic display controls.
+Its module docstring, `RATE`, `root_clock`,
 `point_frames`, `correction_edits`, `capacity`, `mapped_holds` and `set_display`
-own the clock, source, value, preservation and refusal contracts. Read
+own the clock, source, value, preservation and refusal contracts.
+`CLOSED_STYLE_FIELDS`, `CLOSED_FONTS`, `closed_style_value` and `set_style` in
+that script own global style inputs, field validation and preservation. Read
 [captions](captions.md) before selecting an owner or parameter clock.
 
 ```bash
@@ -177,10 +180,12 @@ python3 -B "{camtasia_skill_root}/scripts/captions.py" set-text "<project>" --cl
 python3 -B "{camtasia_skill_root}/scripts/captions.py" correct-words "<project>" --source-id 1 --source-track 1 --spec "<word-corrections.json>" --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/captions.py" retime "<project>" --clip-id 3 --spec "<clock.json>" --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/captions.py" set-display "<project>" --clip-id 6 --spec "<display.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/captions.py" set-style "<project>" --spec "<style.json>" --output "<candidate.json>"
 ```
 
 Inspection returns separate `closed`, `transcriptions` and `displays` arrays
-with physical paths and saved payloads. Select clip/source IDs and source-track
+with physical paths and saved payloads, plus the global `captionAttributes`
+object or null when absent. Select clip/source IDs and source-track
 indices from inspection. Native Add Caption/import supplies the closed parameter;
 word correction requires actual saved recognition/transcription. Read the script
 anchors above for supported builds, clocks, selectors, controls and refusals.
@@ -210,6 +215,15 @@ A display spec supplies independent start/duration seconds, `definition` and/or
 Select existing control names from the script's display contract. The native
 placeholder, other rich ranges, default fonts and style IDs remain unchanged.
 Verify physical fonts, fitting and actual word highlighting on the rendering host.
+
+A global style spec supplies a nonempty `style` object, for example:
+`{"schema_version":1,"style":{"fontName":"Trebuchet MS","fontSize":48,"foregroundColor":[255,128,64,255],"backgroundColor":[32,48,96,128]}}`.
+This project-wide edit takes no clip selector. It retains omitted style fields,
+other global attributes, cue/RTF bodies, source transcription and independent
+dynamic displays. It edits existing settings without constructing defaults.
+Read the style anchors above for accepted fields, values and native scope, and
+the [native global-style verification](captions.md#global-closed-caption-styling)
+for opacity ownership, persistent glyph outlines and rendered-color limits.
 
 Staging returns hashes, inventory, `changed`, `written` and
 `nativeVerified: false`. Original projects and media remain unchanged. Follow

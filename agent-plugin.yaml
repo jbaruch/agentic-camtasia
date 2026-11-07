@@ -1,6 +1,6 @@
 schemaVersion: 1
 name: jbaruch/agentic-camtasia
-version: 0.46.0
+version: 0.47.0
 description: Inspect, edit, and investigate Camtasia projects while preserving native features and media.
 source:
   repository: https://github.com/jbaruch/agentic-camtasia
