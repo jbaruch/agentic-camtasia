@@ -288,7 +288,7 @@ remains the import contract. This helper verification uses the known unstyled
 Caption form, actual native audio-caption/recognition captures and saved output.
 
 These checks cover the exercised plain values, root clocks and display controls.
-RTF editing, nested/stitched/multiscene mapping, nonzero audio source-file offsets,
+RTF editing has the separate contract below. Nested/stitched/multiscene mapping, nonzero audio source-file offsets,
 physical font closure and other requested delivery settings retain their own
 checks. Native definitions, recognition models, fonts and media remain outside
 the package. Completed disposable projects, exports, screenshots and diagnostics
@@ -300,8 +300,8 @@ Version 0.47.0 adds `set-style` for existing `timeline.captionAttributes`.
 The [caption helper contract](helper.md#caption-json-editing) owns the spec,
 supported fields/fonts and refusal rules. This edits global closed-caption
 appearance independently of cue content, timing and dynamic-caption Callouts.
-RTF bodies are preserved; editing their content or resolving local rich-style
-overrides remains a separate contract. Physical font closure is unchanged.
+RTF bodies are preserved; the separate text editor below handles supported RTF
+content. Resolving local rich-style overrides and physical font closure are unchanged.
 
 Locally observed in Camtasia Mac 2026.2.4 (2026.132), format 10. The native
 caption-options menu opens **Caption Settings**, with font, size, text color,
@@ -357,3 +357,66 @@ upstream schema's existing missing-branch diagnosis; no profile correction is
 added. Original and reusable baseline bytes remain unchanged; all seven bundled
 media hashes agree. Completed disposable projects, exports, screenshots and audit
 files are deleted after incorporation.
+
+## Native RTF text editing
+
+Version 0.48.0 adds RTF inspection and substring edits through the
+[caption helper contract](helper.md#caption-json-editing). Use the decoded text
+and occurrence index to prepare a guarded edit spec. The helper retains cue
+clocks and global style; it does not flatten RTF into plain text or reconstruct
+local style runs. Supported parsing and style inheritance belong to that helper.
+[Microsoft's RTF specification](https://officeprotocoldoc.z19.web.core.windows.net/files/Archive_References/%5BMSFT-RTF%5D.pdf)
+and [Apple's RTF extensions](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/AttributedStrings/Tasks/RTFAndAttrStrings.html)
+describe grouped controls and Unicode text encoding. Complex document content
+and other RTF representations retain a separate editing contract.
+
+The Mac 2026.2.4 (2026.132), format-10 native caption editor accepts formatted
+paste into its Caption Text field and saves Cocoa RTF with null `textAttributes`.
+This provides a current-build RTF capture without relying on the dedicated SAMI
+importer. The attempted import in this batch stalled in the documented
+OneDrive-classification/file-read path before saving captions. The exact hung
+editor process was sampled and stopped through Activity Monitor after preserving
+saved/recovery bytes; the replacement process completed editing and exports.
+No cloud settings changed. The unrelated original project retained its hash.
+
+Native captures include separate bold and italic font runs, an ANSI-escaped
+accent, Unicode arrow/omega, escaped braces and backslash, and a backslash plus
+literal newline. A native emoji paste uses an additional font-table entry and
+unsigned UTF-16 surrogate controls. The editor's Unicode spelling can differ
+from the helper's signed controls without changing the decoded text.
+
+A linked audio-owned candidate replaces bold `café` with `COFFEE`, appends an
+italic `s`, changes another bold word, inserts Unicode before a line boundary,
+replaces text inside literal braces and appends punctuation. A separate native
+caption-editor control authors the expected result. A standalone Caption uses
+the same saved RTF and edits. Both candidates independently save, close, reopen
+and export twice. Their four complete decoded RGB streams match the native
+expected control, including formatting and line layout. Their audio matches too.
+
+A third candidate clears every character from the first RTF cue and replaces
+text spanning a normal/bold boundary in the second. The cleared RTF retains its
+header and controls but renders no caption panel. Two exports separated by an
+independent reopen match a separate plain-text control authored with the
+previously verified cue representation. Remaining literal braces, backslash,
+accent and arrow render correctly. This control is JSON-authored; the separate
+rich expected-result control above is authored through the native text editor.
+
+Nine eight-second H.264/AAC movies retain 640×360, 30 fps and stereo 44100-Hz
+audio. All three repeat pairs match complete decoded video/audio; all nine
+movies have identical decoded audio. All 2160 frames pass cue/clear-state checks,
+including the original three-second gap boundary and seven-second final clear.
+Three edited project reopens are byte-identical. First saves of audio-owned
+edits change only the thumbnail; standalone initialization adds only the four
+previously observed Caption metadata defaults. Fourteen document/profile checks
+pass without compatibility errors. Four standalone snapshots retain the known
+93 raw upstream Caption diagnostics; no profile correction was added.
+
+Native glyph limits remain visible. The original native bold `café` capture
+renders an extra replacement glyph at its following style boundary. Replacing
+that word with ASCII removes it in both independently authored expected output
+and helper output. The emoji renders as a missing-glyph box in both edited
+outputs, including the native control with its saved emoji font entry. Successful
+RTF decoding does not prove native glyph coverage, repair an existing native
+boundary defect or provide physical font closure. Inspect actual output before
+delivery. Nested timing, other RTF forms and remaining dynamic controls are
+still tracked in the feature-completion plan.

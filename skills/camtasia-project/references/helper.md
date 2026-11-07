@@ -163,7 +163,7 @@ available and verify the candidate in the matching native editor.
 ## Caption JSON editing
 
 Use `skills/camtasia-project/scripts/captions.py` for plain closed cues, existing
-caption text, recognized source-word corrections, root clock mapping/retiming,
+plain and native RTF caption text, recognized source-word corrections, root clock mapping/retiming,
 global closed-caption style and existing dynamic display controls.
 Its module docstring, `RATE`, `root_clock`,
 `point_frames`, `correction_edits`, `capacity`, `mapped_holds` and `set_display`
@@ -171,12 +171,18 @@ own the clock, source, value, preservation and refusal contracts.
 `CLOSED_STYLE_FIELDS`, `CLOSED_FONTS`, `closed_style_value` and `set_style` in
 that script own global style inputs, field validation and preservation. Read
 [captions](captions.md) before selecting an owner or parameter clock.
+The same script's `rtf_characters`, `replace_rtf`, `correct_rtf`, `RTF_FORMAT`
+and `RTF_CHARACTERS` own RTF parsing, supported controls, coordinates, style
+inheritance and refusal rules. Use that contract for text-only native RTF;
+general document conversion and embedded content require another editor.
 
 ```bash
 python3 -B "{camtasia_skill_root}/scripts/captions.py" inspect "<project>"
 python3 -B "{camtasia_skill_root}/scripts/captions.py" map "<project>" --clip-id 3
 python3 -B "{camtasia_skill_root}/scripts/captions.py" set-cues "<project>" --clip-id 3 --spec "<cues.json>" --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/captions.py" set-text "<project>" --clip-id 3 --spec "<corrections.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/captions.py" rtf-text "<project>" --clip-id 3
+python3 -B "{camtasia_skill_root}/scripts/captions.py" set-rtf-text "<project>" --clip-id 3 --spec "<rtf-edits.json>" --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/captions.py" correct-words "<project>" --source-id 1 --source-track 1 --spec "<word-corrections.json>" --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/captions.py" retime "<project>" --clip-id 3 --spec "<clock.json>" --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/captions.py" set-display "<project>" --clip-id 6 --spec "<display.json>" --output "<candidate.json>"
@@ -201,8 +207,17 @@ Both correction commands take
 `{"schema_version":1,"edits":[{"index":7,"expected":"useful","text":"HELPFUL"}]}`.
 Indices identify existing occurrences. Corrections preserve point timing and
 unrelated data; source-word edits affect every use of that source. Unsupported
-RTF/styled values and stale occurrence selections produce input errors. Use the
-native or an RTF-aware editor for RTF captions.
+RTF/styled values and stale occurrence selections produce input errors in those
+plain-text commands. Use the separate RTF commands for supported native RTF cues.
+
+`rtf-text` returns `cues` with existing point `index` and decoded visible `text`.
+The RTF edit spec supplies the complete expected text and occurrence-specific
+substring replacements, for example:
+`{"schema_version":1,"edits":[{"index":0,"expected":"First café","replacements":[{"start":6,"end":10,"text":"COFFEE"}]}]}`.
+Read the RTF anchors above before selecting ranges or relying on style inheritance.
+Edits retain existing formatting controls, groups, untouched text, opaque point
+fields, timings, global style and unrelated project data. They stage JSON only;
+save/reopen and render in the matching editor to check native glyphs and layout.
 
 Clock edits take
 `{"schema_version":1,"start":1,"duration":3,"media_start":2,"scalar":"1/2"}`.

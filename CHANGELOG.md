@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.48.0 — 2026-11-06
+
+### Added
+
+- Caption `rtf-text` decodes native text-only Cocoa RTF cues and `set-rtf-text`
+  stages occurrence-specific substring replacement, insertion and deletion.
+  Original Unicode code-point ranges retain existing formatting controls, groups,
+  untouched text, point timings, global style and opaque project data.
+- Explicit refusals keep embedded content, unsupported RTF representations and
+  stale text outside the editor. Native rendering limits remain visible: the
+  original native rich accent boundary adds a replacement glyph; the emoji
+  renders as a missing glyph in both the native expected control and helper output.
+- Nine eight-second native exports verify audio-owned and standalone captions,
+  three byte-identical project reopens, complete cue clearing and cross-style
+  edits. Three repeat pairs match complete decoded video/audio; edited outputs
+  match independent native rich or previously verified plain-text controls.
+
 ## 0.47.0 — 2026-11-06
 
 ### Added
