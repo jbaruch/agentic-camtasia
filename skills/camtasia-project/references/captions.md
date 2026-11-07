@@ -120,6 +120,32 @@ child lane defaults and drops its unused neutral root-lane attributes. The
 reopened root helper's saved JSON is byte-identical; the Group changes only its
 thumbnail cache. These checks retain each caption/source/ancestor clock.
 
+## Active-word stroke color and glow
+
+Mac 2026.2.4 (2026.132), format 10, saves the current word's stroke color and
+glow as bare numeric entries in its existing dynamic `Callout.def`. The probe
+retained the ordinary white text outline, active-word fill and highlight flag,
+source recognition, native placeholder, rich ranges and all clip/source clocks.
+It used the existing word Stroke Weight control at 8 and no word background.
+
+Choosing native stroke color `#2050D0` changed only its RGB entries, saving
+`0.125490196078431`, `0.313725490196078` and `0.815686274509804`. Stroke opacity
+65% then changed its separate alpha to `0.649999976158142`; Glow 20 changed its
+radius from `0.0` to `20.0`. Each step also updated native reset bookkeeping.
+The new values introduce no source IDs, external resources or timed parameters.
+
+Four control movie files contain 480 mapped highlight frames and identical
+decoded PCM. Their separate RGB, opacity and glow changes produce different
+decoded picture. The inspected frame shows the blue word outline around red
+active text. Glow's contribution is subtler with that thick outline; a clean
+comparison retaining the same text and color with word extra width zero is
+prepared.
+
+Verification is in progress. The combined export's UI return, helper/native
+comparison, clean glow comparison, save/reopen and Group rendering remain
+pending while the native window is unavailable. The prepared candidates and
+their passing file/schema checks do not establish those native results.
+
 ## Longer vertical edits and export checks
 
 A Mac 2026.2.4 format-10 vertical edit verifies 195 corrected words over
