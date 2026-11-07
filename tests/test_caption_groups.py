@@ -304,7 +304,7 @@ class GroupCaptionTests(unittest.TestCase):
         parent.update(mediaStart=3 * R, duration=2 * R, mediaDuration=2 * R)
         self.assertEqual(captions.map_captions(doc, 3, closed_only=True)["closed"], [])
         request = dict(schema_version=1, clock="timeline", cues=[dict(start=1, end=2, text="x")])
-        with self.assertRaisesRegex(ValueError, "visible Group window"):
+        with self.assertRaisesRegex(ValueError, "visible window"):
             captions.set_cues(doc, 3, request)
         request["clock"] = "media"
         self.assertEqual(
@@ -354,7 +354,7 @@ class GroupCaptionTests(unittest.TestCase):
     def test_late_out_of_window_cue_and_fractional_source_ticks_refuse_atomically(self):
         doc = grouped()
         before = copy.deepcopy(doc)
-        with self.assertRaisesRegex(ValueError, "visible Group window"):
+        with self.assertRaisesRegex(ValueError, "visible window"):
             captions.set_cues(
                 doc,
                 3,

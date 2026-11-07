@@ -8,6 +8,7 @@ from pathlib import Path
 import subprocess
 import sys
 import tempfile
+from typing import Any
 import unittest
 from unittest.mock import patch
 from contextlib import redirect_stdout
@@ -15,6 +16,7 @@ from contextlib import redirect_stdout
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "skills/camtasia-project/scripts"))
 import schema_audit  # noqa: E402
+from test_caption_stitches import stitched, parent  # noqa: E402
 
 
 def schema() -> dict:
@@ -29,6 +31,40 @@ def schema() -> dict:
         },
         "additionalProperties": False,
         "definitions": {
+            "parametersMap": {
+                "type": "object",
+                "additionalProperties": {
+                    "oneOf": [
+                        {"type": "number"},
+                        {"type": "string"},
+                        {"type": "boolean"},
+                        {"type": "array"},
+                        {
+                            "type": "object",
+                            "properties": {
+                                "type": {
+                                    "enum": [
+                                        "double",
+                                        "int",
+                                        "point",
+                                        "string",
+                                        "textAttributeList",
+                                    ]
+                                }
+                            },
+                        },
+                    ]
+                },
+            },
+            "StitchedMedia": {
+                "type": "object",
+                "properties": {
+                    "_type": {"const": "StitchedMedia"},
+                    "parameters": {"$ref": "#/definitions/parametersMap"},
+                },
+                "required": ["_type", "parameters"],
+                "additionalProperties": False,
+            },
             "GenericBehaviorEffect": {
                 "type": "object",
                 "properties": {
@@ -150,12 +186,143 @@ def schema() -> dict:
                 },
                 "additionalProperties": False,
             },
-            "media": {"oneOf": [{"type": "object", "properties": {"_type": {"const": "VMFile"}}}]},
+            "media": {
+                "oneOf": [
+                    {"type": "object", "properties": {"_type": {"const": "VMFile"}}},
+                    {"$ref": "#/definitions/StitchedMedia"},
+                ]
+            },
         },
     }
 
 
 class SchemaAuditTests(unittest.TestCase):
+    def stitched_profile_fixture(self):
+        original, _, profile = self.current_profile_fixture()
+        fixture = stitched()
+        owner = parent(fixture)
+        properties = original["definitions"]["StitchedMedia"]["properties"]
+        properties.update({name: {} for name in owner if name not in properties})
+        original["properties"]["editRate"] = {"type": "integer"}
+        doc: dict[str, Any] = dict(
+            version="10.0",
+            authoringClientName=profile["appliesTo"]["authoringClient"],
+            timeline=dict(
+                clip=dict(
+                    _type="StitchedMedia",
+                    parameters=dict(
+                        captions=dict(
+                            type="caption",
+                            keyframes=[
+                                dict(
+                                    time=0,
+                                    endTime=0,
+                                    duration=0,
+                                    value=dict(text="ONE", textAttributes=None),
+                                )
+                            ],
+                        ),
+                        volume=0.7,
+                    ),
+                )
+            ),
+        )
+        owner["parameters"] = doc["timeline"]["clip"]["parameters"]
+        doc["timeline"]["clip"] = owner
+        doc["sourceBin"] = fixture["sourceBin"]
+        doc["editRate"] = fixture["editRate"]
+        return original, doc, profile
+
+    def test_stitched_parent_captions_are_strict_and_do_not_relax_other_parameters(self):
+        original, doc, profile = self.stitched_profile_fixture()
+        baseline = copy.deepcopy(original)
+        before = copy.deepcopy(doc)
+        self.assertFalse(schema_audit.audit(doc, original)["ok"])
+        self.assertTrue(schema_audit.audit(doc, original, profile)["ok"])
+        for mutation in ["text", "duration", "extra", "other-parameter"]:
+            bad = copy.deepcopy(doc)
+            params = bad["timeline"]["clip"]["parameters"]
+            frame = params["captions"]["keyframes"][0]
+            if mutation == "text":
+                frame["value"]["text"] = 1
+            elif mutation == "duration":
+                frame["duration"] = 1
+            elif mutation == "extra":
+                frame["nativeUnknown"] = True
+            else:
+                params["volume"] = dict(type="caption", keyframes=[])
+            with self.subTest(mutation=mutation):
+                self.assertFalse(schema_audit.audit(bad, original, profile)["ok"])
+        self.assertEqual(original, baseline)
+        self.assertEqual(doc, before)
+
+    def test_captioned_stitch_profile_refuses_unverified_children_without_mutation(self):
+        original, doc, profile = self.stitched_profile_fixture()
+        for mutation in ["missing", "recording", "audio-only", "multi-source", "held", "gap"]:
+            bad = copy.deepcopy(doc)
+            owner = bad["timeline"]["clip"]
+            if mutation == "missing":
+                owner.pop("medias")
+            elif mutation == "recording":
+                owner["medias"][0]["video"]["_type"] = "ScreenVM"
+            elif mutation == "audio-only":
+                owner["medias"][0] = owner["medias"][0]["audio"]
+            elif mutation == "multi-source":
+                owner["medias"][1]["audio"]["src"] = 99
+                owner["medias"][1]["video"]["src"] = 99
+            elif mutation == "held":
+                owner["medias"][0]["scalar"] = 2
+            else:
+                for node in [
+                    owner["medias"][1],
+                    owner["medias"][1]["video"],
+                    owner["medias"][1]["audio"],
+                ]:
+                    node["start"] += 1
+            before = copy.deepcopy(bad)
+            with self.subTest(mutation=mutation):
+                result = schema_audit.audit(bad, original, profile)
+                self.assertFalse(result["ok"])
+                self.assertEqual(result["errors"], [])
+                self.assertTrue(
+                    any(
+                        "unverified captioned stitch" in e
+                        for e in result["nativeCompatibilityErrors"]
+                    )
+                )
+                self.assertTrue(result["upstreamErrors"])
+                self.assertEqual(bad, before)
+        unknown = copy.deepcopy(doc)
+        owner = unknown["timeline"]["clip"]
+        owner.pop("medias")
+        owner["parameters"].pop("captions")
+        self.assertTrue(schema_audit.audit(unknown, original, profile)["ok"])
+
+    def test_profile_replacement_refuses_missing_or_changed_upstream_property(self):
+        original = schema()
+        change = dict(
+            operation="replace-property",
+            path=["definitions", "StitchedMedia", "properties"],
+            name="parameters",
+            expected={"$ref": "#/definitions/parametersMap"},
+            schema={"type": "object"},
+        )
+        self.assertEqual(
+            schema_audit.apply_profile(original, dict(changes=[change]))["definitions"][
+                "StitchedMedia"
+            ]["properties"]["parameters"],
+            {"type": "object"},
+        )
+        for value in [None, {"type": "array"}]:
+            altered = copy.deepcopy(original)
+            target = altered["definitions"]["StitchedMedia"]["properties"]
+            if value is None:
+                target.pop("parameters")
+            else:
+                target["parameters"] = value
+            with self.assertRaisesRegex(ValueError, "expected schema"):
+                schema_audit.apply_profile(altered, dict(changes=[change]))
+
     def setUp(self) -> None:
         self.profile = schema_audit.read_document(schema_audit.PROFILE_FILE)
         self.doc = {

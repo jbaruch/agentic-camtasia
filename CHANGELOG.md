@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.51.0 — 2026-11-07
+
+### Added
+
+- Ordinary same-source linked-AV stitched parents support closed-cue mapping,
+  text/cue editing and parent retiming, including Group ancestry. Virtual stitch
+  composition preserves word holds across source skips and retains child/source
+  provenance without changing internal clips or recognition.
+- Stitched mapping returns separate `words` and `displayWords`. Native parent
+  speed applies an additional final-child highlight projection; the latter map
+  reports observed display timing, including projected future onsets, while
+  source words retain the nominal speech clock. A unit-speed stitch inside a
+  sped common audio/display Group provides the verified uniform-clock alternative.
+- The exact Mac 2026.2.4 schema profile admits native parent-owned caption points
+  without relaxing other parameter checks. Captioned stitches require the shared
+  ordinary-AV predicate; unverified layouts remain audit failures. Timeline cues
+  must fit the selected clip's visible window, including trimmed root owners.
+  Twenty-six native exports pass all
+  4,758 frames for closed cues and highlights; six reopened/fresh-process pairs
+  repeat complete decoded streams. Recording and other stitch forms remain tracked.
+
 ## 0.50.0 — 2026-11-06
 
 ### Added
