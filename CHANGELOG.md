@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.56.0 — 2026-11-07
+
+### Added
+
+- Mixed/multiple-source caption sequences use the verified native Group workflow.
+  Independent source/stream IDs retain each voice’s recognized onsets, cue edits
+  and child trims through common Group speed/cropping. The source mismatch
+  diagnostic now directs callers to that workflow. Native stitching stays under
+  its same-source contract; both exercised cross-file selections disable it.
+- Eight primary native exports cover all 1,710 cue/highlight frames, including
+  source handoffs and exact pause masks. Separate recording/WAV and two-audio
+  Groups preserve each source; a WAV-only word/cue correction and trim retain the
+  recording’s complete data. Three same-process reopen pairs repeat decoded
+  video/audio; the eleven exports total 78 seconds and 2,340 frames. Other
+  caption gaps remain pending for feature-complete 1.0.
+
 ## 0.55.0 — 2026-11-07
 
 ### Added
