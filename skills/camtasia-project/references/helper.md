@@ -168,6 +168,9 @@ global closed-caption style, explicit caption-scene sequencing and existing dyna
 Its module docstring, `RATE`, `root_clock`,
 `point_frames`, `correction_edits`, `audio_offset`, `capacity`, `map_captions`, `mapped_holds`, `sequence_scenes` and `set_display`
 own the clock, source, value, preservation and refusal contracts.
+`DISPLAY_NUMBERS` and `set_display` own existing dynamic numeric controls,
+including [block and word backgrounds](captions.md#dynamic-caption-backgrounds),
+their saved units, range checks and preservation rules.
 `CLOSED_STYLE_FIELDS`, `CLOSED_FONTS`, `closed_style_value` and `set_style` in
 that script own global style inputs, field validation and preservation. Read
 [captions](captions.md) before selecting an owner or parameter clock.

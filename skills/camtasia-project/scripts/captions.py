@@ -108,6 +108,12 @@ parents retain exact subframe audio ticks.
 set-display PROJECT --clip-id ID --spec SPEC edits an existing native dynamic
 display. Spec schema_version 1 accepts start/duration seconds, definition (existing
 supported numeric controls), and rich (existing fontName/fontSize/fgColor).
+Background controls include block fill RGBA/corner radius and active-word
+rectangle RGBA/corner radius/extra size/transition time. RGBA uses 0..1; word
+extra size is a fraction (native Scale 20% is 0.2); radii and time use the saved
+native values. Radii, extra size and transition time must be nonnegative. Zero
+alpha hides that background without clearing its RGB. Only existing static
+fields are patched.
 The native placeholder, partial rich ranges, style IDs and all other controls
 remain unchanged. Bound edits require an untrimmed scalar-one clean display.
 Group descendants require clock parent, accept signed local placement and retain
@@ -171,8 +177,20 @@ DISPLAY_NUMBERS = frozenset(
         "dynamic-caption-past-word-opacity",
         "dynamic-caption-word-easing-duration",
         "dynamic-caption-block-transition-duration",
+        "dynamic-caption-background-corner-radius",
+        "dynamic-caption-word-rectangle-corner-radius",
+        "dynamic-caption-word-rectangle-extra-size",
+        "dynamic-caption-word-rectangle-transition-time",
     }
     | {"dynamic-caption-current-word-color-" + ch for ch in ("red", "green", "blue", "alpha")}
+    | {
+        prefix + ch
+        for prefix in (
+            "dynamic-caption-background-fill-color-",
+            "dynamic-caption-word-rectangle-color-",
+        )
+        for ch in ("red", "green", "blue", "alpha")
+    }
 )
 
 
@@ -1388,7 +1406,12 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
             if (
                 (name.endswith(("-enabled", "-sentence")) and number not in (0, 1))
                 or (("-color-" in name or name.endswith("-opacity")) and not 0 <= number <= 1)
-                or (name.endswith("-duration") and number < 0)
+                or (
+                    name.endswith(
+                        ("-duration", "-corner-radius", "-extra-size", "-transition-time")
+                    )
+                    and number < 0
+                )
             ):
                 raise ValueError("use the observed native range for " + name)
             effects.patch_parameter(definition, name, value)

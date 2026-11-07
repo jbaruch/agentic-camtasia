@@ -86,6 +86,40 @@ of reconstructing a style from one flag. Both specimens independently reopened.
 The edited transcript and sentence setting survived, and a fresh word-red export
 after reopening has identical decoded video and audio to the first export.
 
+## Dynamic caption backgrounds
+
+Mac 2026.2.4 (2026.132), format 10, saves independent block and active-word
+backgrounds in the existing dynamic `Callout.def`. The
+[caption helper contract](helper.md#caption-json-editing) points to the script
+anchors that own accepted inputs, parameter representations and validation.
+
+The isolated native saves use bare JSON numbers. Block opacity 70% saved alpha
+`0.699999988079071`; its Radius changed from `24.0` to `48.0`. Word background
+opacity 85% saved alpha `0.850000023841858`; Scale 40% to 20% changed extra size
+from `0.4` to `0.200000002980232`. Its Radius changed from `6.0` to `18.0`, and
+Time from `0.1` to `0.25`. Native hex choices `#204080` and `#20C060` changed
+their separate saved RGB channel entries without changing alpha. The color
+well displayed alpha 1 while background opacity was zero. Text color, text
+scale, stroke, glow, word easing and block transition remained separate controls.
+
+Eight isolated native saves establish the twelve fields: block opacity/radius/RGB
+and word opacity/scale/radius/time/RGB. The helper's combined definition matches
+the UI-saved definition. Both native exports have identical complete decoded
+RGB and PCM; the inspected frame shows the rounded navy block and green active-
+word rectangle behind the red word. No font or proprietary preset is distributed.
+
+The batch contains nine four-second movies and 1,080 checked highlight frames.
+Five complete decoded RGB/PCM comparisons match: native UI against helper,
+helper against its same-process reopen, zero background alpha against baseline,
+root against Group containment, and Group against its same-process reopen.
+Independent block-only and word-only controls isolate both backgrounds; every
+movie retains identical decoded audio. Five helper candidates retain their
+payloads, source data and bundled recording/WAV bytes. Native saves change
+thumbnail/duration caches; the Group additionally remaps clip IDs, fills neutral
+child lane defaults and drops its unused neutral root-lane attributes. The
+reopened root helper's saved JSON is byte-identical; the Group changes only its
+thumbnail cache. These checks retain each caption/source/ancestor clock.
+
 ## Longer vertical edits and export checks
 
 A Mac 2026.2.4 format-10 vertical edit verifies 195 corrected words over
