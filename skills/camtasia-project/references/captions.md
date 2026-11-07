@@ -86,6 +86,50 @@ of reconstructing a style from one flag. Both specimens independently reopened.
 The edited transcript and sentence setting survived, and a fresh word-red export
 after reopening has identical decoded video and audio to the first export.
 
+## Dynamic caption backgrounds
+
+Mac 2026.2.4 (2026.132), format 10, saves independent block and active-word
+backgrounds in the existing dynamic `Callout.def`. `set-display` accepts these
+existing numeric fields through its `definition` object:
+
+| Native control | Definition field | Input units |
+| --- | --- | --- |
+| Block Background RGB/Opacity | `dynamic-caption-background-fill-color-{red,green,blue,alpha}` | Each channel 0–1; opacity 70% is alpha 0.7. |
+| Block Radius | `dynamic-caption-background-corner-radius` | Nonnegative saved native radius. |
+| Word Background RGB/Opacity | `dynamic-caption-word-rectangle-color-{red,green,blue,alpha}` | Each channel 0–1. |
+| Word Background Scale | `dynamic-caption-word-rectangle-extra-size` | Nonnegative fraction; native 20% is 0.2. |
+| Word Background Radius | `dynamic-caption-word-rectangle-corner-radius` | Nonnegative saved native radius. |
+| Word Background Time | `dynamic-caption-word-rectangle-transition-time` | Nonnegative native movement time; native 0.25 saves 0.25. |
+
+For example, `{"schema_version":1,"definition":{"dynamic-caption-background-fill-color-alpha":0.7,"dynamic-caption-word-rectangle-extra-size":0.2}}`
+changes those two fields without replacing the preset. Color and opacity are
+separate UI controls; the color well displays alpha 1 even when background
+opacity is zero. Preserve the saved RGB when making a background transparent.
+These controls are separate from current-word text color, text scale, stroke,
+glow, word easing and the block's transition selection.
+
+The helper patches existing static numbers or supported static typed parameters;
+it retains opaque descriptor data and honors present value bounds. Missing,
+animated and unfamiliar structured fields require their own native contract.
+Source words, cue points, clocks, placeholder text, rich ranges, style IDs and
+omitted controls survive. Geometry still requires native text-fitting checks.
+
+Eight isolated native saves establish the twelve fields: block opacity/radius/RGB
+and word opacity/scale/radius/time/RGB. The helper's combined definition matches
+the UI-saved definition. Both native exports have identical complete decoded
+RGB and PCM; the inspected frame shows the rounded navy block and green active-
+word rectangle behind the red word. No font or proprietary preset is distributed.
+
+The root-display batch contains six four-second movies and 720 checked
+highlight frames. Three complete decoded RGB/PCM comparisons match: native UI
+against helper, helper against its same-process reopen, and zero background
+alpha against the baseline. The independent block-only control has no word
+rectangle; every movie retains identical decoded audio. Three helper candidates
+retain the complete project payload apart from native thumbnail/duration caches,
+including unchanged source data and bundled recording/WAV bytes. The reopened
+helper's saved JSON is byte-identical. Native Group background rendering remains
+unverified; the current Group fixture checks helper preservation only.
+
 ## Longer vertical edits and export checks
 
 A Mac 2026.2.4 format-10 vertical edit verifies 195 corrected words over
