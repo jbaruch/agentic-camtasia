@@ -13,11 +13,35 @@
   "changes": [
     {
       "operation": "replace-property",
+      "path": [
+        "definitions",
+        "AMFile",
+        "properties"
+      ],
+      "name": "parameters",
+      "expected": {
+        "$ref": "#/definitions/parametersMap"
+      },
+      "schema": {
+        "description": "Native ordinary audio files retain strict closed-caption point parameters. Other parameters retain the upstream parameter-map checks.",
+        "type": "object",
+        "properties": {
+          "captions": {
+            "$ref": "#/definitions/Caption/properties/parameters/properties/captionData"
+          }
+        },
+        "additionalProperties": {
+          "$ref": "#/definitions/parametersMap/additionalProperties"
+        }
+      }
+    },
+    {
+      "operation": "replace-property",
       "path": ["definitions", "StitchedMedia", "properties"],
       "name": "parameters",
       "expected": {"$ref": "#/definitions/parametersMap"},
       "schema": {
-        "description": "Native stitching lifts ordinary AV closed captions to the stitched parent. Other parameters retain the upstream parameter-map checks.",
+        "description": "Native stitching lifts ordinary AV or audio closed captions to the stitched parent. Other parameters retain the upstream parameter-map checks.",
         "type": "object",
         "properties": {
           "captions": {"$ref": "#/definitions/Caption/properties/parameters/properties/captionData"}

@@ -12,7 +12,7 @@ word onsets; ancestor cropping carries a word already active in the Group.
 The verified caption/word clock is 705600000 ticks/sec, independently of each
 source stream's sample/edit rate. Group mapping requires Mac 2026.2.4 and returns
 ancestors nearest first. map --closed-only omits source recognition and requires
-existing closed cues. Mac 2026.2.4 stitched ordinary-AV parents own their closed
+existing closed cues. Mac 2026.2.4 stitched ordinary AV/audio parents own their closed
 cues in the virtual stitch clock. Select that parent, rather than its internal
 children. Word mapping composes eligible child onsets before forming holds, so
 the last retained word can span a source skip. Returned stitched words retain
@@ -25,8 +25,10 @@ anchored at max(final child start, owner mediaStart), before ordinary owner and
 Group mapping. Projected onsets, rather than nominal upper bounds, determine
 visible eligibility. Outer Group speed alone does not cause this projection.
 Keep the stitched scalar at one and speed its common audio/display Group when
-uniform highlight timing is required. stitched_children owns internal validation.
-Recording holds, audio-only/multi-source stitches and multiscene mapping refuse.
+uniform highlight timing is required. At exact frame boundaries, native exports
+can retain the previous word for one frame; projected ticks are not shifted.
+stitched_children owns internal validation.
+Recording holds, mixed-owner/multi-source stitches and multiscene mapping refuse.
 
 set-text PROJECT --clip-id ID --spec SPEC corrects existing plain closed points.
 set-rtf-text uses edits [{index, expected, replacements:[{start,end,text}]}] for
@@ -67,7 +69,8 @@ clock and all ancestor clocks and durations survive unchanged. Closed-only Group
 operations accept signed child and nested-Group starts; root placement remains
 nonnegative. They refuse known native Group save/reopen drift configurations.
 Stitched retiming changes only the parent clock; every internal child survives.
-Stitched parent cuts also require the document video frame grid.
+Stitched AV parent cuts also require the document video frame grid; audio-only
+parents retain exact subframe audio ticks.
 
 set-display PROJECT --clip-id ID --spec SPEC edits an existing native dynamic
 display. Spec schema_version 1 accepts start/duration seconds, definition (existing
@@ -336,7 +339,7 @@ def validate_caption_clock(
 
 
 def stitched_children(doc: dict[str, Any], owner: dict[str, Any]) -> list[dict[str, Any]]:
-    """Validate the observed contiguous ordinary-AV stitch, not recording holds."""
+    """Validate homogeneous ordinary AV or audio stitches, not recording holds."""
     require_native(doc, dynamic=True)
     children = owner.get("medias")
     if (
@@ -344,12 +347,15 @@ def stitched_children(doc: dict[str, Any], owner: dict[str, Any]) -> list[dict[s
         or not isinstance(children, list)
         or len(children) < 2
     ):
-        raise ValueError("select a native zero-origin AV stitch with at least two saved children")
+        raise ValueError(
+            "select a native zero-origin audio/AV stitch with at least two saved children"
+        )
     end, source = Fraction(0), None
     for child in children:
-        if not isinstance(child, dict) or child.get("_type") != "UnifiedMedia":
-            raise ValueError("capture stitched recording/hold/audio-only caption forms separately")
-        audio = child.get("audio")
+        if not isinstance(child, dict) or child.get("_type") not in ("UnifiedMedia", "AMFile"):
+            raise ValueError("capture stitched recording/hold caption forms separately")
+        linked = child["_type"] == "UnifiedMedia"
+        audio = child.get("audio") if linked else child
         validate_caption_clock(doc, child, audio)
         assert isinstance(audio, dict)  # Validated by the caption clock selector.
         parameters = audio.get("parameters", {})
@@ -360,17 +366,26 @@ def stitched_children(doc: dict[str, Any], owner: dict[str, Any]) -> list[dict[s
         if (
             project.number(child["start"]) != end
             or project.number(child["scalar"]) != 1
-            or child["video"].get("src") != audio.get("src")
+            or project.number(child["mediaDuration"]) != project.number(child["duration"])
+            or linked
+            and child["video"].get("src") != audio.get("src")
         ):
-            raise ValueError("retain ordered contiguous scalar-one native stitched AV children")
-        selection = (audio.get("src"), audio.get("trackNumber"), child["video"].get("trackNumber"))
+            raise ValueError(
+                "retain ordered contiguous scalar-one native stitched audio/AV children"
+            )
+        selection = (
+            child["_type"],
+            audio.get("src"),
+            audio.get("trackNumber"),
+            child["video"].get("trackNumber") if linked else None,
+        )
         if source is not None and source != selection:
-            raise ValueError("capture multi-source stitched caption discovery separately")
+            raise ValueError("capture mixed-owner or multi-source stitched captions separately")
         source = selection
-        for stream in (audio, child["video"]):
+        for stream in (audio, child["video"]) if linked else (audio,):
             ident = stream.get("id")
             if type(ident) is not int:
-                raise ValueError("repair native stitched audio/video IDs before mapping provenance")
+                raise ValueError("repair native stitched stream IDs before mapping provenance")
             selected(doc, ident)
             if project.number(child["mediaStart"]) + project.number(child["duration"]) > capacity(
                 doc, stream
@@ -1023,7 +1038,9 @@ def retime(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str,
     start = placement_ticks(result, spec["start"], nested=bool(ancestors))
     duration, media_start = (hotspots.ticks(result, spec[k]) for k in ("duration", "media_start"))
     scalar = project.number(spec["scalar"])
-    visual = owner is not audio or owner.get("_type") == "StitchedMedia"
+    visual = owner is not audio or (
+        owner.get("_type") == "StitchedMedia" and owner["medias"][0]["_type"] == "UnifiedMedia"
+    )
     if visual:
         require_frame_grid(result, dict(start=start, duration=duration, mediaStart=media_start))
     streams = [audio] if owner is audio else [audio, owner["video"]]
@@ -1274,7 +1291,7 @@ def stitched_word_holds(
     trim, scalar = (project.number(owner[k]) for k in ("mediaStart", "scalar"))
     anchor = max(project.number(children[-1]["start"]), trim)
     for child in children:
-        audio = child["audio"]
+        audio = child["audio"] if child["_type"] == "UnifiedMedia" else child
         source, stream = audio_stream(doc, audio)
         if stream.get("transcriptionSet") is not True:
             continue

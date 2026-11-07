@@ -17,6 +17,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "skills/camtasia-project/scripts"))
 import schema_audit  # noqa: E402
 from test_caption_stitches import stitched, parent  # noqa: E402
+from test_caption_audio_stitches import audio_stitched  # noqa: E402
 
 
 def schema() -> dict:
@@ -55,6 +56,15 @@ def schema() -> dict:
                         },
                     ]
                 },
+            },
+            "AMFile": {
+                "type": "object",
+                "properties": {
+                    "_type": {"const": "AMFile"},
+                    "parameters": {"$ref": "#/definitions/parametersMap"},
+                },
+                "required": ["_type", "parameters"],
+                "additionalProperties": False,
             },
             "StitchedMedia": {
                 "type": "object",
@@ -190,6 +200,7 @@ def schema() -> dict:
                 "oneOf": [
                     {"type": "object", "properties": {"_type": {"const": "VMFile"}}},
                     {"$ref": "#/definitions/StitchedMedia"},
+                    {"$ref": "#/definitions/AMFile"},
                 ]
             },
         },
@@ -197,9 +208,9 @@ def schema() -> dict:
 
 
 class SchemaAuditTests(unittest.TestCase):
-    def stitched_profile_fixture(self):
+    def stitched_profile_fixture(self, *, audio_only=False):
         original, _, profile = self.current_profile_fixture()
-        fixture = stitched()
+        fixture = audio_stitched() if audio_only else stitched()
         owner = parent(fixture)
         properties = original["definitions"]["StitchedMedia"]["properties"]
         properties.update({name: {} for name in owner if name not in properties})
@@ -254,6 +265,55 @@ class SchemaAuditTests(unittest.TestCase):
             with self.subTest(mutation=mutation):
                 self.assertFalse(schema_audit.audit(bad, original, profile)["ok"])
         self.assertEqual(original, baseline)
+        self.assertEqual(doc, before)
+
+    def test_audio_file_caption_profile_retains_other_parameter_and_owner_type_checks(self):
+        original, doc, profile = self.stitched_profile_fixture(audio_only=True)
+        stitched_owner = doc["timeline"]["clip"]
+        audio = copy.deepcopy(stitched_owner["medias"][0])
+        audio["parameters"] = copy.deepcopy(stitched_owner["parameters"])
+        properties = original["definitions"]["AMFile"]["properties"]
+        properties.update({name: {} for name in audio if name not in properties})
+        doc["timeline"]["clip"] = audio
+        before = copy.deepcopy(doc)
+        result = schema_audit.audit(doc, original, profile)
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["upstreamErrors"])
+        for mutation in ["point", "other-parameter", "recording", "unknown-field"]:
+            bad = copy.deepcopy(doc)
+            owner = bad["timeline"]["clip"]
+            if mutation == "point":
+                owner["parameters"]["captions"]["keyframes"][0]["value"]["text"] = 7
+            elif mutation == "other-parameter":
+                owner["parameters"]["volume"] = dict(type="caption", keyframes=[])
+            elif mutation == "recording":
+                owner["_type"] = "ScreenAMFile"
+            else:
+                owner["unknownField"] = True
+            with self.subTest(mutation=mutation):
+                self.assertFalse(schema_audit.audit(bad, original, profile)["ok"])
+        self.assertEqual(doc, before)
+
+    def test_audio_stitch_profile_uses_shared_child_validation_and_strict_caption_points(self):
+        original, doc, profile = self.stitched_profile_fixture(audio_only=True)
+        before = copy.deepcopy(doc)
+        result = schema_audit.audit(doc, original, profile)
+        self.assertTrue(result["ok"])
+        self.assertTrue(result["upstreamErrors"])
+        self.assertEqual(result["nativeCompatibilityErrors"], [])
+        for mutation in ["point", "source", "recording", "mixed"]:
+            bad = copy.deepcopy(doc)
+            owner = bad["timeline"]["clip"]
+            if mutation == "point":
+                owner["parameters"]["captions"]["keyframes"][0]["duration"] = 1
+            elif mutation == "source":
+                owner["medias"][1]["src"] = 99
+            elif mutation == "recording":
+                owner["medias"][0]["_type"] = "ScreenAMFile"
+            else:
+                owner["medias"][0] = parent(stitched())["medias"][0]
+            with self.subTest(mutation=mutation):
+                self.assertFalse(schema_audit.audit(bad, original, profile)["ok"])
         self.assertEqual(doc, before)
 
     def test_captioned_stitch_profile_refuses_unverified_children_without_mutation(self):
