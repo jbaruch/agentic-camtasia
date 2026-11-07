@@ -67,7 +67,8 @@ after incorporation into the plugin and generated-fixture tests.
 
 Locally observed in Camtasia Mac 2026.2.4 (2026.132), format 10. The annotation
 helper's `set-rich-steps` and `clear-rich-steps` commands add discrete timed
-styles to root or Group-contained remix text annotations. The module docstring and
+styles to root or Group-contained remix text annotations. `scripts/annotations.py`'s
+module docstring and
 `rich_step_frames`, `rich_source_time`, `set_rich_steps` and `clear_rich_steps`
 own the input, clock, replacement and preservation contracts. General `set`
 continues to require static rich text; clear timed styles explicitly before
@@ -131,9 +132,9 @@ movies, screenshots and measurements are deleted after incorporation.
 
 Version 0.46.0 extends both timed-style commands to selected remix text children
 with Group-only clip ancestors in one scene. Times use seconds from the selected
-child's visible beginning. `scripts/annotations.py` — `rich_source_time` owns
-the source-clock conversion. Parent placement, trimming and speed do not enter
-that conversion. All ancestor
+child's visible beginning. The timed-style contract above owns the source-clock
+conversion. Parent placement, trimming and speed do not enter that conversion.
+All ancestor
 payload, child geometry, complete rich partitions and independent visual/outline
 intervals survive. Parents can crop a valid child-local point; the helper does
 not extend a Group or guarantee that its bounds expose the text. Other containers
