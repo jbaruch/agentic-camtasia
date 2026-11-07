@@ -89,30 +89,18 @@ after reopening has identical decoded video and audio to the first export.
 ## Dynamic caption backgrounds
 
 Mac 2026.2.4 (2026.132), format 10, saves independent block and active-word
-backgrounds in the existing dynamic `Callout.def`. `set-display` accepts these
-existing numeric fields through its `definition` object:
+backgrounds in the existing dynamic `Callout.def`. The
+[caption helper contract](helper.md#caption-json-editing) points to the script
+anchors that own accepted inputs, parameter representations and validation.
 
-| Native control | Definition field | Input units |
-| --- | --- | --- |
-| Block Background RGB/Opacity | `dynamic-caption-background-fill-color-{red,green,blue,alpha}` | Each channel 0–1; opacity 70% is alpha 0.7. |
-| Block Radius | `dynamic-caption-background-corner-radius` | Nonnegative saved native radius. |
-| Word Background RGB/Opacity | `dynamic-caption-word-rectangle-color-{red,green,blue,alpha}` | Each channel 0–1. |
-| Word Background Scale | `dynamic-caption-word-rectangle-extra-size` | Nonnegative fraction; native 20% is 0.2. |
-| Word Background Radius | `dynamic-caption-word-rectangle-corner-radius` | Nonnegative saved native radius. |
-| Word Background Time | `dynamic-caption-word-rectangle-transition-time` | Nonnegative native movement time; native 0.25 saves 0.25. |
-
-For example, `{"schema_version":1,"definition":{"dynamic-caption-background-fill-color-alpha":0.7,"dynamic-caption-word-rectangle-extra-size":0.2}}`
-changes those two fields without replacing the preset. Color and opacity are
-separate UI controls; the color well displays alpha 1 even when background
-opacity is zero. Preserve the saved RGB when making a background transparent.
-These controls are separate from current-word text color, text scale, stroke,
-glow, word easing and the block's transition selection.
-
-The helper patches existing static numbers or supported static typed parameters;
-it retains opaque descriptor data and honors present value bounds. Missing,
-animated and unfamiliar structured fields require their own native contract.
-Source words, cue points, clocks, placeholder text, rich ranges, style IDs and
-omitted controls survive. Geometry still requires native text-fitting checks.
+The isolated native saves use bare JSON numbers. Block opacity 70% saved alpha
+`0.699999988079071`; its Radius changed from `24.0` to `48.0`. Word background
+opacity 85% saved alpha `0.850000023841858`; Scale 40% to 20% changed extra size
+from `0.4` to `0.200000002980232`. Its Radius changed from `6.0` to `18.0`, and
+Time from `0.1` to `0.25`. Native hex choices `#204080` and `#20C060` changed
+their separate saved RGB channel entries without changing alpha. The color
+well displayed alpha 1 while background opacity was zero. Text color, text
+scale, stroke, glow, word easing and block transition remained separate controls.
 
 Eight isolated native saves establish the twelve fields: block opacity/radius/RGB
 and word opacity/scale/radius/time/RGB. The helper's combined definition matches
