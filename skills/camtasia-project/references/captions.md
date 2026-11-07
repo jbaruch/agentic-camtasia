@@ -288,8 +288,8 @@ remains the import contract. This helper verification uses the known unstyled
 Caption form, actual native audio-caption/recognition captures and saved output.
 
 These checks cover the exercised plain values, root clocks and display controls.
-RTF editing and Group closed clocks have separate contracts below.
-Group source-word and stitched/multiscene mapping, nonzero audio source-file offsets,
+RTF editing, Group closed clocks and Group source-word/display clocks have separate
+contracts below. Stitched/multiscene mapping, nonzero audio source-file offsets,
 physical font closure and other requested delivery settings retain their own
 checks. Native definitions, recognition models, fonts and media remain outside
 the package. Completed disposable projects, exports, screenshots and diagnostics
@@ -300,9 +300,10 @@ are deleted after incorporating the findings and generated-fixture tests.
 Version 0.49.0 adds closed-cue mapping, plain cue authoring and selected-child
 retiming through Group-only ancestry. The
 [caption helper contract](helper.md#caption-json-editing) owns selectors, clocks,
-cropping, exact rational output and refusal rules. Source-word mapping through
-Groups remains pending; closed holds and recognized word onsets have different
-trim behavior. Stitched, multiscene and dynamic-display Group clocks remain separate.
+cropping, exact rational output and refusal rules. Version 0.50.0 adds the
+source-word and display-bound contract below. Closed holds and recognized word
+onsets retain their distinct source-trim behavior. Stitched and multiscene clocks
+remain separate.
 
 Locally observed on Mac 2026.2.4 (2026.132), format 10. Native **Edit → Group**
 keeps the closed parameter on its linked audio child and leaves cue points in
@@ -351,6 +352,67 @@ separate. Forty-five input/saved schema checks
 pass the profile and native guards. Known positive-in-point accelerated/slowed
 Group reload drift remains refused. Other unexercised container forms and native
 speed combinations require their own evidence. Completed disposable data is removed.
+
+## Group source-word and dynamic-display clocks
+
+Version 0.50.0 extends default `map` to recognized words through Group-only
+ancestry. `--closed-only` retains the independent closed-cue route. The
+[caption helper contract](helper.md#caption-json-editing) owns source eligibility,
+parent cropping, exact ticks and display-bound inputs. Group source retiming now
+accepts actual transcription without a closed parameter. Parent-clock display
+bounds change only the selected clean display; every ancestor survives.
+
+Locally observed on Mac 2026.2.4 (2026.132), format 10. A native-template
+eight-second AV clip contains generated speech; native **Bebas 3 Line Word Red**
+generates fifteen words and one `%GAP` point. The source-track edit rate remains
+48000 while transcription uses 705600000 ticks/sec. Native **Edit → Group**
+places audio and display inside the same Group, adds its text Quick Property and
+retains all source points. Ungrouped/grouped controls have identical decoded
+pictures and audio.
+
+The source word `useful` starts at 0.47 seconds, and `tools` starts at 0.88.
+A Group trim of 0.7 seconds, placed at global second 1, carries the active
+`useful` hold at the opening and switches to `tools` at 1.18. A source trim on
+the audio child instead omits earlier word onsets and starts with `tools` at
+1.18; its output matches the independent root-audio trim control. A negative
+audio-child placement carries the opening hold through the parent crop.
+
+A zero-in-point 2× Group retains exact word/gap times. A three-level case has a
+negative inner-Group start and two parent crops; it matches an independent
+single-Group source window. Its opening `tools` hold is visible at 1–1.02, followed
+by `with`. The native gap starts at source tick 4656078001; its mapped odd tick
+and rational seconds remain unrounded. At 30 fps, a short mapped word can fall
+between rendered frames without losing its source onset from the map.
+
+Positive display bounds inside a Group match a separate root display control.
+A display at parent seconds −1–5 matches the visible 0–5 control while its Group
+and audio remain eight seconds long. These edits preserve the placeholder,
+partial rich ranges, native style, geometry, Quick Property bindings and source
+transcription. They gate the independent display, without moving audio or
+expanding its parent.
+
+An assembled root-display/Group-audio control retains all transcription but
+renders no words: all 180 active-window frames are uniform gray. Keep audio and
+display inside the exercised common Group, or verify another native binding
+before relying on it. A source-word clock map alone does not establish display
+association, arbitrary caption presets or cross-container source discovery.
+
+Nineteen native exports total 139 seconds. All 3,960 mapped highlight/gap and
+display-window frames pass, with the separate 210-frame binding diagnostic above.
+Seven independent comparisons match complete decoded pictures; six also match
+audio. Four reopened pairs reproduce complete decoded video/audio and four saved
+projects reopen byte-identically. Thirteen whole-payload comparisons preserve
+all sixteen source points and bundled source bytes, allowing only observed
+thumbnail/duration bookkeeping, Group numeric serialization and explicit nested
+ID/Quick Property remapping. All 34 input/saved profile checks pass unchanged;
+the existing raw `transcriptionSet` discrepancy remains separate.
+
+The negative audio-placement and equivalent Group-trim movies differ in audio
+only around global seconds 0.996–1.368. Their seconds 2–7 are sample-identical;
+the cause of the opening difference is unestablished. Read-only word mapping
+does not promise audio identity across alternate native clock layouts. Source
+offsets, stitched/recording variants, multiple scenes and remaining dynamic
+controls retain separate work. Completed disposable data is removed.
 
 ## Global closed-caption styling
 

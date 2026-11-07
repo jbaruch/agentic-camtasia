@@ -2,13 +2,17 @@
 """Inspect and stage closed/source-backed dynamic captions without editing inputs.
 
 inspect PROJECT inventories audio-owned captions, imported Caption/captionData,
-recognized source transcription and separate dynamic-caption displays. map
-PROJECT --clip-id ID maps closed-cue holds and in-range word onsets through a single root clip's
-trim, inverse speed and placement. Linked AV clocks are mirrors, never summed.
+recognized source transcription, logical audio uses and separate dynamic-caption
+displays. audioUses supplies logical/physical IDs, source selection, clocks and
+nearest-first containers even when a recognized clip has no closed parameter. map
+PROJECT --clip-id ID maps closed-cue holds and eligible recognized word holds
+through a source clip's trim, inverse speed, placement and Group ancestors.
+Linked AV clocks are mirrors, never summed. A source trim omits earlier dynamic
+word onsets; ancestor cropping carries a word already active in the Group.
 The verified caption/word clock is 705600000 ticks/sec, independently of each
-source stream's sample/edit rate. map --closed-only maps existing closed holds
-through ancestor Groups on Mac 2026.2.4, cropping at every clock and returning
-ancestors nearest first. Group source-word, stitched and multiscene mappings refuse.
+source stream's sample/edit rate. Group mapping requires Mac 2026.2.4 and returns
+ancestors nearest first. map --closed-only omits source recognition and requires
+existing closed cues. Stitched and multiscene mappings refuse.
 
 set-text PROJECT --clip-id ID --spec SPEC corrects existing plain closed points.
 set-rtf-text uses edits [{index, expected, replacements:[{start,end,text}]}] for
@@ -53,7 +57,12 @@ set-display PROJECT --clip-id ID --spec SPEC edits an existing native dynamic
 display. Spec schema_version 1 accepts start/duration seconds, definition (existing
 supported numeric controls), and rich (existing fontName/fontSize/fgColor).
 The native placeholder, partial rich ranges, style IDs and all other controls
-remain unchanged. Bound edits require an untrimmed scalar-one clean root display.
+remain unchanged. Bound edits require an untrimmed scalar-one clean display.
+Group descendants require clock parent, accept signed local placement and retain
+every ancestor. Edited bounds use the parent clock's document frame grid; source
+onsets stay subframe. Display bounds are separate from source-word clock mapping.
+The exercised display and audio share a Group; a root display over grouped audio
+did not render words in the native assembled control. Check actual binding/output.
 No vendor definitions, fonts, media or recognition models are copied.
 
 set-style PROJECT --spec SPEC --output CANDIDATE edits existing global closed-
@@ -298,36 +307,21 @@ def validate_caption_clock(
             raise ValueError("repair conflicting complete linked AV caption clocks")
 
 
-def closed_clock(
-    doc: dict[str, Any], clip_id: int
-) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], list[dict[str, Any]]]:
-    """Select one logical closed-caption clock, with nearest Group first."""
+def caption_context(doc: dict[str, Any], path: str) -> tuple[dict[str, Any], list[dict[str, Any]]]:
+    """Resolve the selected caption clip's lane and nearest-first Group clocks."""
     root_tracks(doc)
-    path, owner = selected(doc, clip_id)
     nodes = hotspots.clips(doc)
-    linked = [(p, n) for p, n in nodes if n.get("_type") == "UnifiedMedia" and path == p + "/audio"]
-    if linked:
-        if len(linked) != 1:
-            raise ValueError("repair ambiguous linked caption ownership")
-        path, owner = linked[0]
+    if path not in {p for p, _ in nodes}:
+        raise ValueError("select a saved caption media clip from project inspection")
     ancestors = sorted(
         [(p, n) for p, n in nodes if path.startswith(p + "/")],
         key=lambda item: len(item[0]),
         reverse=True,
     )
-    if not ancestors:
-        track, owner, audio = root_clock(doc, clip_id)
-        return track, owner, audio, []
-    if doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
+    if ancestors and doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
         raise ValueError("use the verified Mac 2026.2.4 Group closed-caption clock contract")
     if any(n.get("_type") != "Group" for _, n in ancestors):
         raise ValueError("select Group-only caption ancestry; capture other container clocks first")
-    audio = owner.get("audio") if owner.get("_type") == "UnifiedMedia" else owner
-    if owner.get("_type") not in ("AMFile", "Caption", "UnifiedMedia") or not isinstance(
-        audio, dict
-    ):
-        raise ValueError("select a Group-contained Caption/audio/ordinary linked AV owner")
-    validate_caption_clock(doc, owner, audio, nested=True)
     for _, group in ancestors:
         if type(group.get("id")) is not int:
             raise ValueError("repair numeric Group IDs before caption clock editing")
@@ -350,7 +344,34 @@ def closed_clock(
         or any(not isinstance(n, dict) for n in tracks[0]["medias"])
     ):
         raise ValueError("repair the selected Group child's native lane before editing clocks")
-    return tracks[0], owner, audio, [n for _, n in ancestors]
+    return tracks[0], [n for _, n in ancestors]
+
+
+def closed_clock(
+    doc: dict[str, Any], clip_id: int
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any], list[dict[str, Any]]]:
+    """Select one logical caption source clock, with nearest Group first."""
+    path, owner = selected(doc, clip_id)
+    linked = [
+        (p, n)
+        for p, n in hotspots.clips(doc)
+        if n.get("_type") == "UnifiedMedia" and path == p + "/audio"
+    ]
+    if linked:
+        if len(linked) != 1:
+            raise ValueError("repair ambiguous linked caption ownership")
+        path, owner = linked[0]
+    track, ancestors = caption_context(doc, path)
+    if not ancestors:
+        track, owner, audio = root_clock(doc, clip_id)
+        return track, owner, audio, []
+    audio = owner.get("audio") if owner.get("_type") == "UnifiedMedia" else owner
+    if owner.get("_type") not in ("AMFile", "Caption", "UnifiedMedia") or not isinstance(
+        audio, dict
+    ):
+        raise ValueError("select a Group-contained Caption/audio/ordinary linked AV owner")
+    validate_caption_clock(doc, owner, audio, nested=True)
+    return track, owner, audio, ancestors
 
 
 def closed_interval(
@@ -872,22 +893,54 @@ def set_cues(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[st
     return result
 
 
+def placement_ticks(doc: dict[str, Any], seconds: Any, *, nested: bool) -> int:
+    value = project.number(seconds)
+    if value < 0 and not nested:
+        raise ValueError("use nonnegative root placement; signed starts require a parent Group")
+    return hotspots.ticks(doc, exact(abs(value))) * (-1 if value < 0 else 1)
+
+
+def caption_lane_fit(
+    doc: dict[str, Any],
+    track: dict[str, Any],
+    owner: dict[str, Any],
+    ancestors: list[dict[str, Any]],
+) -> None:
+    collisions = project.native_lane_collisions(doc)
+    if collisions:
+        raise ValueError("resolve overlapping caption clips: " + collisions[0])
+    if ancestors:
+        start, duration = (project.number(owner[k]) for k in ("start", "duration"))
+        for other in track["medias"]:
+            if other is owner:
+                continue
+            left = project.number(other.get("start"))
+            right = left + project.number(other.get("duration"))
+            if max(start, left) < min(start + duration, right):
+                raise ValueError(
+                    "keep the edited Group caption clip and its lane siblings nonoverlapping"
+                )
+    for transition in transitions.transition_list(track):
+        transitions.check_fit(track, transition, transition)
+
+
 def retime(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str, Any]:
     require_native(doc)
     keys = {"start", "duration", "media_start", "scalar"}
     spec_keys(spec, keys | {"clock"}, keys)
     if "clock" in spec and spec["clock"] != "parent":
         raise ValueError("use explicit clock parent for Group-child retiming")
-    _, _, _, ancestors = closed_clock(doc, clip_id)
+    _, _, audio, ancestors = closed_clock(doc, clip_id)
     if ancestors and spec.get("clock") != "parent":
         raise ValueError("set clock parent to retime a Group child in its immediate parent clock")
-    map_captions(doc, clip_id, closed_only=bool(ancestors))
+    key = "captionData" if audio["_type"] == "Caption" else "captions"
+    parameters = audio.get("parameters", {})
+    if not isinstance(parameters, dict):
+        raise ValueError("inspect native audio/caption parameter objects before retiming")
+    map_captions(doc, clip_id, closed_only=bool(ancestors) and key in parameters)
     result = copy.deepcopy(doc)
     track, owner, audio, ancestors = closed_clock(result, clip_id)
-    start_seconds = project.number(spec["start"])
-    if start_seconds < 0 and not ancestors:
-        raise ValueError("use nonnegative root placement; signed starts require a parent Group")
-    start = hotspots.ticks(result, exact(abs(start_seconds))) * (-1 if start_seconds < 0 else 1)
+    start = placement_ticks(result, spec["start"], nested=bool(ancestors))
     duration, media_start = (hotspots.ticks(result, spec[k]) for k in ("duration", "media_start"))
     scalar = project.number(spec["scalar"])
     if owner is not audio:
@@ -924,36 +977,22 @@ def retime(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str,
             mediaDuration=media_duration,
             scalar=exact(scalar),
         )
-    collisions = project.native_lane_collisions(result)
-    if collisions:
-        raise ValueError(
-            "resolve destination lane collisions before caption retiming: " + collisions[0]
-        )
-    if ancestors:
-        for other in track["medias"]:
-            if other is owner:
-                continue
-            left = project.number(other.get("start"))
-            right = left + project.number(other.get("duration"))
-            if max(start, left) < min(start + duration, right):
-                raise ValueError(
-                    "keep the retimed Group child and its lane siblings nonoverlapping"
-                )
-    for transition in transitions.transition_list(track):
-        transitions.check_fit(track, transition, transition)
+    caption_lane_fit(result, track, owner, ancestors)
     return result
 
 
 def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str, Any]:
     require_native(doc, dynamic=True)
-    keys = {"start", "duration", "definition", "rich"}
+    keys = {"start", "duration", "definition", "rich", "clock"}
     spec_keys(spec, keys, set())
-    if len(spec) == 1:
+    if not spec.keys() - {"schema_version", "clock"}:
         raise ValueError(
             "name a display bound, existing definition control or existing rich font/color"
         )
     result = copy.deepcopy(doc)
-    _, owner = selected(result, clip_id)
+    if "clock" in spec and spec["clock"] != "parent":
+        raise ValueError("use explicit clock parent for Group display bounds")
+    path, owner = selected(result, clip_id)
     definition = owner.get("def")
     if (
         owner.get("_type") != "Callout"
@@ -964,10 +1003,11 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
             "select a saved native dynamic-caption display, separately from its source words"
         )
     if "start" in spec or "duration" in spec:
-        lanes = [t for t in root_tracks(result) if any(n is owner for n in t.get("medias", []))]
+        track, ancestors = caption_context(result, path)
+        if ancestors and spec.get("clock") != "parent":
+            raise ValueError("set clock parent to bound a display in its immediate Group clock")
         if (
-            len(lanes) != 1
-            or project.number(owner.get("mediaStart")) != 0
+            project.number(owner.get("mediaStart")) != 0
             or project.number(owner.get("scalar")) != 1
             or owner.get("effects", [])
             or owner.get("animationTracks", {})
@@ -975,21 +1015,17 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
             or owner.get("rightEdgeMods")
         ):
             raise ValueError(
-                "bound a clean scalar-one untrimmed root display; capture other clocks first"
+                "bound a clean scalar-one untrimmed display; capture other clocks first"
             )
         if "start" in spec:
-            owner["start"] = hotspots.ticks(result, spec["start"])
+            owner["start"] = placement_ticks(result, spec["start"], nested=bool(ancestors))
         if "duration" in spec:
             duration = hotspots.ticks(result, spec["duration"])
             if duration <= 0:
                 raise ValueError("use a positive native display duration")
             owner.update(duration=duration, mediaDuration=duration)
         require_frame_grid(result, dict(start=owner.get("start"), duration=owner.get("duration")))
-        collisions = project.native_lane_collisions(result)
-        if collisions:
-            raise ValueError("resolve overlapping display clips: " + collisions[0])
-        for transition in transitions.transition_list(lanes[0]):
-            transitions.check_fit(lanes[0], transition, transition)
+        caption_lane_fit(result, track, owner, ancestors)
     if "definition" in spec:
         changes = spec["definition"]
         if not isinstance(changes, dict) or not changes or changes.keys() - DISPLAY_NUMBERS:
@@ -1061,8 +1097,8 @@ def mapped_holds(
         raise ValueError("repair the caption owner's consumed interval beyond source bounds")
     result = []
     for index, frame in enumerate(frames):
-        # Native closed cues carry into a trim; dynamic words with earlier
-        # onsets are omitted, including the partly trimmed opening word.
+        # A selected source trim omits earlier dynamic word onsets. Ancestor
+        # cropping instead carries a hold already active inside that Group.
         if words and frame["time"] < media_start:
             continue
         begin = max(Fraction(frame["time"]), media_start)
@@ -1089,11 +1125,7 @@ def mapped_holds(
 
 def map_captions(doc: dict[str, Any], clip_id: int, *, closed_only: bool = False) -> dict[str, Any]:
     require_native(doc)
-    if closed_only:
-        _, owner, audio, ancestors = closed_clock(doc, clip_id)
-    else:
-        _, owner, audio = root_clock(doc, clip_id)
-        ancestors = []
+    _, owner, audio, ancestors = closed_clock(doc, clip_id)
     bound, result = capacity(doc, audio), dict(clipId=owner["id"], clock=RATE)
     key = "captionData" if audio["_type"] == "Caption" else "captions"
     parameters = audio.get("parameters", {})
@@ -1116,6 +1148,8 @@ def map_captions(doc: dict[str, Any], clip_id: int, *, closed_only: bool = False
         result.update(scope="closed", ancestors=[group["id"] for group in ancestors])
         return result
     recognized = False
+    if ancestors:
+        result["ancestors"] = [group["id"] for group in ancestors]
     if audio["_type"] == "AMFile":
         source, stream = audio_stream(doc, audio)
         if stream.get("transcriptionSet") is True:
@@ -1125,6 +1159,7 @@ def map_captions(doc: dict[str, Any], clip_id: int, *, closed_only: bool = False
                 owner,
                 bound,
                 words=True,
+                ancestors=ancestors,
             )
             recognized = True
         else:
@@ -1135,8 +1170,31 @@ def map_captions(doc: dict[str, Any], clip_id: int, *, closed_only: bool = False
 
 
 def inventory(doc: dict[str, Any]) -> dict[str, Any]:
-    closed, words, displays = [], [], []
-    for path, owner in hotspots.clips(doc):
+    closed, words, displays, audio_uses = [], [], [], []
+    clips = hotspots.clips(doc)
+    linked_audio = {path + "/audio" for path, node in clips if node.get("_type") == "UnifiedMedia"}
+    for path, owner in clips:
+        audio = owner.get("audio") if owner.get("_type") == "UnifiedMedia" else owner
+        if isinstance(audio, dict) and audio.get("_type") == "AMFile" and path not in linked_audio:
+            parents = sorted(
+                [(p, n) for p, n in clips if path.startswith(p + "/")],
+                key=lambda item: len(item[0]),
+                reverse=True,
+            )
+            audio_uses.append(
+                dict(
+                    clipId=owner.get("id"),
+                    audioClipId=audio.get("id"),
+                    ownerType=owner.get("_type"),
+                    path=path,
+                    sourceId=audio.get("src"),
+                    sourceTrack=audio.get("trackNumber"),
+                    clocks={k: owner.get(k) for k in effects.CLOCK_FIELDS},
+                    containers=[
+                        dict(clipId=n.get("id"), ownerType=n.get("_type")) for _, n in parents
+                    ],
+                )
+            )
         parameters = owner.get("parameters", {})
         if isinstance(parameters, dict):
             for key in ("captions", "captionData"):
@@ -1182,6 +1240,7 @@ def inventory(doc: dict[str, Any]) -> dict[str, Any]:
     return dict(
         closed=closed,
         transcriptions=words,
+        audioUses=audio_uses,
         displays=displays,
         captionAttributes=copy.deepcopy(
             timeline.get("captionAttributes") if isinstance(timeline, dict) else None
