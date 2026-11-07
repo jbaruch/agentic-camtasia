@@ -37,9 +37,12 @@ The separate format-10 Mac 2026.2.4 profile also permits omitted Callout
 `metadata`, as observed in the [Quick Property helper verification](quick-properties.md#helper-verification).
 Present metadata retains its object type; other required fields and unknown
 properties keep their original checks. Raw community errors remain visible.
-The same profile permits omitted standalone Caption metadata, as saved inside
+The format-10 auditor permits omitted standalone Caption metadata, as saved inside
 [nested closed-caption Groups](captions.md#group-contained-closed-caption-clocks).
-Present Caption metadata still requires an object.
+`group_caption_schema_view` in `skills/camtasia-project/scripts/schema_audit.py`
+owns the read-only Group-only ancestry exception. Root Caption metadata stays
+required; present metadata still requires an object. Original documents and raw
+community-schema checks retain their actual saved fields.
 
 Resolve this skill directory to absolute `camtasia_skill_root`, then run:
 

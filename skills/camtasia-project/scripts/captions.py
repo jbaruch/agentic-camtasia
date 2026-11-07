@@ -46,7 +46,8 @@ Linked-video cut inputs and edited display bounds must align with the document's
 video frame grid. Recognized onsets and intentional subframe audio stay unchanged.
 Group descendants require clock parent: placement is in the containing Group's
 clock and all ancestor clocks and durations survive unchanged. Closed-only Group
-operations refuse known native Group save/reopen drift configurations.
+operations accept signed child and nested-Group starts; root placement remains
+nonnegative. They refuse known native Group save/reopen drift configurations.
 
 set-display PROJECT --clip-id ID --spec SPEC edits an existing native dynamic
 display. Spec schema_version 1 accepts start/duration seconds, definition (existing
@@ -261,7 +262,9 @@ def root_clock(
     return track, owner, audio
 
 
-def validate_caption_clock(doc: dict[str, Any], owner: dict[str, Any], audio: Any) -> None:
+def validate_caption_clock(
+    doc: dict[str, Any], owner: dict[str, Any], audio: Any, *, nested: bool = False
+) -> None:
     if type(owner.get("id")) is not int:
         raise ValueError("repair the owner's numeric clip ID before caption mapping or retiming")
     selected(doc, owner["id"])
@@ -286,7 +289,7 @@ def validate_caption_clock(doc: dict[str, Any], owner: dict[str, Any], audio: An
     for node in clocks:
         values = {key: project.number(node.get(key)) for key in effects.CLOCK_FIELDS}
         if (
-            values["start"] < 0
+            (values["start"] < 0 and not nested)
             or values["mediaStart"] < 0
             or any(values[key] <= 0 for key in ("duration", "mediaDuration", "scalar"))
         ):
@@ -324,14 +327,14 @@ def closed_clock(
         audio, dict
     ):
         raise ValueError("select a Group-contained Caption/audio/ordinary linked AV owner")
-    validate_caption_clock(doc, owner, audio)
+    validate_caption_clock(doc, owner, audio, nested=True)
     for _, group in ancestors:
         if type(group.get("id")) is not int:
             raise ValueError("repair numeric Group IDs before caption clock editing")
         selected(doc, group["id"])
         values = {k: project.number(group.get(k)) for k in effects.CLOCK_FIELDS}
         if (
-            values["start"] < 0
+            (values["start"] < 0 and group is ancestors[-1][1])
             or values["mediaStart"] < 0
             or any(values[k] <= 0 for k in ("duration", "mediaDuration", "scalar"))
         ):
@@ -881,9 +884,11 @@ def retime(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str,
     map_captions(doc, clip_id, closed_only=bool(ancestors))
     result = copy.deepcopy(doc)
     track, owner, audio, ancestors = closed_clock(result, clip_id)
-    start, duration, media_start = (
-        hotspots.ticks(result, spec[k]) for k in ("start", "duration", "media_start")
-    )
+    start_seconds = project.number(spec["start"])
+    if start_seconds < 0 and not ancestors:
+        raise ValueError("use nonnegative root placement; signed starts require a parent Group")
+    start = hotspots.ticks(result, exact(abs(start_seconds))) * (-1 if start_seconds < 0 else 1)
+    duration, media_start = (hotspots.ticks(result, spec[k]) for k in ("duration", "media_start"))
     scalar = project.number(spec["scalar"])
     if owner is not audio:
         require_frame_grid(result, dict(start=start, duration=duration, mediaStart=media_start))

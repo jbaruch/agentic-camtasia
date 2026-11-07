@@ -3,6 +3,8 @@
 
 Schema validity, editor acceptance, and rendered behavior are separate results.
 The compatibility profile is restricted to its observed editor build and format.
+The format-10 audit view permits omitted Caption metadata only with Group-only
+ancestry. Root Captions retain required metadata; source documents stay unchanged.
 Install jsonschema through the repository's verification extra or the documented
 isolated uv invocation. Fetch downloads data only and never executes it.
 """
@@ -21,7 +23,7 @@ from typing import Any, Iterator
 import jsonschema
 from jsonschema.exceptions import SchemaError
 
-from project import load, native_hazards, nonfinite_errors
+from project import clip_paths, load, native_hazards, nonfinite_errors, objects
 
 UPSTREAM_COMMIT = "443a41e37cddb460c0aa6e046c951cb17f241bf3"
 UPSTREAM_URL = (
@@ -126,6 +128,26 @@ def errors_for(schema: dict[str, Any], doc: dict[str, Any]) -> list[dict[str, An
     return sorted(errors, key=lambda e: (e["path"], e["message"]))
 
 
+def group_caption_schema_view(doc: dict[str, Any]) -> dict[str, Any]:
+    """Check observed omitted Group Caption metadata without repairing the input."""
+    paths = clip_paths(doc)
+    nodes = [(p, n) for p, n in objects(doc) if p in paths]
+    omitted = set()
+    for path, node in nodes:
+        if node.get("_type") != "Caption" or "metadata" in node:
+            continue
+        ancestors = [n for p, n in nodes if path.startswith(p + "/")]
+        if ancestors and all(n.get("_type") == "Group" for n in ancestors):
+            omitted.add(path)
+    if not omitted:
+        return doc
+    result = copy.deepcopy(doc)
+    for path, node in objects(result):
+        if path in omitted:
+            node["metadata"] = {}
+    return result
+
+
 def audit(
     doc: dict[str, Any], schema: dict[str, Any], profile: dict[str, Any] | None = None
 ) -> dict[str, Any]:
@@ -140,7 +162,10 @@ def audit(
             raise ValueError(
                 "compatibility profile does not match this document's editor build and format"
             )
-        corrected_errors = errors_for(apply_profile(schema, profile), doc)
+        checked = (
+            group_caption_schema_view(doc) if profile["id"] == "mac-2026.2.4-format-10" else doc
+        )
+        corrected_errors = errors_for(apply_profile(schema, profile), checked)
     hazards = native_hazards(doc) + nonfinite_errors(doc)
     return {
         "ok": not corrected_errors and not hazards,

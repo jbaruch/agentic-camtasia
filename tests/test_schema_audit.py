@@ -923,11 +923,72 @@ class SchemaAuditTests(unittest.TestCase):
         self.assertFalse(schema_audit.audit(doc, baseline)["ok"])
         self.assertTrue(schema_audit.audit(doc, baseline, profile)["ok"])
         caption.pop("metadata")
-        self.assertTrue(schema_audit.audit(doc, baseline, profile)["ok"])
+        self.assertFalse(schema_audit.audit(doc, baseline, profile)["ok"])
         caption["metadata"] = "repair this malformed native metadata"
         self.assertFalse(schema_audit.audit(doc, baseline, profile)["ok"])
-        caption.pop("metadata")
+        caption["metadata"] = {}
         value["textAttributes"] = {"font": "Unobserved style"}
+        self.assertFalse(schema_audit.audit(doc, baseline, profile)["ok"])
+
+    def test_format_ten_group_caption_metadata_omission_is_scoped_and_read_only(self) -> None:
+        from test_caption_groups import grouped
+
+        doc = grouped("imported")
+        baseline, _, profile = self.current_profile_fixture()
+        baseline["properties"].update({key: {} for key in doc if key not in baseline["properties"]})
+        baseline["definitions"]["timeline"]["properties"].update(
+            {key: {} for key in doc["timeline"]}
+        )
+        # Exercise the actual scene/Group/track/media shape with the strict Caption branch.
+        baseline["definitions"]["timeline"]["properties"]["sceneTrack"] = {
+            "properties": {
+                "scenes": {
+                    "type": "array",
+                    "items": {"properties": {"csml": {"$ref": "#/definitions/Group"}}},
+                }
+            }
+        }
+        baseline["definitions"]["Group"] = {
+            "properties": {"tracks": {"type": "array", "items": {"$ref": "#/definitions/track"}}}
+        }
+        baseline["definitions"]["track"]["properties"]["medias"] = {
+            "type": "array",
+            "items": {"$ref": "#/definitions/media"},
+        }
+        baseline["definitions"]["media"]["oneOf"].append(
+            {
+                "allOf": [
+                    {"properties": {"_type": {"const": "Group"}}},
+                    {"$ref": "#/definitions/Group"},
+                ]
+            }
+        )
+        child = next(n for _, n in schema_audit.objects(doc) if n.get("_type") == "Caption")
+        # Keep other exercised audio/video nodes outside this focused schema fixture.
+        child.pop("attributes", None)
+        child.pop("metadata")
+        child["parameters"]["captionData"].pop("opaque")
+        for _, node in schema_audit.objects(doc):
+            if "medias" in node:
+                node["medias"] = [n for n in node["medias"] if n.get("_type") != "UnifiedMedia"]
+        before = copy.deepcopy(doc)
+        result = schema_audit.audit(doc, baseline, profile)
+        self.assertTrue(result["ok"], result["errors"])
+        self.assertTrue(result["upstreamErrors"])
+        self.assertEqual(doc, before)
+        root = copy.deepcopy(doc)
+        root["timeline"]["sceneTrack"]["scenes"][0]["csml"]["tracks"][0]["medias"] = [
+            copy.deepcopy(child)
+        ]
+        self.assertFalse(schema_audit.audit(root, baseline, profile)["ok"])
+        root["timeline"]["sceneTrack"]["scenes"][0]["csml"]["tracks"][0]["medias"][0][
+            "metadata"
+        ] = {}
+        self.assertTrue(schema_audit.audit(root, baseline, profile)["ok"])
+        child["metadata"] = "malformed"
+        self.assertFalse(schema_audit.audit(doc, baseline, profile)["ok"])
+        child.pop("metadata")
+        child["parameters"]["captionData"]["keyframes"][0]["value"]["text"] = 23
         self.assertFalse(schema_audit.audit(doc, baseline, profile)["ok"])
 
     def test_cli_selects_the_requested_format_ten_profile(self) -> None:

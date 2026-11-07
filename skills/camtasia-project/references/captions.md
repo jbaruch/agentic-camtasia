@@ -322,10 +322,17 @@ its Group eight seconds long; the last two seconds render blank, and decoded
 audio after second 6.1 is silent.
 The helper does not resize parents to the edited child's extent.
 
-Twenty-two native exports total 127.5 seconds at 640×360/30 fps with stereo
-44.1-kHz AAC. All 3,825 rendered frames pass cue/clear gates. Independent flat
+Signed child and nested-Group starts retain their container-relative meaning;
+root placement stays nonnegative. A regression combines inner-Group and child
+starts of −1 second beneath a root Group starting at 1. Both caption forms show
+TWO at 1–3, THREE at 3–5, FOUR at 5–6 and blank output at 6–7, matching an
+independent root clip trimmed to source second 2. Negative parent-clock retiming
+retains complete linked mirrors and all ancestors.
+
+Twenty-six native exports total 155.5 seconds at 640×360/30 fps with stereo
+44.1-kHz AAC. All 4,665 rendered frames pass cue/clear gates. Independent flat
 controls match complete decoded pictures for trims, speeds, nested holds and
-linked-child retiming. Four saved projects reopen byte-identically, and three
+linked-child retiming. Five saved projects reopen byte-identically, and four
 reopened export pairs reproduce complete decoded video/audio. Cue authoring
 and standalone Caption retiming preserve the unchanged Group's decoded audio.
 
@@ -338,8 +345,9 @@ unestablished. Compare caption edits against the same Group/audio layout.
 Native saves retain complete clocks and source/cue payloads, renumber the new
 nested IDs, serialize Group in-points/durations as floats and initialize lane
 flags. They omit empty Group-contained Caption metadata. The exact-build
-profile permits that omission while retaining object validation when present;
-raw community errors remain separate. Thirty-nine input/saved schema checks
+auditor permits that omission only with Group-only ancestry. Root metadata stays
+required and present values retain object validation; raw community errors remain
+separate. Forty-five input/saved schema checks
 pass the profile and native guards. Known positive-in-point accelerated/slowed
 Group reload drift remains refused. Other unexercised container forms and native
 speed combinations require their own evidence. Completed disposable data is removed.

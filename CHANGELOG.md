@@ -8,16 +8,17 @@
   including unverified Group source-word mappings. Plain cue authoring accepts
   source-media or visible global timeline seconds. Explicit parent-clock retiming
   changes the selected child and linked mirrors while retaining ancestor payloads.
-- Twenty-two native exports verify trimmed/speed-adjusted Groups, three-level
-  ancestry, both closed-caption forms, authored cues and retiming. All 3,825
-  cue/clear frames pass; three reopened pairs reproduce complete decoded streams.
+- Twenty-six native exports verify trimmed/speed-adjusted Groups, three-level
+  ancestry, signed container-relative starts, both closed-caption forms, authored
+  cues and retiming. All 4,665 cue/clear frames pass; four reopened pairs reproduce complete decoded streams.
   Same-layout audio survives caption edits. Native grouping has separately
   documented audio-boundary differences from flat controls.
 
 ### Fixed
 
-- The Mac 2026.2.4 profile accepts omitted Caption metadata observed in native
-  Group saves. Present values still require objects; other fields stay strict.
+- The Mac 2026.2.4 auditor accepts omitted Caption metadata only under Group-only
+  ancestry, as observed in native saves. Root metadata stays required, present
+  values require objects and source documents remain unchanged.
 
 ## 0.48.0 — 2026-11-06
 

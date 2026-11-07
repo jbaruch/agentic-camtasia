@@ -196,6 +196,91 @@ class GroupCaptionTests(unittest.TestCase):
         self.assertEqual(result["timelineEndTicks"], "1411200001/2")
         self.assertEqual(result["timelineEndSeconds"], "1411200001/1411200000")
 
+    def test_signed_child_placement_maps_authors_and_retimes_without_changing_parents(self):
+        expected_rows = [
+            row(0, "ONE", 0, "1", "2"),
+            row(1, "TWO", 2, "2", "4"),
+            row(2, "THREE", 4, "4", "6"),
+            row(3, "FOUR", 6, "6", "7"),
+            row(4, "", 7, "7", "8"),
+        ]
+        for form in ["linked", "audio", "imported"]:
+            doc = one_group(form, duration=7)
+            child_clock(doc, start=-R)
+            before = copy.deepcopy(doc)
+            with self.subTest(form=form):
+                self.assertEqual(
+                    captions.map_captions(doc, 3, closed_only=True)["closed"], expected_rows
+                )
+                candidate = captions.set_cues(
+                    doc,
+                    3,
+                    dict(schema_version=1, clock="timeline", cues=[dict(start=1, end=2, text="A")]),
+                )
+                expected = copy.deepcopy(doc)
+                expected["timeline"]["captionAttributes"]["enabled"] = True
+                parameter(expected)["keyframes"] = [
+                    point(0, value("")),
+                    point(1, value("A")),
+                    point(2, value("")),
+                ]
+                self.assertEqual(candidate, expected)
+                candidate = captions.set_cues(
+                    doc,
+                    3,
+                    dict(schema_version=1, clock="media", cues=[dict(start=0, end=2, text="A")]),
+                )
+                expected = copy.deepcopy(doc)
+                expected["timeline"]["captionAttributes"]["enabled"] = True
+                parameter(expected)["keyframes"] = [point(0, value("A")), point(2, value(""))]
+                self.assertEqual(candidate, expected)
+                request = dict(
+                    schema_version=1, clock="parent", start=-2, duration=8, media_start=0, scalar=1
+                )
+                expected = copy.deepcopy(doc)
+                child_clock(expected, start=-2 * R)
+                result = captions.retime(doc, 3, request)
+                self.assertEqual(result, expected)
+                self.assertEqual(
+                    captions.map_captions(result, 3, closed_only=True)["closed"],
+                    [
+                        row(1, "TWO", 2, "1", "3"),
+                        row(2, "THREE", 4, "3", "5"),
+                        row(3, "FOUR", 6, "5", "6"),
+                        row(4, "", 7, "6", "7"),
+                    ],
+                )
+                request["start"] = "-1/705600001"
+                with self.assertRaises(ValueError):
+                    captions.retime(doc, 3, request)
+                self.assertEqual(doc, before)
+        with self.assertRaisesRegex(ValueError, "nonnegative root"):
+            captions.retime(
+                fixture(), 3, dict(schema_version=1, start=-1, duration=8, media_start=0, scalar=1)
+            )
+
+    def test_signed_inner_group_offsets_crop_before_nonnegative_root_placement(self):
+        doc = one_group(duration=7)
+        outer = project.scene_tracks(doc)[0][0]["medias"][0]
+        inner = copy.deepcopy(outer)
+        inner.update(id=101, start=-R, duration=8 * R, mediaDuration=8 * R)
+        outer["tracks"][0]["medias"] = [inner]
+        before = copy.deepcopy(doc)
+        self.assertEqual(
+            captions.map_captions(doc, 3, closed_only=True)["closed"],
+            [
+                row(0, "ONE", 0, "1", "2"),
+                row(1, "TWO", 2, "2", "4"),
+                row(2, "THREE", 4, "4", "6"),
+                row(3, "FOUR", 6, "6", "7"),
+                row(4, "", 7, "7", "8"),
+            ],
+        )
+        self.assertEqual(doc, before)
+        outer["start"] = -R
+        with self.assertRaisesRegex(ValueError, "ancestor Group clocks"):
+            captions.map_captions(doc, 3, closed_only=True)
+
     def test_closed_only_does_not_parse_or_map_recognition(self):
         doc = grouped()
         words(doc)["keyframes"][0]["value"] = None
@@ -426,6 +511,8 @@ class GroupCaptionTests(unittest.TestCase):
         ]:
             doc = grouped()
             group = next(n for _, n in project.objects(doc) if n.get("id") == 100)
+            if mutation == "group-start":
+                group = project.scene_tracks(doc)[0][0]["medias"][0]
             if mutation in ["stitched", "container"]:
                 group["_type"] = "StitchedMedia" if mutation == "stitched" else "FutureContainer"
             elif mutation == "scenes":
