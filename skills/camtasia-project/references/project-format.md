@@ -183,6 +183,14 @@ The [helper's native guards](helper.md) reject the reproduced drift before
 applying a candidate. Preserve complex Group animation and derive a stable
 constructor for it rather than dropping its timing metadata.
 
+The separate [Group rich-style probe](annotation-rich-ranges.md#group-contained-rich-style-steps)
+reproduces duration loss at 0.5× with a positive in-point on the same build.
+A half-second in-point and requested four-second duration save as 3.5 seconds,
+then three seconds after another fresh load. Validation rejects both observed
+speed/in-point combinations without repairing the payload. Zero-in-point 0.5×
+and 2× rich-style Groups retain their clocks through independent reopening and
+decoded-identical exports. No result at other Group speeds is inferred.
+
 ## Geometry and animation
 
 Locally, `translation0`/`translation1` position content in canvas pixels about

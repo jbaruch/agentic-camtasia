@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.46.0 — 2026-11-06
+
+### Added
+
+- Timed rich-style authoring and effective-state clearing support remix text
+  descendants with Group-only ancestors. Selected-child clocks retain trims and
+  speed, complete UTF-8 rich states, independent geometry/outline intervals and
+  every parent payload. Parent cropping does not expand the Group.
+- Ten complete-state comparisons and two decoded-identical 160-second native
+  exports verify three Group levels, native child trims/speed, parent clocks,
+  cropped points and cleared states. All 568 sampled rich states and 320 tone
+  windows match their controls. Three pre-endpoint continuous-geometry samples
+  show the documented native phase variation; rich boundaries remain correct.
+
+### Fixed
+
+- Validation refuses the reproduced Mac 2026.2.4 positive-in-point 0.5× Group
+  reload shrinkage. The existing 2× Group growth guard stays in force. Neither
+  guard changes parent timing or infers behavior at unexercised speeds.
+
 ## 0.45.0 — 2026-11-06
 
 ### Added

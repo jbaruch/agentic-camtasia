@@ -67,12 +67,13 @@ after incorporation into the plugin and generated-fixture tests.
 
 Locally observed in Camtasia Mac 2026.2.4 (2026.132), format 10. The annotation
 helper's `set-rich-steps` and `clear-rich-steps` commands add discrete timed
-styles to root remix text annotations. The module docstring and
+styles to root or Group-contained remix text annotations.
+`skills/camtasia-project/scripts/annotations.py` — the module docstring and
 `rich_step_frames`, `rich_source_time`, `set_rich_steps` and `clear_rich_steps`
 own the input, clock, replacement and preservation contracts. General `set`
 continues to require static rich text; clear timed styles explicitly before
-changing text content. Nested clocks, RTF conversion and physical font closure
-remain separate work.
+changing text content. Other container/scene clocks, RTF conversion and physical
+font closure remain separate work.
 
 Native Auto Animate followed by a font-size edit saves one static rich frame.
 Adding an explicit Custom animation first still edits that static frame. These
@@ -125,6 +126,64 @@ rich frames/partitions, text/font data, geometry, source definitions and audio.
 Reopened saves change only the thumbnail. Original baseline and bundled AV
 hashes remain unchanged. Thirteen snapshots pass raw schema, exact-build profile
 and native hazard checks without a correction. Completed disposable projects,
+movies, screenshots and measurements are deleted after incorporation.
+
+## Group-contained rich-style steps
+
+Version 0.46.0 extends both timed-style commands to selected remix text children
+with Group-only clip ancestors in one scene. Times use seconds from the selected
+child's visible beginning. The timed-style contract above owns the source-clock
+conversion. Parent placement, trimming and speed do not enter that conversion.
+All ancestor
+payload, child geometry, complete rich partitions and independent visual/outline
+intervals survive. Parents can crop a valid child-local point; the helper does
+not extend a Group or guarantee that its bounds expose the text. Other containers
+and multiple scenes remain refused. Run project validation before applying a
+staged candidate; its exact-build Group reload guards remain in force.
+
+The Mac 2026.2.4 (2026.132), format-10 control starts with a native Basic text
+callout and complete native rich-state payload. JSON authors the discrete styles
+and independent translation/outline interval. Native Clip Speed sets the child
+to 2×; native grouping, canvas-size bounds and a left trim produce child
+`mediaStart` one second, inverse scalar `1/2`, start 0.5 seconds and duration two
+seconds. Local 0.5 and 1.5 seconds map to source seconds two and four. Native
+grouping and trimming preserve those rich points. The first state is Arial 44
+white; the second is Arial 72 orange; the third makes only `café` bold cyan in
+`A café`. The suffix occupies UTF-8 bytes 2–7. Default font data remains intact.
+
+Ten whole-document comparisons match independently prepared complete states for
+set and clear, including three Group levels, a natively trimmed parent, explicitly
+prepared zero-in-point 0.5×/2× parents and a shorter cropping parent. Clearing
+immediately before local 0.5 selects white; exactly 0.5 selects orange; exactly
+1.5 selects mixed orange/cyan, including a point outside the parent's window.
+These commands preserve the parent window and the independent geometry/outline
+interval. Group speed candidates are JSON-authored; the exercised native Group
+menu omits Clip Speed and dragging the palette effect adds no saved payload.
+
+The twenty-cell 160-second project pairs grouped results with independent root
+clock controls and literal static styles. Native save preserves the entire
+document after a verified 96-ID bijection, ten Text binding IDs, three equivalent
+scalar representations and thumbnail. A saved close/reopen is byte-identical.
+Two native exports reproduce all 4800 decoded 640×360, 30-fps RGB frames and
+stereo 44.1-kHz PCM. All 568 sampled frames meet their independently predicted
+rich color/visibility states. Four contact sheets contain 120 inspected phase
+frames; seven full-size state views retain the accent and suffix weight/color.
+
+Across 284 paired frame samples, 281 differ by at most 0.139 mean RGB byte levels.
+Three last-pre-endpoint samples on slowed Groups retain a small native geometry/
+outline phase difference, reaching 1.776; their rich states still match the root
+controls. Six full-size paired views expose this variation. The helper preserves
+the original continuous interval without compensation. All 320 audio-channel
+windows retain the 440-Hz tone, RMS 0.06784–0.06819 and tone power ratio above
+0.9996. Thirteen accepted snapshots pass raw schema, exact-build profile and
+native hazard checks without a correction.
+
+A separate positive-in-point 0.5× Group is unstable on this build: fresh loads
+shrink its duration from four to 3.5 to three seconds. Raw schema accepts all
+three snapshots. Project validation now refuses that reproduced combination;
+the existing 2×/positive-in-point growth guard remains. This is a native parent
+reload failure, independent of rich editing. Other speeds and a general animated
+Group rebasing constructor remain unverified. Completed disposable probes,
 movies, screenshots and measurements are deleted after incorporation.
 
 ## Text layout switches
