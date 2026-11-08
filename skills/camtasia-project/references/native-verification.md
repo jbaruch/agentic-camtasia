@@ -275,6 +275,14 @@ service and no thumbnailers. Shorter sessions are an operational precaution,
 not proof of the internal cause or a permanent fix. Verify the old process has
 exited before starting the same exact app again; retain completed renders.
 
+The Mac 2026.2.5 caption font-style check recovered a confirmed unresponsive
+cold open with the owned input byte-identical. After the old editor exited,
+the new exact-bundle process first created, saved and closed a disposable empty
+project, then opened the unchanged caption input and completed its native
+style/Group renders. This is one observed startup sequence, not a permanent
+fix or proof that font data caused the preview/font-layout waits. Preserve the
+input and require an authoritative responsiveness check before recovery.
+
 Media import can also stop responding before it reaches source decoding. A
 Mac 2026.2.4 import of a local MP4 under `/private/tmp` blocked in
 `SourceManager.autoProxyFilesIfNecessary` → `NSURL(CloudDrive).isOnOneDrive`

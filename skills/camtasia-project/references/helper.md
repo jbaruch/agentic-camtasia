@@ -201,6 +201,12 @@ Use zero to clear either decoration. Select the caption child inside a Group;
 source words, other styles, reset data, clocks and ancestor geometry survive.
 The script contract above owns build, value, range-normalization and refusal rules.
 
+For [native dynamic-caption bold and italic](captions.md#dynamic-caption-bold-and-italic),
+use `set-display` with `{"schema_version":1,"rich":{"fontWeight":700,"fontItalic":2}}`.
+Use weight `400` and italic `0` to restore Regular; either field can be edited
+independently. Select the caption child inside a Group. The script contract above
+owns the verified build, existing-target requirements and refusal rules.
+
 Inspection returns separate `closed`, `transcriptions`, `audioUses` and `displays` arrays
 with physical paths and saved payloads, plus the global `captionAttributes`
 object or null when absent. Select clip/source IDs and source-track
