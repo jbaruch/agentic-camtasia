@@ -5,11 +5,13 @@ inspect PROJECT reports physical MediaPath owners. set-path PROJECT --clip-id ID
 --spec SPEC --output CANDIDATE creates or replaces the selected visual owner's
 path. Wrapper/video IDs resolve to the same visual owner; audio is never edited.
 OWNERS defines verified direct constructors; linked UnifiedMedia/VMFile edits
-update both visual mirrors. Root linked ScreenVMFile recordings additionally
+update both visual mirrors. Root and Group-contained linked ScreenVMFile recordings additionally
 require the shared recording owner guard: one scene, complete equal visual
 clocks, positive rate/speed, unique visual tokens and same-source AMFile audio.
-Group/stitched descendants of linked recordings retain separate verification
-obligations. Recorded audio and cursor data survive.
+Group-only ancestors, their geometry, clocks and bindings are preserved; point
+times remain relative to the selected recording, independently of Group placement.
+Other containing forms retain separate verification obligations. Recorded audio
+and cursor data survive.
 set-bypass PROJECT --clip-id ID --bypass|--no-bypass --output CANDIDATE changes
 the selected path's bypass and observed orientation companion. remove-path removes that effect and its known
 Auto Orient zero-rotation companion, retaining reset metadata and other effects.
@@ -120,7 +122,9 @@ def visual_targets(doc: dict[str, Any], clip_id: int) -> list[dict[str, Any]]:
     if visual.get("_type") not in {"VMFile", "ScreenVMFile"} or len(wrappers) != 1:
         raise ValueError("select a verified linked UnifiedMedia/VMFile Motion Path owner")
     if visual.get("_type") == "ScreenVMFile":
-        effects.constructor_owners(doc, clip_id, visual_types=OWNERS, linked_recordings=True)
+        effects.constructor_owners(
+            doc, clip_id, visual_types=OWNERS, linked_recordings=True, grouped_recordings=True
+        )
     wrapper = wrappers[0]
     for key in ("start", "duration", "mediaStart", "mediaDuration", "scalar"):
         if project.number(wrapper.get(key)) != project.number(visual.get(key)):
