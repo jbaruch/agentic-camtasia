@@ -1222,8 +1222,9 @@ Group/reopen, root zero-spacing/Group reset, reset/reopen, root ligatures-on/
 Group ligatures-on and its reopen. All eleven audio streams match. Inspected
 word-state contacts show complete text and each expected highlighted word.
 Six staged specimens retain their parsed payloads and source data after native
-saves; the helper and Group controls also reopen. Native grouping remaps IDs and removes the caption's neutral
-translation parameter; its reopen adds unlocked child-lane metadata. Bundled
+saves; the helper and Group controls also reopen. Native grouping remaps IDs
+and moves the caption's vertical translation onto the Group; its reopen adds
+unlocked child-lane metadata. Bundled
 WAV/recording bytes and the protected original remain unchanged. Four saved
 root/Group candidates have eight raw upstream schema errors each, zero errors
 under the exact-build profile and zero native compatibility errors.
