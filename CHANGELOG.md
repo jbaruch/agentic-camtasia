@@ -15,9 +15,11 @@
   recorded audio. Two fresh-process 128-second exports match all 3840 frames and
   complete PCM streams. Sixty-two inspected frames, 56 paired samples, 128 audio
   windows and thirteen exact-build schema audits verify the scoped workflow.
-- Seven regressions protect parent ownership, child/audio/cursor preservation,
+- Nine regressions protect parent ownership, child/audio/cursor preservation,
   source-position versus held-local clocks, timed-template requirements, clearing,
-  independent geometry and exclusive CLI staging. Further effect-specific
+  independent geometry and exclusive CLI staging. Effects and recording curves
+  reject a hidden held child within a stitch; select its parent or a standalone
+  unstitched hold. Further effect-specific
   point/resource controls and other container forms remain pending for 1.0.
 
 ## 0.67.0 — 2026-11-08

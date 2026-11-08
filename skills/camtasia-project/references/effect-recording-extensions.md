@@ -3,7 +3,8 @@
 Use the existing [effect construction/lifecycle](helper.md#visual-effect-json-editing)
 and [typed curve](helper.md#visual-effect-curve-editing) routes. This workflow
 records native Sepia controls in Mac Camtasia 2026.2.5 (2026.136), format 10.
-Select the inspected stitched parent for its own effect. A saved parent effect
+Select the inspected stitched parent for its own effect. Helpers reject its hidden held child.
+An unstitched standalone hold remains selectable. A saved parent effect
 can have no token; omit the optional token selector in that case. A static scalar
 is not a typed animation descriptor. Capture a native animated effect before
 authoring its curve, or copy that complete native effect with matching clocks.

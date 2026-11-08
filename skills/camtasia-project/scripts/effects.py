@@ -334,6 +334,11 @@ def constructor_owners(
     path, visual = hotspots.visual_target(doc, clip_id, visual_types=visual_types)
     if visual.get("_type") in FROZEN_STITCHED_TYPES and not project.is_native_format10(doc):
         raise ValueError("edit frozen/stitched effects with verified Mac format-10 native evidence")
+    if visual.get("_type") == "ScreenIMFile" and any(
+        node.get("_type") == "StitchedMedia" and path.startswith(parent + "/")
+        for parent, node in hotspots.clips(doc)
+    ):
+        raise ValueError("select the stitched parent or an unstitched standalone held recording")
     wrappers = [
         (parent, node)
         for parent, node in hotspots.clips(doc)

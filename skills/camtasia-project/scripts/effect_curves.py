@@ -102,7 +102,7 @@ def selected(
     visual = targets[-1][0]
     if visual.get("_type") not in OWNERS:
         raise ValueError("select a visual owner from OWNERS; capture other native clocks")
-    if len(targets) > 1 and visual.get("_type") in RECORDING_OWNERS:
+    if visual.get("_type") in RECORDING_OWNERS:
         effects.constructor_owners(
             doc, clip_id, visual_types=OWNERS, linked_recordings=True, grouped_recordings=True
         )

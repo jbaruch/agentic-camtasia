@@ -182,6 +182,44 @@ class StitchedRecordingEffectTests(unittest.TestCase):
         self.assertEqual(node(animated, 10), node(dest, 10))
         self.assertEqual(animated["sourceBin"], dest["sourceBin"])
 
+    def test_hidden_held_child_refuses_lifecycle_and_curve_edits_without_mutation(self):
+        doc = document()
+        node(doc, 50)["effects"] = [sepia(dict(type="double", defaultValue=0.0))]
+        before = copy.deepcopy(doc)
+        operations = [
+            lambda: effects.edit_effect(
+                doc, 50, "Sepia", dict(schema_version=1, parameters={"intensity": 0.5})
+            ),
+            lambda: effects.edit_effect(doc, 50, "Sepia", dict(schema_version=1, bypassed=True)),
+            lambda: effects.remove_effect(doc, 50, "Sepia"),
+            lambda: effect_curves.edit_curve(
+                doc,
+                50,
+                "Sepia",
+                "intensity",
+                dict(schema_version=1, defaultValue=0, segments=[dict(start=0, end=1, value=1)]),
+            ),
+            lambda: effect_curves.clear_curve(doc, 50, "Sepia", "intensity", 0.5),
+        ]
+        for index, operation in enumerate(operations):
+            with (
+                self.subTest(operation=index),
+                self.assertRaisesRegex(ValueError, "stitched parent"),
+            ):
+                operation()
+            self.assertEqual(doc, before)
+
+    def test_hidden_held_child_refuses_as_constructor_source_or_destination(self):
+        nested, standalone = document(), unstitched()
+        standalone["authoringClientName"]["version"] = "2026.2.5"
+        for doc in (nested, standalone):
+            node(doc, 50)["effects"] = [sepia()]
+        before = copy.deepcopy(nested), copy.deepcopy(standalone)
+        for dest, source in ((nested, standalone), (standalone, nested)):
+            with self.assertRaisesRegex(ValueError, "stitched parent"):
+                effects.add_effect(dest, 50, source, 50, "Sepia")
+            self.assertEqual((nested, standalone), before)
+
     def test_cli_stages_exclusive_candidates_and_repeats_without_input_writes(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
