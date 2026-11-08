@@ -6,8 +6,9 @@ including UnifiedMedia.video. Native application stores Group hotspots on the
 Group itself, independently of its children.
 Standalone held ScreenIMFile and StitchedMedia parents use the same hotspot
 payload. Select the stitched parent; its hidden children are not independent
-hotspot targets. Linked wrappers of these new owners require separate native
-ownership evidence. Shared visual_target defaults remain VISUAL_TYPES and do not
+hotspot targets. Mac 2026.2.5 also verifies this parent over linked moving AV
+and a separate held recording. Linked wrappers of these new owners require
+separate native ownership evidence. Shared visual_target defaults remain VISUAL_TYPES and do not
 expand other helpers' editing scope.
 The four actions and defaults come from independent native property/save captures.
 Marker targets use the logical media owner: a linked video's markers live on its

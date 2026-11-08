@@ -30,6 +30,55 @@ to 13.5 seconds. The native save refreshes both caches to the helper's exact
 tick values. Hidden stitched children are not independent hotspot owners.
 Linked variants require separate ownership and clock evidence.
 
+## Linked recording frame extensions
+
+Camtasia Mac 2026.2.5 (2026.136), format 10, extends a trimmed 2× linked
+recording with a direct `StitchedMedia` parent. Its moving child remains
+`UnifiedMedia` with `ScreenVMFile` video and same-source `AMFile` audio; a separate
+`ScreenIMFile` holds the selected final frame. This is not a linked frozen
+wrapper. Select the parent for its hotspot and media marker. Hidden moving,
+linked-video, audio and held children remain outside independent hotspot edits.
+
+Native Continue, Time, URL, Marker and removal controls match the existing
+helper while preserving every descendant, cursor payload, audio clock, source
+definition and unrelated attribute. Whole-document lifecycle comparisons permit
+only the command counter, thumbnail and native effect-selection cache. Removing
+the hotspot retains the parent marker. A native save may finish after its UI
+action returns; capture the completed save after closing the document.
+
+The parent starts at one second, has a two-second source in-point and inverse
+speed scalar `"1/2"`. Its moving portion ends at five seconds and its held portion
+ends at seven seconds. The parent media marker at source point `8373120000`
+maps to global tick `4186560000` (5.933… seconds), without applying its linked
+children's mirrored clocks again. Native marker creation accepts the interactive
+canvas resize prompt. The helper reproduces the native marker owner, point and
+cache exactly.
+
+A 72-second sequence places the destination parent before four native/helper
+action pairs. Two fresh editor processes save and export the sequence. The first
+save remaps 72 clip IDs and two Marker references, collapses 63 static held
+descriptors and changes two track-height caches. All other values and bundled
+source bytes remain equal. The independent reopen/save is byte-identical and
+retains both Marker actions and their owner bindings.
+
+The two 852×480, 30 fps movies have identical complete decoded RGB and stereo
+44.1 kHz PCM streams. Thirty-six inspected frames retain moving, held and
+outside-owner states. Sixteen native/helper sample pairs differ by at most
+0.031 mean RGB byte levels per channel. Seventy-two audio-channel windows retain
+the 440 Hz background and the 660 Hz sped-up recorded-system-audio tone in the
+moving portion. The held portion retains background audio without the recorded
+tone. This extends the earlier video-only recording observation to recorded audio.
+
+Both exported Smart Player packages pass eight actual activations each: native
+and helper Continue resume from the observed end pause, Time seeks to 0.5 seconds,
+URL reaches the local same-tab destination, and Marker reaches the earlier
+parent's held-section destination. Serve the complete package over HTTP with
+byte-range support. The checked action spans remain six
+seconds across the moving/held join, with stable bounds and end-pausing. Time
+destinations serialize as 500 ms, Marker destinations as 5933 ms and URL actions
+retain the same-tab choice. These controls do not establish linked frozen
+wrappers, placeholders, forward Marker references or additional scene clocks.
+
 ## Persistent native and runtime controls
 
 A helper-authored 66-second sequence contains four actions on each new owner
