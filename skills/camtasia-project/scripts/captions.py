@@ -18,7 +18,7 @@ through a source clip's trim, inverse speed, placement and Group ancestors.
 Linked AV clocks are mirrors, never summed. A source trim omits earlier dynamic
 word onsets; ancestor cropping carries a word already active in the Group.
 The verified caption/word clock is 705600000 ticks/sec, independently of each
-source stream's sample/edit rate. Group mapping requires Mac 2026.2.4 and returns
+source stream's sample/edit rate. Group mapping requires a verified Mac format-10 build and returns
 ancestors nearest first. map --closed-only omits source recognition and requires
 existing closed cues. Mac 2026.2.4 stitched ordinary AV/audio and linked moving
 recording parents own closed cues in the virtual stitch clock. Select that parent,
@@ -148,11 +148,11 @@ No aliases, percent conversion, missing-field insertion or global default recons
 is inferred. Every omitted style field, other global attribute, cue/RTF payload,
 source word, clip clock, display and unrelated value survives. The style applies
 globally to closed captions across the project, including later cue edits.
-Only the observed Mac 2026.2.4 format-10 style contract is supported. Native font
+Global style edits use the verified Mac format-10 style contract. Native font
 availability, text fitting and transparency still require rendered checks.
 
-Edits require the observed Mac 2025.0.3/format 9 or 2026.2.4/format 10 and exact
-caption clock; source-backed dynamic and RTF edits require the latter. JSON stdout schema_version
+Edits require a verified Mac authoring build/format and exact
+caption clock; source-backed dynamic and RTF edits require format 10. JSON stdout schema_version
 1 owner camtasia-captions reports hashes, inventory, changed/written and
 nativeVerified false. Staging is exclusive or an identical no-op. Follow project
 validate/diff/apply, matching native save/reopen and actual caption/highlight or
@@ -229,8 +229,8 @@ def require_native(doc: dict[str, Any], *, dynamic: bool = False) -> None:
         raise ValueError(
             "capture the caption clock for this edit rate; verified clock is 705600000"
         )
-    if dynamic and doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-        raise ValueError("use the verified Mac 2026.2.4 source-backed dynamic caption contract")
+    if dynamic and not project.is_native_format10(doc):
+        raise ValueError("use a verified Mac format-10 source-backed dynamic caption contract")
 
 
 def spec_keys(spec: dict[str, Any], allowed: set[str], required: set[str]) -> None:
@@ -511,8 +511,8 @@ def caption_context(doc: dict[str, Any], path: str) -> tuple[dict[str, Any], lis
         key=lambda item: len(item[0]),
         reverse=True,
     )
-    if ancestors and doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-        raise ValueError("use the verified Mac 2026.2.4 Group closed-caption clock contract")
+    if ancestors and not project.is_native_format10(doc):
+        raise ValueError("use a verified Mac format-10 Group closed-caption clock contract")
     if any(n.get("_type") != "Group" for _, n in ancestors):
         raise ValueError(
             "select Group-only ancestry or the stitched parent itself; capture other containers first"
@@ -1191,8 +1191,8 @@ def closed_style_value(name: str, value: Any, *, requested: bool) -> None:
 
 def set_style(doc: dict[str, Any], spec: dict[str, Any]) -> dict[str, Any]:
     require_native(doc)
-    if doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-        raise ValueError("use the verified Mac 2026.2.4 global closed-caption style contract")
+    if not project.is_native_format10(doc):
+        raise ValueError("use a verified Mac format-10 global closed-caption style contract")
     spec_keys(spec, {"style"}, {"style"})
     requested = spec["style"]
     if not isinstance(requested, dict) or not requested or requested.keys() - CLOSED_STYLE_FIELDS:
@@ -1389,6 +1389,7 @@ def copy_block_transition(
     doc: dict[str, Any], clip_id: int, template: dict[str, Any], template_id: int
 ) -> dict[str, Any]:
     _, _, source = dynamic_display(template, template_id)
+    project.require_same_authoring_build(doc, template)
     result = copy.deepcopy(doc)
     _, _, target = dynamic_display(result, clip_id)
     name = "dynamic-caption-block-transition-name"

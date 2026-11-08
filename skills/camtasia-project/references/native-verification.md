@@ -2,7 +2,7 @@
 
 Target: Camtasia **2025.0.3 for Mac**, project format **9.0**.
 The separate [Mac version guide](mac-versions.md) records the additional
-2026.2.4 / format-10 profile, native conversion, Tiling, and recorded-cursor
+2026.2.4 and 2026.2.5 / format-10 profiles, native conversion, Tiling, and recorded-cursor
 smoothing evidence. Select the matching profile explicitly.
 Verification session: 2026-10-23. Probe projects use generated color-bar video,
 a sine-wave audio track, and synthetic text. The person-segmentation test uses

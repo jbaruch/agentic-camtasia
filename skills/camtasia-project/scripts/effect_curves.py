@@ -14,7 +14,7 @@ Version 1 stays linear. Version 2 adds optional per-segment easing: linear
 Default/target bounds remain enforced; native spring interpolation can overshoot.
 Exact project ticks use the visual source clock (mediaStart/inverse speed).
 OWNERS names visual owners verified for these clocks; linked wrapper
-and video clocks must agree. Only Mac 2026.2.4/format 10 is admitted. Existing
+and video clocks must agree. Only verified Mac format-10 builds are admitted. Existing
 native typed double descriptors are required; no scalar, resource, point,
 integer, boolean, missing parameter or effect constructor is inferred. MediaPath
 retains its dedicated motion_paths.py coupling and is refused here.
@@ -92,8 +92,8 @@ class JsonArgumentParser(argparse.ArgumentParser):
 def selected(
     doc: dict[str, Any], clip_id: int, name: str, token: str | None
 ) -> list[tuple[dict[str, Any], dict[str, Any]]]:
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-        raise ValueError("use the verified Camtasia Mac 2026.2.4 format-10 curve contract")
+    if not project.is_native_format10(doc):
+        raise ValueError("use a verified Camtasia Mac format-10 curve contract")
     if name == "MediaPath":
         raise ValueError("use motion_paths.py for Motion Path and its rotation coupling")
     targets = effects.targets(doc, clip_id, name, token, visual_types=OWNERS)

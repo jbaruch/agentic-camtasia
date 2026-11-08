@@ -230,7 +230,7 @@ class CaptionStyleTests(unittest.TestCase):
         )
 
     def test_style_stays_with_its_observed_editor_build(self):
-        for format_, version in [("9.0", "2025.0.3"), ("10.0", "2026.2.5")]:
+        for format_, version in [("9.0", "2025.0.3"), ("10.0", "2026.2.6")]:
             doc = document()
             doc["version"] = format_
             doc["authoringClientName"]["version"] = version

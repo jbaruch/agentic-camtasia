@@ -4,7 +4,82 @@ Match the actual installed editor, the JSON format version, and the document's
 authoring client separately. Read the app's Info.plist or About panel; an old
 project's authoring metadata does not identify the running application.
 Native observations in this plugin currently cover Mac 2025.0.3 (format 9)
-and the additional 2026.2.4 observations below. Keep evidence scoped to its build.
+and the additional 2026.2.4 and 2026.2.5 observations below. Keep evidence scoped to its build.
+
+## Mac 2026.2.5 upgrade checks
+
+The official Mac 2026.2.5 build is **2026.136**, released 3 November 2026.
+The [vendor history](https://support.techsmith.com/hc/en-us/articles/41263167862285-Camtasia-Mac-2026-Version-History)
+lists Rev's non-TREC effects-panel fix, camera-position and step-image/click-effect
+fixes, the Camtasia Connector rename, a recording-disable deployment option and
+text/graphics library updates. It lists no new editing feature. Snagit work remains
+deferred by the operator; the camera and step-image fixes were not independently
+reproduced in this upgrade check.
+
+The official download's notarized application signature identifies TechSmith
+Corporation. Comparing installed resources with 2026.2.4 found 2,525 byte-identical
+files, including the annotation, transition, cursor and dynamic-caption presets,
+fonts and LUTs. The working app adds Camtasia Connector in place of TechSmith Agent
+and three noise-removal ONNX files. Resource equality establishes unchanged
+definitions, not a rerun of every earlier native feature matrix. The resource
+helpers successfully read all 148 installed transition definitions and 32 LUTs.
+
+A native save of the existing four-second dynamic-caption baseline changes only
+its authoring version to `2026.2.5`; project format stays `10.0`. Open an existing
+project through the editor and save a separate owned copy. Do not emulate that
+save by rewriting its authoring identity. The ordinary helper gates now admit this
+build alongside the earlier format-10 build. Native-template copies still require
+the same authoring build. LUT/transition discovery and the native adapter verify
+the actual version/build pair; unknown builds remain outside those contracts.
+Deferred quiz helpers keep their earlier build restriction.
+
+Use `--profile mac-2026.2.5` with `schema_audit.py`. Its `read_profile` function
+resolves the earlier correction set and the additional native `Border` identifier.
+The new profile keeps its own exact authoring identity, format and pinned upstream
+schema. It retains the Group-caption and captioned-stitch semantic checks. Raw
+upstream errors remain separate; unfamiliar identifiers and property/type errors
+still refuse. Six native-saved caption, Group, audio and Rev specimens pass the
+matching profile and compatibility checks.
+
+Nine four-second native movies verify 1,080 decoded frames. Five complete decoded
+video/audio pairs match: caption reopen, typography reopen, typography root/Group,
+Group reopen and Rev reopen. The fitted-caption control retains all eleven words
+and expected highlighting across all 120 frames. The 2026.2.4 and 2026.2.5 text
+movies have different RGB bytes and identical decoded audio. The inspected frames
+retain their visible layout; measured mean absolute RGB differences in the caption
+regions are about 0.56 and 1.27 on the 0–255 scale for the two specimens. Keep
+render baselines separate by build; these observations do not identify the internal
+cause of the pixel difference or certify every font and layout control.
+
+AI Noise Removal still saves `VSTEffect-DFN3NoiseRemoval`, bare `Amount: 0.8`,
+`Bypass: 0.0` and native opaque processor metadata. Its UI still exposes Amount
+and activation. No model selector was observed. The fixed noisy-speech control's
+quiet-section RMS falls about 22.6 dB; projected SNR rises from 11.0 to 20.0 dB,
+with fitted speech gain about −0.14 dB and measured alignment −528 samples.
+Its two native stereo 16-bit, 44.1 kHz Wave exports reproduce all 176,400 sample
+frames. This establishes the exercised cleanup result, not a comparison with the
+earlier build's DSP output or a universal quality guarantee.
+
+For the checked local MP4 route, use **File → Import → Media**, then the media-bin
+item's **Import to Camtasia Rev…**. The Effects tab populates Border, Corner
+Rounding, Drop Shadow and Reflection. Save with the default **Edit as Rev media**
+option. The native result is a Group with background/video/audio descendants and
+`RevBackground`, `RevEffectSettings`, `RevLayoutID` and `RevLook` metadata. Preserve
+that metadata and the bundled background shader source. It is not an ordinary
+Group constructor contract. Native reopen/save collapses 65 static double
+descriptors to their identical scalar defaults; all other parsed payload remains
+equal. Independent rerender reproduces complete video/audio. This full-canvas
+specimen does not establish every Rev layout, inset border geometry, camera,
+Zoom or cloud-import behavior. Those remaining integration tasks stay pending.
+
+One initial open stopped responding while constructing the editor window; its
+sample waited on a preview write lock. The preserved caption copy opened and
+completed the checks after stopping only the confirmed unresponsive editor.
+A separate attempt to clear a caption template into an empty project crashed.
+Native **New Project** and Save worked for the Rev control. Use a native-created
+empty project; the cleared-template constructor is unverified. Neither observation
+establishes the cause or a permanent stability fix. Keep the health and recovery
+procedure in [native verification](native-verification.md).
 
 Mac 2026.2.2 adds SVG Tiny 1.2 rendering according to the vendor's
 [release history](https://support.techsmith.com/hc/en-us/articles/41263167862285-Camtasia-Mac-2026-Version-History).

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inspect and stage native Mac 2026.2.4 format-10 visual animation intervals.
+"""Inspect and stage native Mac format-10 visual animation intervals.
 
 inspect PROJECT is read-only. set-interval PROJECT --clip-id ID --spec SPEC
 --output CANDIDATE stages one coupled interval. ease-interval PROJECT --clip-id
@@ -341,8 +341,8 @@ def edit_parameter(
 def edit_interval(
     doc: dict[str, Any], clip_id: int, spec: dict[str, Any], *, allow_empty: bool = False
 ) -> dict[str, Any]:
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-        raise ValueError("use the verified Mac 2026.2.4 format-10 animation contract")
+    if not project.is_native_format10(doc):
+        raise ValueError("use a verified Mac format-10 animation contract")
     required = {"schema_version", "start", "end"}
     if (
         not isinstance(spec, dict)
@@ -456,8 +456,8 @@ def edit_interval(
 
 def remove_interval(doc: dict[str, Any], clip_id: int, start: Any, end: Any) -> dict[str, Any]:
     """Remove one native interval, retaining initial values and other interval targets."""
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-        raise ValueError("use the verified Mac 2026.2.4 format-10 animation contract")
+    if not project.is_native_format10(doc):
+        raise ValueError("use a verified Mac format-10 animation contract")
     result = copy.deepcopy(doc)
     path, owner = hotspots.visual_target(result, clip_id, visual_types=OWNERS)
     if owner.get("_type") not in OWNERS:

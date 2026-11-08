@@ -229,7 +229,7 @@ class ProjectTests(unittest.TestCase):
             )
         )
         self.assertEqual(self.doc, before)
-        for version in ["2025.0.3", "2026.2.5"]:
+        for version in ["2025.0.3", "2026.2.6"]:
             self.doc["authoringClientName"]["version"] = version
             self.assertEqual(project.native_group_reopen_hazards(self.doc), [])
 

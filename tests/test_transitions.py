@@ -173,7 +173,7 @@ class TransitionTests(unittest.TestCase):
                 transitions.set_transition(doc, 3, 4, value)
             self.assertEqual(doc, before)
         doc["version"] = "9.0"
-        with self.assertRaisesRegex(ValueError, "2026.2.4"):
+        with self.assertRaisesRegex(ValueError, "verified.*format-10"):
             transitions.remove_transition(doc, 3, 4)
 
     def test_cli_exclusive_staging_inspection_set_removal_and_unchanged_source(self):

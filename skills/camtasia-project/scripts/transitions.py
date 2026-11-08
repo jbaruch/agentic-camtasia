@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage Mac 2026.2.4 format-10 root-track transition edits without changing clips.
+"""Stage verified Mac format-10 root-track transition edits without changing clips.
 
 inspect PROJECT lists physical transitions. add-fade PROJECT --left-id ID and/or
 --right-id ID --duration SECONDS constructs the native Fade. set uses the same
@@ -60,8 +60,8 @@ VISUAL_TYPES = frozenset(
 
 
 def require_native(doc: dict[str, Any]) -> None:
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-        raise ValueError("use the verified Mac 2026.2.4 format-10 transition contract")
+    if not project.is_native_format10(doc):
+        raise ValueError("use a verified Mac format-10 transition contract")
 
 
 def root_tracks(doc: dict[str, Any]):
@@ -316,9 +316,9 @@ def main(argv: list[str] | None = None) -> int:
             else:
                 if args.template_index is None or args.name is not None:
                     raise ValueError("use --template-project with --template-index only")
-                template = native_template(
-                    project.load(args.template_project)[0], args.template_index
-                )
+                template_doc = project.load(args.template_project)[0]
+                project.require_same_authoring_build(doc, template_doc)
+                template = native_template(template_doc, args.template_index)
             candidate = add_transition(doc, args.left_id, args.right_id, args.duration, template)
         elif args.command == "add-fade":
             candidate = add_fade(doc, args.left_id, args.right_id, args.duration)

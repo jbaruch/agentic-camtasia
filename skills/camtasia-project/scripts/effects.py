@@ -9,7 +9,7 @@ add PROJECT --clip-id ID --effect NAME --template-project TEMPLATE
 --template-clip-id ID [--template-effect-token TOKEN] --output CANDIDATE
 appends the complete saved effect. Linked pairs receive a fresh effectIndex
 token; direct owners preserve native metadata without allocating an identity. Construction
-requires Mac 2026.2.4/format 10, matching visual owner types/link layout and edit
+requires verified Mac format 10, matching visual owner types/link layout and edit
 rate. Timed payloads additionally require matching owner clocks; no animation,
 edge, freeze or source clock is inferred or retimed. Resource references remain
 unchanged and must resolve separately at the destination. Existing effects,
@@ -20,8 +20,8 @@ defaults; last-applied ease defaults need the selected effect as effectApplied.
 MediaPath construction uses motion_paths.py to preserve its clip-rotation coupling.
 Its editing/removal also use that dedicated helper.
 Direct moving recordings, frozen recordings and stitched parents support native
-template construction and lifecycle edits. FROZEN_STITCHED_TYPES is restricted to Mac
-2026.2.4/format 10 for all mutations. Root and Group-contained linked moving
+template construction and lifecycle edits. FROZEN_STITCHED_TYPES is restricted to
+verified Mac format 10 for all mutations. Root and Group-contained linked moving
 recordings support
 matching wrapper/video mirrors with complete equal clocks, positive project
 rate/inverse speed and a same-source AMFile audio child. Their visual effects
@@ -74,7 +74,7 @@ from typing import Any
 import hotspots
 import project
 
-CLIENT_FORMATS = {"2025.0.3": "9.0", "2026.2.4": "10.0"}
+CLIENT_FORMATS = {"2025.0.3": "9.0", "2026.2.4": "10.0", "2026.2.5": "10.0"}
 CATEGORY = "categoryVisualEffects"
 MIRRORED_CONTROLS = (
     "effectName",
@@ -329,10 +329,8 @@ def constructor_owners(
 ) -> list[dict[str, Any]]:
     """Select general-operation owners; other feature callers retain their own scope."""
     path, visual = hotspots.visual_target(doc, clip_id, visual_types=visual_types)
-    if visual.get("_type") in FROZEN_STITCHED_TYPES and (
-        doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT
-    ):
-        raise ValueError("edit frozen/stitched effects with Mac 2026.2.4 format-10 native evidence")
+    if visual.get("_type") in FROZEN_STITCHED_TYPES and not project.is_native_format10(doc):
+        raise ValueError("edit frozen/stitched effects with verified Mac format-10 native evidence")
     wrappers = [
         (parent, node)
         for parent, node in hotspots.clips(doc)
@@ -344,8 +342,8 @@ def constructor_owners(
         if not linked_recordings or visual.get("_type") not in LINKED_RECORDING_TYPES:
             raise ValueError("capture native linked recording effect mirrors before editing")
         wrapper_path, wrapper = wrappers[0]
-        if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-            raise ValueError("use Mac 2026.2.4 format-10 linked recording effect evidence")
+        if not project.is_native_format10(doc):
+            raise ValueError("use verified Mac format-10 linked recording effect evidence")
         ancestors = [
             node for parent, node in hotspots.clips(doc) if wrapper_path.startswith(parent + "/")
         ]
@@ -442,8 +440,8 @@ def add_effect(
 ) -> dict[str, Any]:
     require_native(doc)
     require_native(template)
-    if doc.get("authoringClientName") != hotspots.NATIVE_CLIENT or doc.get("version") != "10.0":
-        raise ValueError("construct effects using the verified Mac 2026.2.4 format-10 contract")
+    if not project.is_native_format10(doc):
+        raise ValueError("construct effects using a verified Mac format-10 contract")
     if template.get("authoringClientName") != doc.get("authoringClientName"):
         raise ValueError("select a native effect template from the same authoring build")
     if name == "MediaPath":

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inspect and stage Mac 2026.2.4 format-10 Color LUT controls.
+"""Inspect and stage verified Mac format-10 Color LUT controls.
 
 resources --app APP lists CUBE names, paths and SHA-256 hashes from the verified
 installation and native user Color LUTs directory. It reads files, never imports
@@ -69,8 +69,8 @@ class JsonArgumentParser(argparse.ArgumentParser):
 
 
 def require_native(doc: dict[str, Any]) -> None:
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-        raise ValueError("use the verified Camtasia Mac 2026.2.4 format-10 LUT contract")
+    if not project.is_native_format10(doc):
+        raise ValueError("use a verified Camtasia Mac format-10 LUT contract")
 
 
 def lookup_roots(app: Path, user_root: Path | None = None) -> list[Path]:
@@ -82,10 +82,11 @@ def lookup_roots(app: Path, user_root: Path | None = None) -> list[Path]:
     if (
         not isinstance(info, dict)
         or info.get("CFBundleIdentifier") != "com.techsmith.camtasia"
-        or info.get("CFBundleShortVersionString") != "2026.2.4"
-        or info.get("CFBundleVersion") != "2026.132"
+        or not isinstance(info.get("CFBundleShortVersionString"), str)
+        or (info.get("CFBundleShortVersionString"), info.get("CFBundleVersion"))
+        not in project.NATIVE_FORMAT10_BUILDS.items()
     ):
-        raise ValueError("select Camtasia Mac 2026.2.4 (2026.132) for LUT resource lookup")
+        raise ValueError("select a verified Camtasia Mac build for LUT resource lookup")
     installed = app / "Contents/Resources/Color LUTs"
     if not installed.is_dir():
         raise ValueError("select a complete app with Contents/Resources/Color LUTs")

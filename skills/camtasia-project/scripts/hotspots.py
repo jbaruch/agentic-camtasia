@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Stage interactive-hotspot JSON without opening or changing a Camtasia project.
 
-Native contract: Mac 2026.2.4, format 10.0; hotspot owners in HOTSPOT_TYPES,
+Native contract: verified Mac format 10.0; hotspot owners in HOTSPOT_TYPES,
 including UnifiedMedia.video. Native application stores Group hotspots on the
 Group itself, independently of its children.
 Standalone held ScreenIMFile and StitchedMedia parents use the same hotspot
@@ -235,10 +235,8 @@ def edit_hotspot(
     marker_global_time: Any = None,
 ) -> dict[str, Any]:
     """Return a separate candidate, preserving inactive and unfamiliar fields."""
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != NATIVE_CLIENT:
-        raise ValueError(
-            "use the observed Mac 2026.2.4 format-10 project; capture other builds first"
-        )
+    if not project.is_native_format10(doc):
+        raise ValueError("use an observed Mac format-10 project; capture other builds first")
     if action not in {*ACTIONS, "remove"}:
         raise ValueError("choose continue, time, url, marker or remove")
     for name, value in (("pause", pause), ("new_window", new_window)):

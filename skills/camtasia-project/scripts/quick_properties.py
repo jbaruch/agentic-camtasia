@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage native Group Quick Property bindings and value edits (Mac 2026.2.4).
+"""Stage native Group Quick Property bindings and value edits.
 
 inspect PROJECT inventories raw properties and their resolved descendant owners.
 bindings PROJECT --group-id ID --spec SPEC stages an ordered property array:
