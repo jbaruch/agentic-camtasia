@@ -164,9 +164,10 @@ available and verify the candidate in the matching native editor.
 
 Use `skills/camtasia-project/scripts/captions.py` for plain closed cues, existing
 plain and native RTF caption text, recognized source-word corrections, root or Group clock mapping/retiming,
-global closed-caption style, explicit caption-scene sequencing and existing dynamic display controls.
+global closed-caption style, explicit caption-scene sequencing, saved block-transition
+selection and existing dynamic display controls.
 Its module docstring, `RATE`, `root_clock`,
-`point_frames`, `correction_edits`, `audio_offset`, `capacity`, `map_captions`, `mapped_holds`, `sequence_scenes` and `set_display`
+`point_frames`, `correction_edits`, `audio_offset`, `capacity`, `map_captions`, `mapped_holds`, `sequence_scenes`, `copy_block_transition` and `set_display`
 own the clock, source, value, preservation and refusal contracts.
 `DISPLAY_NUMBERS` and `set_display` own existing dynamic numeric controls,
 including [block and word backgrounds](captions.md#dynamic-caption-backgrounds),
@@ -189,6 +190,7 @@ python3 -B "{camtasia_skill_root}/scripts/captions.py" set-rtf-text "<project>" 
 python3 -B "{camtasia_skill_root}/scripts/captions.py" correct-words "<project>" --source-id 1 --source-track 1 --spec "<word-corrections.json>" --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/captions.py" retime "<project>" --clip-id 3 --spec "<clock.json>" --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/captions.py" set-display "<project>" --clip-id 6 --spec "<display.json>" --output "<candidate.json>"
+python3 -B "{camtasia_skill_root}/scripts/captions.py" copy-block-transition "<project>" --clip-id 6 --template-project "<native-caption-project>" --template-clip-id 9 --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/captions.py" set-style "<project>" --spec "<style.json>" --output "<candidate.json>"
 python3 -B "{camtasia_skill_root}/scripts/captions.py" sequence-scenes "<project>" --spec "<scenes.json>" --output "<candidate.json>"
 ```
