@@ -1196,13 +1196,9 @@ Mac 2026.2.5 (2026.136), format 10, stores native **H Spacing** in the
 existing `kerning` double inside the dynamic display's static
 `def.textAttributes` frame. Native zero and 0.10 save as 0 and 0.1; the
 starting specimen has -0.02. These are raw signed native units. The
-[caption helper contract](helper.md#caption-json-editing) and
-`DISPLAY_RICH_FIELDS`, `DISPLAY_KERNING_VERSIONS` and `set_display` in
-`skills/camtasia-project/scripts/captions.py` own accepted inputs and scope.
-A spacing edit requires one existing full-placeholder property and preserves
-other properties' partial ranges. Missing, duplicate, partial, mistyped or
-animated target properties refuse without flattening styles. Earlier builds
-retain their existing font/color contract; spacing requires this verified build.
+[caption helper contract](helper.md#caption-json-editing) owns accepted inputs,
+build scope, coverage checks and refusal conditions. The exercised helper edit
+preserves the inactive underline and strikethrough properties' partial ranges.
 
 The native UI's Hoefler Text choice changes the full-placeholder `fontName`;
 its fallback Bebas font and size remain separate. Native H Spacing edits change
