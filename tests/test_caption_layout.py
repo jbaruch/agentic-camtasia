@@ -40,7 +40,7 @@ def fixture():
     definition = selected(doc)["def"]
     definition.update(INITIAL)
     definition.update(width=600.0, height=160.0)
-    definition["default-callout-line-spacing"] = "0"
+    selected(doc).setdefault("metadata", {})["default-callout-line-spacing"] = "0"
     definition["textAttributes"]["keyframes"][0]["value"].extend(
         [
             dict(name="strikethrough", rangeStart=0, rangeEnd=1, valueType="int", value=0),
@@ -51,6 +51,53 @@ def fixture():
 
 
 class CaptionLayoutTests(unittest.TestCase):
+    def test_current_alignment_choices_preserve_partial_styles_resets_and_group_geometry(self):
+        for wrap in (lambda d: d, grouped):
+            doc = fixture()
+            doc["authoringClientName"]["version"] = "2026.2.5"
+            selected(doc).setdefault("metadata", {}).update(
+                {
+                    "default-text": r"{\rtf1\ansi ABC}",
+                    "default-callout-vertical-alignment": "center",
+                }
+            )
+            doc = wrap(doc)
+            before = copy.deepcopy(doc)
+            for horizontal, vertical in (
+                ("left", "top"),
+                ("right", "bottom"),
+                ("center", "center"),
+            ):
+                changes = {"horizontal-alignment": horizontal, "vertical-alignment": vertical}
+                expected = copy.deepcopy(doc)
+                selected(expected)["def"].update(changes)
+                with self.subTest(grouped=wrap is grouped, changes=changes):
+                    result = annotations.edit_annotation(
+                        doc, 6, dict(schema_version=1, definition=changes)
+                    )
+                    self.assertEqual(result, expected)
+                    self.assertEqual(doc, before)
+                    self.assertEqual(
+                        annotations.edit_annotation(
+                            result, 6, dict(schema_version=1, definition=changes)
+                        ),
+                        result,
+                    )
+                    self.assertEqual(
+                        annotations.edit_annotation(
+                            result,
+                            6,
+                            dict(
+                                schema_version=1,
+                                definition={
+                                    "horizontal-alignment": "center",
+                                    "vertical-alignment": "center",
+                                },
+                            ),
+                        ),
+                        before,
+                    )
+
     def test_root_and_group_layout_only_edits_preserve_partial_styles_and_all_other_payload(self):
         for wrap in (lambda d: d, grouped):
             doc = wrap(fixture())
