@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.65.0 — 2026-11-08
+
+### Added
+
+- Dynamic-caption `set-display` supports independent bold/italic fields and
+  Regular reset on Mac 2026.2.5. Native integer weight 400/700 and italic 0/2
+  retain the font family, unrelated partial styles, reset RTF, source words,
+  clocks and ancestor geometry. Missing, partial or unfamiliar targets refuse.
+- Thirteen native exports verify 1,560 active-word frames and nine matching
+  complete RGB/PCM pairs across native UI/helper styles, Regular reset and
+  root/Group save/reopen paths. All audio matches; five exact-build schema
+  audits pass. Six regression tests cover style independence, reset, UTF-8
+  ranges, preservation, version limits, atomic refusals and CLI staging.
+- One confirmed unresponsive cold open recovered with the owned input unchanged.
+  Initializing a disposable empty project in the new editor preceded a successful
+  open; the guide records this single result without claiming a permanent fix.
+  Remaining rich-style/RTF tasks, automatic fitting and disabling wrapping stay
+  pending for feature-complete 1.0.
+
 ## 0.64.0 — 2026-11-07
 
 ### Added

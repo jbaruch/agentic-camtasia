@@ -110,6 +110,10 @@ display. Spec schema_version 1 accepts start/duration seconds, definition (exist
 supported numeric controls), and rich (existing fields in DISPLAY_RICH_FIELDS).
 Native horizontal spacing uses the existing full-placeholder kerning property
 on DISPLAY_KERNING_VERSIONS. Values retain the native UI's raw signed units.
+Font weight/italic on DISPLAY_FONT_STYLE_VERSIONS use integer 400/700 and 0/2.
+Each requested field needs one existing static full-placeholder int property,
+a nonempty placeholder and an observed existing code. Independent font styles,
+font family, unrelated partial ranges and owner reset RTF survive unchanged.
 Underline/strikethrough on DISPLAY_DECORATION_VERSIONS use native integer 0/1
 flags, including strikethrough (not the ordinary annotation's signed code).
 Each requested decoration requires a nonempty placeholder and one existing
@@ -219,11 +223,15 @@ DISPLAY_NUMBERS = frozenset(
     }
 )
 DISPLAY_DECORATIONS = frozenset({"underline", "strikethrough"})
+DISPLAY_FONT_STYLES = frozenset({"fontWeight", "fontItalic"})
 DISPLAY_RICH_FIELDS = (
-    frozenset({"fontName", "fontSize", "fgColor", "kerning"}) | DISPLAY_DECORATIONS
+    frozenset({"fontName", "fontSize", "fgColor", "kerning"})
+    | DISPLAY_DECORATIONS
+    | DISPLAY_FONT_STYLES
 )
 DISPLAY_KERNING_VERSIONS = frozenset({"2026.2.5"})
 DISPLAY_DECORATION_VERSIONS = frozenset({"2026.2.5"})
+DISPLAY_FONT_STYLE_VERSIONS = frozenset({"2026.2.5"})
 
 
 class JsonHelpParser(annotations.JsonArgumentParser):
@@ -1487,6 +1495,11 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
             and result["authoringClientName"]["version"] not in DISPLAY_DECORATION_VERSIONS
         ):
             raise ValueError("use the verified Mac 2026.2.5 caption-decoration contract")
+        if (
+            changes.keys() & DISPLAY_FONT_STYLES
+            and result["authoringClientName"]["version"] not in DISPLAY_FONT_STYLE_VERSIONS
+        ):
+            raise ValueError("use the verified Mac 2026.2.5 caption-font-style contract")
         attributes, text = definition.get("textAttributes"), definition.get("text")
         if (
             not isinstance(attributes, dict)
@@ -1537,8 +1550,10 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
                         run["rangeEnd"] = length
                 run["value"] = value
             else:
-                if run["rangeEnd"] != length:
+                if run["rangeEnd"] != length or (name in DISPLAY_FONT_STYLES and not length):
                     raise ValueError("select one full-placeholder native rich property: " + name)
+                if name in DISPLAY_FONT_STYLES:
+                    annotations.rich_value(name, run.get("value"))
                 run["value"] = annotations.rich_value(name, value)
     return result
 

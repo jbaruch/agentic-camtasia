@@ -1453,3 +1453,41 @@ This does not establish a cause or permanent stability fix; use the
 [native recovery procedure](native-verification.md#serialized-native-work-and-stability).
 Other rich-style operations and RTF forms, automatic fitting and disabling
 wrapping remain completion tasks.
+
+## Dynamic-caption bold and italic
+
+Mac 2026.2.5 (2026.136), format 10, saves Arial **Regular**, **Bold**, **Italic**
+and **Bold Italic** through separate existing rich font-weight and italic fields.
+The native codes are weight `400`/`700` and italic `0`/`2`; the family remains
+`Arial`. Use the [caption helper contract](helper.md#caption-json-editing) for
+independent edits, combining styles and restoring Regular on a root caption or
+selected native Group child. Font-family coverage still requires native output
+verification; this specimen does not establish arbitrary weights or font faces.
+
+The four-second specimen uses eleven actual source-bound words, Arial at rich
+size 48, a 600×160 box, black ordinary outline, red/blue active-word styling and
+a navy rounded background. All four styles visibly affect the rendered words.
+Thirteen exports cover 1,560 active-word frames and nine matching complete
+decoded RGB/PCM pairs: native Regular/reset, three native UI/helper style pairs,
+helper/reopen, root/Group combined style, Group/reopen, native reset/Group reset
+and its reopen. All audio matches. Four distinct style states have inspected
+contacts for all eleven words; full-stream equality covers their counterparts.
+
+Native helper saves retain all four candidates' parsed payloads. Native grouping
+remaps child IDs and moves vertical translation onto the Group; reopening adds
+unlocked child-lane metadata. Style edits retain the independent Group bounds,
+source words and clocks, bundled media, unrelated styles and owner reset RTF.
+Five saved candidates each have eight raw upstream schema errors, zero corrected
+errors and zero native compatibility errors under the exact-build profile.
+Regressions cover independent/combined styles, Regular reset, full UTF-8 ranges,
+unrelated partial decorations, Group preservation, earlier-build font support,
+CLI staging and atomic refusals for ambiguous or unfamiliar targets.
+
+One cold open stalled before editing. Activity Monitor confirmed the owned
+editor Not Responding; read-only sampling showed preview/window and font-layout
+waits. Its byte-identical preserved input later opened after recovering only
+that editor and first saving/closing a native empty project. This single
+successful startup sequence establishes no root cause or permanent fix. Follow
+the [native recovery procedure](native-verification.md#serialized-native-work-and-stability).
+Other rich-style/RTF operations, automatic fitting and disabling wrapping remain
+completion tasks.
