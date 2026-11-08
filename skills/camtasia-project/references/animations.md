@@ -462,6 +462,10 @@ The render audit checks independent native reference pictures, static marker
 geometry, visible retimed motion and retained source audio. The installed
 consumer check executed every case from each of the three agent layouts.
 
+[Root linked moving recordings](motion-path-linked-recordings.md) add native
+2026.2.5 mirrored paths, source clocks and orientation/bypass controls with
+preserved system audio.
+
 ## Frozen and stitched Motion Paths
 
 Mac 2026.2.4/format 10 stores a direct `MediaPath` effect on frozen `ScreenIMFile`

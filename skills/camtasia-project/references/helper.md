@@ -927,6 +927,10 @@ native save/reopen and rendered event frames before delivery.
 
 ## Motion Path JSON editing
 
+[Root linked-recording controls](motion-path-linked-recordings.md) add native
+2026.2.5 construction, explicit points and the orientation/bypass lifecycle with
+preserved recorded audio. Other recording containers retain their own scope.
+
 Use `scripts/motion_paths.py` for explicit point geometry. Its module docstring,
 `TIMINGS`, `OWNERS`, `visual_targets`, `set_path`, `point_frames`, `set_bypass`
 and `remove_path` own the native build, owner, constructor, interpolation,

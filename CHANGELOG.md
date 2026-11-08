@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.68.0 — 2026-11-08
+
+### Added
+
+- Root linked moving recordings now support Motion Path construction, explicit
+  point editing, Auto Orient, bypass and removal. Matching wrapper/video effects
+  retain stable tokens and source-position clocks while recorded audio, cursor
+  data, geometry and sources survive. The shared recording-owner guard rejects
+  unfamiliar containers, missing audio bindings and conflicting visual clocks.
+- Native Mac 2026.2.5 controls verify eight lifecycle operations, including
+  orientation changes while bypassed. Two fresh-process 144-second exports match
+  all 4,320 decoded frames and complete PCM streams. Sixty inspected frames,
+  48 paired samples, 144 audio-channel windows and thirteen schema audits cover
+  this workflow. Native reopen/save is byte-identical after the first save.
+- Six regressions cover native construction, selector aliases, typed rotation
+  coupling, audio token allocation, owner/mirror refusals and exclusive CLI
+  staging. Other linked owner/container forms and remaining effect-specific
+  point/resource controls remain pending for feature-complete 1.0.
+
 ## 0.67.1 — 2026-11-08
 
 ### Added
