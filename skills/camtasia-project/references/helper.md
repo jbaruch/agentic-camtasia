@@ -379,6 +379,15 @@ The same route edits [native dynamic-caption alignment](captions.md#dynamic-capt
 Inspect the rendered position in the actual font; the native evidence records
 font-dependent vertical shifts and preserves the independent caption box.
 
+For [dynamic-caption reflow and explicit fitting](captions.md#dynamic-caption-box-reflow-and-explicit-fitting),
+stage `{"schema_version":1,"definition":{"width":240,"height":160}}` with
+this annotation route. Set an explicit font size through the
+[dynamic display route](#caption-json-editing), for example
+`{"schema_version":1,"rich":{"fontSize":32}}`. Native output verifies box-driven
+wrapping, page capacity and explicit fitting, including a selected Group child.
+The measured block-caption controls leave auto-fit and no-wrap flags ineffective;
+inspect complete rendered text and active-word highlights after changing layout.
+
 Dynamic captions use this definition route for
 [native line spacing](captions.md#dynamic-caption-line-spacing), for example
 `{"schema_version":1,"definition":{"line-spacing":"3/2"}}`.

@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.63.3 — 2026-11-07
+
+### Added
+
+- Verified dynamic-caption box reflow, word pagination and explicit font fitting
+  through the existing annotation/display routes on Mac 2026.2.5. Native width
+  and height control one-line pages versus simultaneous wrapped lines; an
+  explicit size reduction fits previously clipped glyphs. Root/Group edits retain
+  partial styles, reset data, source words, clocks and independent parent bounds.
+- Fifteen native exports cover 1,800 decoded frames, ten identical complete
+  RGB/PCM pairs and 1,560 highlight frames across thirteen unclipped outputs.
+  All audio matches; four exact-build schema audits pass. The guide records
+  native save metadata changes and two recovered text-layout hangs without
+  inferring a general cause or geometry restriction.
+- Native auto-fit on/off and a no-wrap flag leave output unchanged in the measured
+  block-caption controls. Automatic fitting, disabling wrapping, outline placement
+  and remaining rich-style/RTF operations stay pending for feature-complete 1.0.
+
 ## 0.63.2 — 2026-11-07
 
 ### Added

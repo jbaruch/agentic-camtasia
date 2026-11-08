@@ -1229,9 +1229,10 @@ WAV/recording bytes and the protected original remain unchanged. Four saved
 root/Group candidates have eight raw upstream schema errors each, zero errors
 under the exact-build profile and zero native compatibility errors.
 
-Wrapping, autoresizing and outline placement retain
-separate unfinished native-output checks. Saved values alone do not establish
-those controls' rendered behavior.
+Box reflow and explicit font fitting have separate
+[native output checks](#dynamic-caption-box-reflow-and-explicit-fitting).
+Automatic fitting, disabling wrapping and outline placement retain unfinished
+checks. Saved values alone do not establish those controls' rendered behavior.
 
 ## Dynamic-caption line spacing
 
@@ -1300,3 +1301,53 @@ unchanged. Four saved candidates have eight raw upstream schema errors each,
 zero corrected errors and zero native compatibility errors under the exact-build
 profile. Deterministic regressions cover both axes' choices and center restoration
 on root/Group displays while retaining owner reset RTF, partial styles and geometry.
+
+## Dynamic-caption box reflow and explicit fitting
+
+Mac 2026.2.5 (2026.136), format 10, uses the caption's existing `def.width` and
+`def.height` to control available space. Use the
+[annotation helper contract](helper.md#annotation-json-editing) for box edits and
+the [dynamic display contract](helper.md#caption-json-editing) for
+explicit rich font size. Apply both to the selected caption, including a child
+inside a native Group. The exercised helper edits retain partial unrelated rich
+styles, source words, source/display clocks, reset RTF and ancestor geometry.
+Changing a child's box does not recalculate its Group's bounds.
+
+The native Bebas specimen contains eleven source-bound words over four seconds.
+At rich size 96, a 600×160 box paginates the first sentence into `A SECOND VOICE`,
+`TELLS ANOTHER` and `STORY.`. Reducing height to 40 clips the large glyphs.
+Explicitly changing size to 32 fits the complete first sentence on one line in
+600×40. At 240×40, that sentence uses two successive one-line pages; at 240×160,
+it wraps into two simultaneous lines. All eleven words remain complete in the
+inspected contacts for these unclipped layouts, with the expected active-word
+highlights. Width and height control reflow and page capacity here; no separate
+line-count field was observed in the native panel.
+
+The native **Auto-resize text** checkbox saves `resizeText` versus `resizeCallout`.
+Both settings produce identical decoded output in the 600×40, size-96 control;
+both clip. Setting `word-wrap` to zero also produces identical decoded output
+to the wrapped 240×160 control. These retained flags do not establish automatic
+fitting or a working no-wrap option for this block-caption specimen. Choose an
+explicit font size and inspect the rendered text; do not infer those behaviors
+from saved flags. Other fonts, arbitrary text and box sizes need their own output
+check. Automatic fitting and disabling wrapping remain completion tasks.
+
+Fifteen four-second exports cover 1,800 decoded frames. Ten complete RGB/PCM
+pairs match across the two flag counterexamples, native UI/helper parity,
+root/Group parity, helper/Group reopening and the selected Group child's return
+to a one-line box. All fifteen audio streams match. Highlight checks cover all
+1,560 frames in the thirteen unclipped exports, using four unique decoded layouts
+and exact full-stream equality for their counterparts. Inspected contacts show
+every word state. Four saved root/Group candidates have eight raw upstream schema
+errors each, zero corrected errors and zero native compatibility errors under
+the exact-build profile.
+
+Native saves retain the helper payloads apart from thumbnail-cache updates in
+the multiline root and one-line Group. The Group reopen adds unlocked child-lane
+metadata. Source data, word clocks, bundled WAV/recording bytes and protected
+originals remain unchanged. Native grouping remaps IDs and moves the caption's
+translation onto its parent; the subsequent child-height edit preserves those
+parent values. Two earlier cold opens of a separate size-96 glyph-test input
+hung in native text layout. Each recovery followed a confirmed Not Responding
+state and preserved input bytes. The successful UI-derived candidates do not
+establish the cause or a general geometry restriction.
