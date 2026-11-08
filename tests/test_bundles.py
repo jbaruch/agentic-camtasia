@@ -6,6 +6,7 @@ import io
 import json
 import os
 from pathlib import Path
+import shutil
 import stat
 import tempfile
 import unittest
@@ -147,6 +148,43 @@ class BundleTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "hard-linked"):
             self.stage()
         self.assertEqual(target.read_bytes(), b"unknown companion\x00")
+
+    def test_case_alias_of_input_refuses_instead_of_becoming_an_identical_noop(self):
+        alias = self.source.with_name("original.cmproj")
+        if not alias.exists():
+            shutil.copytree(self.source, alias)
+        samefile = os.path.samefile
+
+        def case_identity(a, b):
+            if {Path(a), Path(b)} == {self.source, alias}:
+                return True
+            return samefile(a, b)
+
+        before = bundles.tree(self.source)
+        # Model macOS identity on case-sensitive CI; the same paths are actual
+        # filesystem aliases on the native case-insensitive verification host.
+        with patch.object(os.path, "samefile", side_effect=case_identity):
+            with self.assertRaisesRegex(ValueError, "outside the input"):
+                self.stage(output=alias)
+        self.assertEqual(bundles.tree(self.source), before)
+
+    def test_nested_output_through_case_alias_refuses_before_staging_inside_input(self):
+        alias = self.source.with_name("original.cmproj")
+        if not alias.exists():
+            shutil.copytree(self.source, alias)
+        samefile = os.path.samefile
+
+        def case_identity(a, b):
+            if {Path(a), Path(b)} == {self.source, alias}:
+                return True
+            return samefile(a, b)
+
+        before = bundles.tree(self.source)
+        with patch.object(os.path, "samefile", side_effect=case_identity):
+            with self.assertRaisesRegex(ValueError, "outside the input"):
+                self.stage(output=alias / "Nested.cmproj")
+        self.assertEqual(bundles.tree(self.source), before)
+        self.assertFalse(list(self.source.glob(".camtasia-bundle-*")))
 
     def test_stale_hash_selection_and_unverified_identity_refuse_without_output(self):
         for changes in [

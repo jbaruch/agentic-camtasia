@@ -152,7 +152,12 @@ def stage_bundle(source: Path, output: Path, expected: str, selected: list[int])
     if output.is_symlink() or output.suffix.lower() != ".cmproj":
         raise ValueError("choose a separate nonsymlink .cmproj output")
     output = output.parent.resolve(strict=True) / output.name
-    if output.is_relative_to(source) or source.is_relative_to(output):
+    if (
+        output.is_relative_to(source)
+        or source.is_relative_to(output)
+        or any(os.path.samefile(source, p) for p in output.parents)
+        or (output.exists() and any(os.path.samefile(output, p) for p in [source, *source.parents]))
+    ):
         raise ValueError("choose an output outside the input bundle and its ancestors")
     if project.digest(raw) != expected:
         raise ValueError("project changed; inspect the saved bundle and supply its current SHA-256")

@@ -14,7 +14,7 @@
   WAV caption composition. A fresh editor resolves both regular copied sources
   inside the relocated bundle while earlier disposable paths are absent. Three
   exports match all 720 frames and complete audio; save/reopen, companion hashes
-  and two exact-build schema audits pass. Fifteen regression tests cover copies,
+  and two exact-build schema audits pass. Seventeen regression tests cover copies,
   preservation, explicit selection, races/failures, links, no-ops and CLI use.
 - Native saving of the externally symlinked TREC control refuses without changing
   its project; the independent regular-file bundle saves and renders. Font,
