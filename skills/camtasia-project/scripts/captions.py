@@ -107,7 +107,9 @@ parents retain exact subframe audio ticks.
 
 set-display PROJECT --clip-id ID --spec SPEC edits an existing native dynamic
 display. Spec schema_version 1 accepts start/duration seconds, definition (existing
-supported numeric controls), and rich (existing fontName/fontSize/fgColor).
+supported numeric controls), and rich (existing fields in DISPLAY_RICH_FIELDS).
+Native horizontal spacing uses the existing full-placeholder kerning property
+on DISPLAY_KERNING_VERSIONS. Values retain the native UI's raw signed units.
 Active-word stroke RGBA uses 0..1; its glow radius is nonnegative in saved
 native units. Stroke width remains separate from the ordinary text outline.
 Background controls include block fill RGBA/corner radius and active-word
@@ -128,7 +130,7 @@ No vendor definitions, fonts, media or recognition models are copied.
 copy-block-transition PROJECT --clip-id ID --template-project PROJECT
 --template-clip-id ID --output CANDIDATE copies only the existing bare transition
 name from a saved native dynamic-caption display. Both projects must match the
-Mac 2026.2.4 contract. The empty native name selects None. This supports a
+same verified Mac format-10 authoring build. The empty native name selects None. This supports a
 caller-verified native choice without constructing identifiers or copying vendor
 presets. A missing, nonstring or structured name refuses. Existing reverse and
 duration values, reset metadata, sources, words, rich styles and clocks survive.
@@ -208,6 +210,8 @@ DISPLAY_NUMBERS = frozenset(
         for ch in ("red", "green", "blue", "alpha")
     }
 )
+DISPLAY_RICH_FIELDS = frozenset({"fontName", "fontSize", "fgColor", "kerning"})
+DISPLAY_KERNING_VERSIONS = frozenset({"2026.2.5"})
 
 
 class JsonHelpParser(annotations.JsonArgumentParser):
@@ -1461,12 +1465,13 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
             effects.patch_parameter(definition, name, value)
     if "rich" in spec:
         changes = spec["rich"]
+        if not isinstance(changes, dict) or not changes or changes.keys() - DISPLAY_RICH_FIELDS:
+            raise ValueError("name supported existing rich display controls")
         if (
-            not isinstance(changes, dict)
-            or not changes
-            or changes.keys() - {"fontName", "fontSize", "fgColor"}
+            "kerning" in changes
+            and result["authoringClientName"]["version"] not in DISPLAY_KERNING_VERSIONS
         ):
-            raise ValueError("name existing rich fontName/fontSize/fgColor controls")
+            raise ValueError("use the verified Mac 2026.2.5 horizontal-spacing contract")
         attributes, text = definition.get("textAttributes"), definition.get("text")
         if (
             not isinstance(attributes, dict)

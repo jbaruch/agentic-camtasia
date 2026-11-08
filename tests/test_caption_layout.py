@@ -11,6 +11,7 @@ import unittest
 from test_caption_block_transitions import fixture as transition_fixture, grouped
 from test_caption_highlights import selected
 import annotations
+import captions
 import project
 
 
@@ -154,6 +155,114 @@ class CaptionLayoutTests(unittest.TestCase):
             request.write_text(json.dumps(dict(schema_version=1, definition={"word-wrap": True})))
             with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
                 self.assertEqual(annotations.main(args), 1)
+            self.assertFalse(output.exists())
+            self.assertEqual(source.read_bytes(), original)
+
+
+class CaptionSpacingTests(unittest.TestCase):
+    def current(self):
+        doc = fixture()
+        doc["authoringClientName"]["version"] = "2026.2.5"
+        return doc
+
+    def kerning(self, doc):
+        return next(
+            r
+            for r in selected(doc)["def"]["textAttributes"]["keyframes"][0]["value"]
+            if r["name"] == "kerning"
+        )
+
+    def test_current_root_and_group_spacing_preserves_partial_styles_sources_and_clocks(self):
+        for wrap in (lambda d: d, grouped):
+            doc = wrap(self.current())
+            before = copy.deepcopy(doc)
+            for value, expected_value in [("1/10", 0.1), ("-1/50", -0.02), (0, 0.0)]:
+                expected = copy.deepcopy(doc)
+                self.kerning(expected)["value"] = expected_value
+                with self.subTest(grouped=wrap is grouped, value=value):
+                    result = captions.set_display(
+                        doc, 6, dict(schema_version=1, rich={"kerning": value})
+                    )
+                    self.assertEqual(result, expected)
+                    self.assertEqual(doc, before)
+                    self.assertEqual(
+                        captions.set_display(
+                            result, 6, dict(schema_version=1, rich={"kerning": value})
+                        ),
+                        result,
+                    )
+                    restored = captions.set_display(
+                        result, 6, dict(schema_version=1, rich={"kerning": "-1/50"})
+                    )
+                    self.assertEqual(restored, before)
+
+    def test_spacing_requires_one_existing_full_static_property_and_supported_build(self):
+        for value in [True, None, "bad", float("nan"), float("inf")]:
+            doc = self.current()
+            before = copy.deepcopy(doc)
+            with self.subTest(value=value), self.assertRaises(ValueError):
+                captions.set_display(doc, 6, dict(schema_version=1, rich={"kerning": value}))
+            self.assertEqual(doc, before)
+        for change in ("missing", "partial", "duplicate", "type", "animated", "legacy"):
+            doc = self.current()
+            values = selected(doc)["def"]["textAttributes"]["keyframes"][0]["value"]
+            target = self.kerning(doc)
+            if change == "missing":
+                values.remove(target)
+            elif change == "partial":
+                target["rangeEnd"] = 1
+            elif change == "duplicate":
+                values.append(copy.deepcopy(target))
+            elif change == "type":
+                target["valueType"] = "int"
+            elif change == "animated":
+                selected(doc)["def"]["textAttributes"]["keyframes"][0]["duration"] = 1
+            else:
+                doc["authoringClientName"]["version"] = "2026.2.4"
+            before = copy.deepcopy(doc)
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                captions.set_display(doc, 6, dict(schema_version=1, rich={"kerning": 0.1}))
+            self.assertEqual(doc, before)
+        legacy = fixture()
+        self.assertEqual(
+            selected(
+                captions.set_display(legacy, 6, dict(schema_version=1, rich={"fontSize": 48}))
+            )["def"]["textAttributes"]["keyframes"][0]["value"][0]["value"],
+            48.0,
+        )
+
+    def test_caption_cli_stages_spacing_exclusively_and_retains_original_bytes(self):
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            source, request, output = [
+                root / name for name in ("source.json", "spec.json", "candidate.json")
+            ]
+            source.write_bytes(project.encode_document(self.current()))
+            original = source.read_bytes()
+            request.write_text(json.dumps(dict(schema_version=1, rich={"kerning": "1/10"})))
+            args = [
+                "set-display",
+                str(source),
+                "--clip-id",
+                "6",
+                "--spec",
+                str(request),
+                "--output",
+                str(output),
+            ]
+            for _ in range(2):
+                stdout, stderr = io.StringIO(), io.StringIO()
+                with redirect_stdout(stdout), redirect_stderr(stderr):
+                    self.assertEqual(captions.main(args), 0, stderr.getvalue())
+                self.assertFalse(json.loads(stdout.getvalue())["nativeVerified"])
+                expected = self.current()
+                self.kerning(expected)["value"] = 0.1
+                self.assertEqual(project.load(output)[0], expected)
+                self.assertEqual(source.read_bytes(), original)
+            output.unlink()
+            request.write_text(json.dumps(dict(schema_version=1, rich={"kerning": True})))
+            with redirect_stdout(io.StringIO()), redirect_stderr(io.StringIO()):
+                self.assertEqual(captions.main(args), 1)
             self.assertFalse(output.exists())
             self.assertEqual(source.read_bytes(), original)
 

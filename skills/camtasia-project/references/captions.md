@@ -1189,3 +1189,49 @@ reopens are byte-identical; all 1200 frames pass cue/clear checks. Nine addition
 profile/hazard checks pass with the same known raw Caption-branch diagnostics.
 The five follow-up movies retain the first batch's identical audio. Existing
 global style, clocks, source data and unrelated payload survive.
+
+## Dynamic-caption character spacing and ligatures
+
+Mac 2026.2.5 (2026.136), format 10, stores native **H Spacing** in the
+existing `kerning` double inside the dynamic display's static
+`def.textAttributes` frame. Native zero and 0.10 save as 0 and 0.1; the
+starting specimen has -0.02. These are raw signed native units. The
+[caption helper contract](helper.md#caption-json-editing) and
+`DISPLAY_RICH_FIELDS`, `DISPLAY_KERNING_VERSIONS` and `set_display` in
+`skills/camtasia-project/scripts/captions.py` own accepted inputs and scope.
+A spacing edit requires one existing full-placeholder property and preserves
+other properties' partial ranges. Missing, duplicate, partial, mistyped or
+animated target properties refuse without flattening styles. Earlier builds
+retain their existing font/color contract; spacing requires this verified build.
+
+The native UI's Hoefler Text choice changes the full-placeholder `fontName`;
+its fallback Bebas font and size remain separate. Native H Spacing edits change
+only `kerning` and the command counter. Native Ligatures saves
+`enable-ligatures` plus its reset companion. The existing annotation definition
+route edits that flag without reconstructing rich styles. Font availability and
+glyph shaping must be checked on the rendering host.
+
+The isolated 600×160 specimen uses Hoefler Text at rich size 32 and eleven
+synthetic glyph-test words, including office, affinity, fluff and waffle.
+At zero spacing, enabling ligatures visibly joins suitable glyphs and changes
+text width. Increasing spacing to 0.1 with ligatures disabled visibly spreads
+letters and moves waffle to a second line. These source-word corrections are a
+glyph fixture; they preserve original onsets and do not describe the source WAV.
+This establishes positive shaping and spacing behavior on the exercised font,
+not every font or a newly introduced 2026.2.5 feature.
+
+Eleven four-second exports verify 1,320 word-highlight frames. Eight complete
+decoded RGB/PCM pairs match: native UI/helper, helper/reopen, root/Group,
+Group/reopen, root zero-spacing/Group reset, reset/reopen, root ligatures-on/
+Group ligatures-on and its reopen. All eleven audio streams match. Inspected
+word-state contacts show complete text and each expected highlighted word.
+Six staged specimens retain their parsed payloads and source data after native
+saves; the helper and Group controls also reopen. Native grouping remaps IDs and removes the caption's neutral
+translation parameter; its reopen adds unlocked child-lane metadata. Bundled
+WAV/recording bytes and the protected original remain unchanged. Four saved
+root/Group candidates have eight raw upstream schema errors each, zero errors
+under the exact-build profile and zero native compatibility errors.
+
+Alignment, wrapping, autoresizing, line spacing and outline placement retain
+separate unfinished native-output checks. Saved values alone do not establish
+those controls' rendered behavior.

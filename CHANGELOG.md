@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.63.0 — 2026-11-07
+
+### Added
+
+- Dynamic-caption `set-display` accepts existing full-placeholder `rich.kerning`
+  on Mac 2026.2.5. Native signed spacing units, partial unrelated rich ranges,
+  source words and clocks survive; ambiguous or animated target properties refuse.
+- Eleven native movies verify 1,320 highlight frames and eight identical complete
+  decoded video/audio pairs across UI/helper parity and root/Group reopen paths.
+  Hoefler Text controls demonstrate joined ligature glyphs through the existing
+  annotation route; spacing 0→0.1 spreads letters and changes line breaks.
+  Every audio stream matches. Remaining layout and RTF completion work stays pending.
+
 ## 0.62.0 — 2026-11-07
 
 ### Added
