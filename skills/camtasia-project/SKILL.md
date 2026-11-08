@@ -87,6 +87,12 @@ Proceed immediately to Step 5.
 
 ## Step 5 — Verify the result
 
+For font delivery, verify the staged directory through the
+[font contract](references/helper.md#font-resource-handoff), then use the associated
+project copy for the editor checks below. Follow the
+[font workflow](references/font-resources.md#target-editor-verification) for
+authorized activation and relocation checks.
+
 Re-run inspection. Follow the loaded Camtasia Validation rule's editor checks.
 On macOS, start the matching authoring build and close its other documents.
 Run the backed-up native save/reopen adapter:
