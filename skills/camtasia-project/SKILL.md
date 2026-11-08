@@ -47,7 +47,10 @@ Proceed immediately to Step 3.
 
 Use an existing candidate helper from [the helper contract](references/helper.md)
 when its verified scope covers the change. Otherwise write a task-specific
-transformation script. Stage a separate candidate JSON document. Preserve
+transformation script. For source packaging, use the contract's
+[source-bundle staging route](references/helper.md#source-bundle-staging).
+Its separate output bundle proceeds immediately to Step 5.
+For other edits, stage a separate candidate JSON document. Preserve
 unrelated data and the original project. Resolve media relative
 to the destination document, not the staging file. Use rational arithmetic for
 timing; native trims, keyframes, and effects keep the project editable.

@@ -14,6 +14,11 @@ and Audiate. Skip their remaining work, including quiz-specific SCORM session
 follow-ups, and exclude it from the 1.0 gate; retain
 the other gaps in the completion plan.
 
+Version 0.66.0 adds staged independent source bundles with explicit source
+selection, companion preservation and verified native relocation after earlier
+paths are withheld. Physical fonts, installation assets and other internal
+resource closure remain pending.
+
 Version 0.65.0 adds independent dynamic-caption bold/italic edits and Regular
 reset on Mac 2026.2.5, with native UI/helper and root/Group reopen output. Other
 rich-style/RTF operations, automatic fitting and disabling wrapping stay pending.
@@ -93,7 +98,7 @@ All fourteen issues are enhancements and explicitly do not block v0.1.
 | [#9](https://github.com/jbaruch/agentic-camtasia/issues/9) | Standalone frozen-recording and stitched-parent hotspots with marker clocks shipped in 0.14.0. Linked variants, placeholders and additional scene clocks remain. |
 | [#10](https://github.com/jbaruch/agentic-camtasia/issues/10) | Standalone frozen-recording and stitched-parent quiz authoring, editing, retiming and owner transfer shipped in 0.15.0. Remaining quiz work is deferred by the operator on 2026-11-07 and excluded from 1.0. |
 | [#11](https://github.com/jbaruch/agentic-camtasia/issues/11) | Further quiz-specific SCORM resume and interrupted sessions are deferred with quizzes and excluded from 1.0. |
-| [#12](https://github.com/jbaruch/agentic-camtasia/issues/12) | Lottie image inventory/embedding shipped in 0.16.0 and SVG image inspection/byte-preserving PNG embedding in 0.17.0; general packing, fonts and other render-resource closure remain. |
+| [#12](https://github.com/jbaruch/agentic-camtasia/issues/12) | Lottie image inventory/embedding shipped in 0.16.0 and SVG image inspection/byte-preserving PNG embedding in 0.17.0; staged source bundles with native relocation ship in 0.66.0. Fonts and other render-resource closure remain. |
 | [#13](https://github.com/jbaruch/agentic-camtasia/issues/13) | Rev/Zoom/cloud imports remain pending. Audiate and Snagit handoffs are deferred by the operator on 2026-11-07 and excluded from 1.0. |
 | [#14](https://github.com/jbaruch/agentic-camtasia/issues/14) | Remaining Library lifecycle operations |
 
