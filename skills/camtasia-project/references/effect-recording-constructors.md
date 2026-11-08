@@ -102,8 +102,12 @@ owners, source/audio bindings, complete clock checks and unique-token refusals.
 Generic visual-effect construction and lifecycle use this opt-in. Behavior and
 [effect-curve authoring](effect-recording-curves.md#linked-moving-recordings)
 retain their separate owner contracts.
-Group-contained moving recordings have the additional evidence below. Further
-linked held, stitched and other containing forms need their own evidence.
+Group-contained moving recordings have the additional evidence below. Other
+linked wrapper kinds and unfamiliar containing forms need their own evidence.
+
+The later [linked frame-extension workflow](effect-recording-extensions.md)
+verifies direct stitched parents containing linked moving recordings and their
+separate unstitched holds. It does not introduce a linked frozen wrapper.
 
 Five complete helper/native comparisons cover full and half construction,
 half-intensity editing, bypass and removal. Only thumbnail/command caches and

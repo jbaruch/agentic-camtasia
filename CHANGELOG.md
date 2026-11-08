@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.67.1 — 2026-11-08
+
+### Added
+
+- Verified the existing effect helpers on native linked-recording frame extensions
+  in Mac 2026.2.5: one direct stitched-parent effect, full/half intensity, bypass,
+  removal and separate unstitched held-owner construction. Native and helper
+  payloads retain moving audio, virtual holds, negative cursor times and reset
+  history; no linked frozen wrapper or recording constructor is inferred.
+- A native Spring intensity interval crosses the moving/held join with matching
+  helper authoring and complete timed-template copying. Clearing retains the
+  visual interval; native reopen regenerates a constant curve without extending
+  recorded audio. Two fresh-process 128-second exports match all 3840 frames and
+  complete PCM streams. Sixty-two inspected frames, 56 paired samples, 128 audio
+  windows and thirteen exact-build schema audits verify the scoped workflow.
+- Seven regressions protect parent ownership, child/audio/cursor preservation,
+  source-position versus held-local clocks, timed-template requirements, clearing,
+  independent geometry and exclusive CLI staging. Further effect-specific
+  point/resource controls and other container forms remain pending for 1.0.
+
 ## 0.67.0 — 2026-11-08
 
 ### Added

@@ -646,6 +646,8 @@ construction, lifecycle, reset companions, complete frozen-effect copying and
 root and Group-contained linked moving recordings with preserved recorded audio.
 Construction/lifecycle preserve Group ancestors and complete child-source
 payloads; Group retiming and the other feature helpers retain separate contracts.
+The [linked frame-extension workflow](effect-recording-extensions.md) verifies
+direct stitched parents and their separate unstitched holds on Mac 2026.2.5.
 
 ```bash
 python3 -B "{camtasia_skill_root}/scripts/effects.py" inspect "<template-project>"
@@ -684,6 +686,8 @@ independent geometry, retimed linked/Group output and constant reconstruction.
 [Recording-owner verification](effect-recording-curves.md) adds moving, frozen
 and stitched-parent effect clocks, clearing and preserved cursor/child data,
 plus root and Group-contained linked moving recordings with preserved recorded audio.
+The [frame-extension controls](effect-recording-extensions.md) add a native
+cross-join interval, complete template copying and clearing on a stitched parent.
 
 ```bash
 python3 -B "{camtasia_skill_root}/scripts/effect_curves.py" inspect "<project>"
