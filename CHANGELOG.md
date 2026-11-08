@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.66.0 — 2026-11-08
+
+### Added
+
+- A source-bundle helper inspects link/content identity and stages a complete
+  closed `.cmproj` with explicitly selected local source files. External paths
+  become relative, basename collisions stay isolated by source ID, companion
+  bytes/modes and empty directories survive, and file copies break hard links.
+  Stale inputs, active ownership, aliases, differing occupied outputs, bundle
+  symlinks/special files and physical fonts/application resources refuse.
+- Native relocation on Mac 2026.2.5 verifies a moving recording/microphone plus
+  WAV caption composition. A fresh editor resolves both regular copied sources
+  inside the relocated bundle while earlier disposable paths are absent. Three
+  exports match all 720 frames and complete audio; save/reopen, companion hashes
+  and two exact-build schema audits pass. Fifteen regression tests cover copies,
+  preservation, explicit selection, races/failures, links, no-ops and CLI use.
+- Native saving of the externally symlinked TREC control refuses without changing
+  its project; the independent regular-file bundle saves and renders. Font,
+  installation/internal resources and other transport closure remain pending
+  for feature-complete 1.0.
+
 ## 0.65.0 — 2026-11-08
 
 ### Added

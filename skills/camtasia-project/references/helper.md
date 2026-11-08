@@ -103,6 +103,25 @@ it does not certify an archive, symlink transport, fonts, models, bookmarks,
 installation assets, or native playback. Compare destination hashes and perform
 the native package reopen/render checks described in [media](media.md).
 
+## Source bundle staging
+
+Use `scripts/bundles.py` — module contract, `inspect_bundle` and `stage_bundle` —
+for complete-bundle copies and explicit source-bin file pulls. Stdout schema 1
+owner `camtasia-bundles` reports live project/source/companion hashes, link kinds,
+copy results and unresolved dependency limits. Reports are snapshots, not write
+authority. The module contract owns selection, ownership, output collision,
+link, resource and refusal behavior. Follow the [native relocation evidence](bundles.md)
+for target-editor resolution and rendered checks.
+
+```bash
+python3 -B "{camtasia_skill_root}/scripts/bundles.py" inspect "<saved.cmproj>"
+python3 -B "{camtasia_skill_root}/scripts/bundles.py" stage "<saved.cmproj>" --expected-sha256 "<inspected hash>" --copy-source 1 --copy-source 2 --output "<new.cmproj>"
+```
+
+Select the actual inspected source IDs; the destination parent must exist.
+Successful staging returns `nativeVerified: false`. Run the structural helper
+and matching-editor save/reopen/relocation/export checks before delivery.
+
 An editable Library `.assetproj` is a different document type from a full
 `.tscproj`; do not apply the full-project helper/schema to it. The
 [native Library contract](library.md) records its observed root fields, archive

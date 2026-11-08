@@ -21,6 +21,10 @@ source is still external to a portable bundle. Source-file containment does not
 resolve installation assets or certify archive/symlink transport. Native standalone
 save, close/reopen, and rendering must establish the delivered project's behavior.
 
+For independent source copies, use [staged source bundles](bundles.md). The
+workflow preserves companions and original bytes, then verifies relocation with
+earlier paths absent; it retains the separate font/internal-resource limits.
+
 For internal Lottie image inventory and explicitly selected PNG embedding, use
 [Lottie images](lottie-images.md). Its image-only report leaves fonts, glyph
 coverage and other render resources unresolved.
