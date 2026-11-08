@@ -1,5 +1,26 @@
 # Changelog
 
+## 0.69.0 — 2026-11-08
+
+### Added
+
+- Group-contained linked moving recordings now support Motion Path construction,
+  explicit points, Auto Orient, bypass and removal, including nested Groups.
+  Child source clocks remain independent of parent placement; Group bounds,
+  geometry, bindings, recorded audio and cursor payloads survive. The helper
+  preserves existing clipping; Group creation and sizing remain explicit native
+  operations. Other containing forms retain separate contracts.
+- Ten complete native/helper comparisons and two fresh-process 176-second
+  exports verify the workflow on Mac 2026.2.5. All 5,280 decoded frames and complete
+  PCM streams match between exports. Sixty inspected frames, 60 paired samples,
+  176 audio-channel windows and nineteen schema audits retain the expected
+  movement, orientation, restored bare states and recorded-audio interval.
+- Five regressions cover single/nested construction, selector aliases, lifecycle
+  preservation, exact child point clocks, guarded refusals and exclusive CLI
+  staging. First native save changes only 154 clip IDs; independent reopen/save
+  is byte-identical. Actual stdlib CLI candidates match the rendered payloads
+  and repeat as no-ops.
+
 ## 0.68.0 — 2026-11-08
 
 ### Added

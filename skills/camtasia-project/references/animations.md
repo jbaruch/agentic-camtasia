@@ -462,9 +462,9 @@ The render audit checks independent native reference pictures, static marker
 geometry, visible retimed motion and retained source audio. The installed
 consumer check executed every case from each of the three agent layouts.
 
-[Root linked moving recordings](motion-path-linked-recordings.md) add native
-2026.2.5 mirrored paths, source clocks and orientation/bypass controls with
-preserved system audio.
+[Root and Group-contained linked moving recordings](motion-path-linked-recordings.md)
+add native 2026.2.5 mirrored paths, child source clocks and orientation/bypass
+controls with preserved system audio and single/nested Group ancestors.
 
 ## Frozen and stitched Motion Paths
 

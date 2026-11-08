@@ -10,7 +10,6 @@ from typing import Any
 import unittest
 
 from test_animations import visual
-from test_effect_grouped_recordings import grouped
 from test_matte_linked_recordings import fixture as recorded, wrapper
 from test_matte_stitched_linked_recordings import fixture as stitched
 from test_motion_paths import spec
@@ -113,7 +112,7 @@ class LinkedRecordingMotionPathTests(unittest.TestCase):
         self.assertEqual(motion_paths.set_path(doc, 10, spec()), expected)
 
     def test_unverified_containers_and_audio_clock_bindings_refuse_without_mutation(self):
-        invalid = [(grouped(fixture()), "root linked"), (stitched(), "root linked")]
+        invalid = [(stitched(), "root linked")]
         for fault in ("missing-audio", "source", "missing-clock", "clock", "token"):
             doc = fixture()
             if fault == "missing-audio":
