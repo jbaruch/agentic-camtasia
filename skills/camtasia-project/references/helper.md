@@ -195,6 +195,12 @@ python3 -B "{camtasia_skill_root}/scripts/captions.py" set-style "<project>" --s
 python3 -B "{camtasia_skill_root}/scripts/captions.py" sequence-scenes "<project>" --spec "<scenes.json>" --output "<candidate.json>"
 ```
 
+For [native dynamic-caption underline and strikethrough](captions.md#dynamic-caption-underline-and-strikethrough),
+use `set-display` with `{"schema_version":1,"rich":{"underline":1,"strikethrough":1}}`.
+Use zero to clear either decoration. Select the caption child inside a Group;
+source words, other styles, reset data, clocks and ancestor geometry survive.
+The script contract above owns build, value, range-normalization and refusal rules.
+
 Inspection returns separate `closed`, `transcriptions`, `audioUses` and `displays` arrays
 with physical paths and saved payloads, plus the global `captionAttributes`
 object or null when absent. Select clip/source IDs and source-track

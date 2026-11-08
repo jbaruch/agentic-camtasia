@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.64.0 — 2026-11-07
+
+### Added
+
+- Dynamic-caption `set-display` supports existing underline/strikethrough flags
+  on Mac 2026.2.5, using native integer 0/1 codes. Enabling an observed inactive
+  prefix expands only the requested style to full-placeholder coverage. Clearing
+  retains native full ranges; unrelated partial styles, reset RTF, source words,
+  clocks and ancestor geometry survive. Ambiguous or unfamiliar targets refuse.
+- Thirteen native exports verify 1,560 active-word frames and nine identical
+  complete RGB/PCM pairs across independent/combined styles, clearing, native
+  UI/helper parity and root/Group save/reopen paths. All audio matches; five
+  exact-build schema audits pass. Six regression tests cover preservation,
+  normalization, no-ops, UTF-8 coverage, atomic refusals and CLI staging.
+- One confirmed unresponsive cold open recovered with the owned input unchanged;
+  the guide records its preview/font-layout wait without inferring a cause or
+  permanent fix. Remaining rich-style/RTF tasks, automatic fitting and disabling
+  wrapping remain pending for feature-complete 1.0.
+
 ## 0.63.4 — 2026-11-07
 
 ### Added
