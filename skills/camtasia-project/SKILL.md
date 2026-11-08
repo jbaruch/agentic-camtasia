@@ -1,6 +1,6 @@
 ---
 name: camtasia-project
-description: Inspect, create, edit, package, or validate Camtasia .cmproj and .tscproj projects. Use for timeline cuts, source relinking, portable bundles, source-file manifests, zooms, effects, annotations, captions, audio, groups, hotspots, quizzes, or project JSON repairs.
+description: Inspect, create, edit, package, or validate Camtasia .cmproj and .tscproj projects. Use for timeline cuts, source relinking, portable bundles, source-file manifests, physical font handoffs, zooms, effects, annotations, captions, audio, groups, hotspots, quizzes, or project JSON repairs.
 ---
 
 # Camtasia Project
@@ -9,7 +9,8 @@ Process steps in order. Do not skip ahead.
 
 Resolve this loaded skill's directory to absolute `camtasia_skill_root`.
 Use that root for every helper command; project paths belong to the consumer.
-Python 3.11+ is required. The helper uses only the standard library.
+Python 3.11+ is required. Core helpers use the standard library;
+schema auditing and physical font parsing have optional dependencies in their contracts.
 Use `python3 -B` for helpers and task scripts that import their modules.
 
 ## Step 1 — Inspect the project
@@ -26,6 +27,7 @@ For captions or source transcription, also read [captions](references/captions.m
 For recording streams, color conversion, or portable/source-file closure checks, read [media](references/media.md).
 For Lottie image dependencies or explicit PNG embedding, read [Lottie images](references/lottie-images.md).
 For SVG image references or explicit PNG embedding, read [SVG images](references/svg-images.md).
+For physical font files or licensed font handoffs, read [font resources](references/font-resources.md).
 For recorded cursors, keystrokes, or window highlighting, read [cursors](references/cursors.md).
 For local video formats, transparency, or batch export, read [delivery](references/delivery.md).
 For cleanup, pitch, dynamics, or audio-only delivery, read [audio](references/audio.md).
@@ -50,6 +52,8 @@ when its verified scope covers the change. Otherwise write a task-specific
 transformation script. For source packaging, use the contract's
 [source-bundle staging route](references/helper.md#source-bundle-staging).
 Its separate output bundle proceeds immediately to Step 5.
+For font delivery, use the [font handoff route](references/helper.md#font-resource-handoff).
+Its separate resource directory proceeds immediately to Step 5.
 For other edits, stage a separate candidate JSON document. Preserve
 unrelated data and the original project. Resolve media relative
 to the destination document, not the staging file. Use rational arithmetic for

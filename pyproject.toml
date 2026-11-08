@@ -1,13 +1,15 @@
 [project]
 name = "agentic-camtasia"
-version = "0.66.0"
+version = "0.67.0"
 description = "Camtasia context and safe project helpers for ACR"
 requires-python = ">=3.11"
 dependencies = []
 
 # Review this verification-tool pin quarterly and when refreshing the schema baseline.
 [project.optional-dependencies]
-verification = ["jsonschema==4.26.0"]
+verification = ["jsonschema==4.26.0", "fonttools==4.68.0"]
+# Review the optional font parser quarterly and for upstream security releases.
+fonts = ["fonttools==4.68.0"]
 
 [tool.pyright]
 include = ["skills/camtasia-project/scripts", "hooks", "tests", "scripts"]
