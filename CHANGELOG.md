@@ -1,5 +1,22 @@
 # Changelog
 
+## 0.61.0 — 2026-11-07
+
+### Added
+
+- `copy-block-transition` selects a dynamic-caption transition from a saved
+  native caption template, copying only its existing bare name. Native None
+  clears that name while retaining duration and reversal. `set-display` adds
+  independent existing reverse-flag edits; source words, rich ranges, reset
+  metadata, source media and clocks survive.
+- Ten native movies cover 1,200 decoded frames and six identical complete
+  video/audio comparisons, including native UI/helper parity, root/Group
+  save/reopen and None/baseline parity. Isolated selection, reversal and duration
+  controls change the initial text movement. The native probe does not establish
+  transitions at every sentence boundary or every installed caption transition.
+  Both reopened project JSON files are byte-identical; other caption work remains
+  pending for 1.0.
+
 ## 0.60.0 — 2026-11-07
 
 ### Added

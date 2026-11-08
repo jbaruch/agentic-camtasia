@@ -155,6 +155,41 @@ Every export returned to its expected editor document without an unsupported-
 feature prompt. All current specimens pass the exact-build schema profile and
 native-compatibility checks. Other display controls and RTF forms remain pending.
 
+## Block-transition selection and reversal
+
+Mac 2026.2.4 (2026.132), format 10, saves the native Block Transition choice in
+the existing dynamic `Callout.def`. Selecting **Slide Left** changes only
+`dynamic-caption-block-transition-name` to `"SlideLeft"`, apart from thumbnail,
+command-count and reset bookkeeping. Reverse changes its separate numeric field
+from `0.0` to `1.0`. Entering Duration 0.75 in this UI commits 0.8, saving that
+bare numeric value instead of 0.5. Selecting **None** saves the empty name while
+retaining Reverse 1 and Duration 0.8. No transition object, shader or resource is
+added to the project.
+
+Version 0.61.0 copies the saved choice from a caller-selected native caption
+template and edits reversal through the existing display editor. The probe
+retains the target's own duration, reverse, reset metadata, source words, partial
+rich ranges, backgrounds and clocks during name copying. Source and target
+projects remain unchanged during staging; no native preset is distributed.
+
+Ten four-second movies contain 1,200 decoded frames. Six complete RGB/PCM pairs
+match: native UI against helper, helper against its same-process reopen, root
+against Group, Group against its same-process reopen, native None against helper
+None, and native None against the baseline. Every movie retains identical audio.
+Seven inspected frames distinguish initial text movement, reversed movement and
+the longer entry while the rounded panel remains stationary; later frames show
+the second sentence with the expected active words. This specimen does not
+establish transition playback at every sentence boundary or rendering of every
+installed transition in captions.
+
+Whole-payload comparisons retain source-bin data, recognized-word/cue maps,
+recording and WAV bytes. Native saves change thumbnail caches; the Group also
+remaps three clip IDs, adds neutral child-lane defaults and prunes unused neutral
+root-lane attributes. Both reopened project JSON files are byte-identical.
+All eighteen current specimens pass the exact-build schema profile and native-
+compatibility checks. Other caption layout, typography and RTF work remains
+pending for 1.0.
+
 ## Longer vertical edits and export checks
 
 A Mac 2026.2.4 format-10 vertical edit verifies 195 corrected words over

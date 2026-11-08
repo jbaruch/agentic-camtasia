@@ -125,6 +125,17 @@ The exercised display and audio share a Group; a root display over grouped audio
 did not render words in the native assembled control. Check actual binding/output.
 No vendor definitions, fonts, media or recognition models are copied.
 
+copy-block-transition PROJECT --clip-id ID --template-project PROJECT
+--template-clip-id ID --output CANDIDATE copies only the existing bare transition
+name from a saved native dynamic-caption display. Both projects must match the
+Mac 2026.2.4 contract. The empty native name selects None. This supports a
+caller-verified native choice without constructing identifiers or copying vendor
+presets. A missing, nonstring or structured name refuses. Existing reverse and
+duration values, reset metadata, sources, words, rich styles and clocks survive.
+Use set-display's existing definition edits for block-transition reverse (numeric
+0 or 1) and nonnegative duration in native seconds; neither changes the name.
+Template selection proves serialization, not target-installation rendering.
+
 set-style PROJECT --spec SPEC --output CANDIDATE edits existing global closed-
 caption appearance, not the separate dynamic-caption display. Schema version 1
 has a nonempty style object. CLOSED_STYLE_FIELDS and CLOSED_FONTS own the
@@ -180,6 +191,7 @@ DISPLAY_NUMBERS = frozenset(
         "dynamic-caption-past-word-opacity",
         "dynamic-caption-word-easing-duration",
         "dynamic-caption-block-transition-duration",
+        "dynamic-caption-block-transition-reverse",
         "dynamic-caption-background-corner-radius",
         "dynamic-caption-word-rectangle-corner-radius",
         "dynamic-caption-word-rectangle-extra-size",
@@ -1356,6 +1368,36 @@ def retime(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str,
     return result
 
 
+def dynamic_display(
+    doc: dict[str, Any], clip_id: int
+) -> tuple[str, dict[str, Any], dict[str, Any]]:
+    require_native(doc, dynamic=True)
+    path, owner = selected(doc, clip_id)
+    definition = owner.get("def")
+    if (
+        owner.get("_type") != "Callout"
+        or not isinstance(definition, dict)
+        or definition.get("modifier") != "dynamicCaption"
+    ):
+        raise ValueError(
+            "select a saved native dynamic-caption display, separately from its source words"
+        )
+    return path, owner, definition
+
+
+def copy_block_transition(
+    doc: dict[str, Any], clip_id: int, template: dict[str, Any], template_id: int
+) -> dict[str, Any]:
+    _, _, source = dynamic_display(template, template_id)
+    result = copy.deepcopy(doc)
+    _, _, target = dynamic_display(result, clip_id)
+    name = "dynamic-caption-block-transition-name"
+    if not isinstance(source.get(name), str) or not isinstance(target.get(name), str):
+        raise ValueError("capture existing bare native caption block-transition names")
+    target[name] = source[name]
+    return result
+
+
 def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[str, Any]:
     require_native(doc, dynamic=True)
     keys = {"start", "duration", "definition", "rich", "clock"}
@@ -1367,16 +1409,7 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
     result = copy.deepcopy(doc)
     if "clock" in spec and spec["clock"] != "parent":
         raise ValueError("use explicit clock parent for Group display bounds")
-    path, owner = selected(result, clip_id)
-    definition = owner.get("def")
-    if (
-        owner.get("_type") != "Callout"
-        or not isinstance(definition, dict)
-        or definition.get("modifier") != "dynamicCaption"
-    ):
-        raise ValueError(
-            "select a saved native dynamic-caption display, separately from its source words"
-        )
+    path, owner, definition = dynamic_display(result, clip_id)
     if "start" in spec or "duration" in spec:
         track, ancestors = caption_context(result, path)
         if ancestors and spec.get("clock") != "parent":
@@ -1408,7 +1441,7 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
         for name, value in changes.items():
             number = project.number(value)
             if (
-                (name.endswith(("-enabled", "-sentence")) and number not in (0, 1))
+                (name.endswith(("-enabled", "-sentence", "-reverse")) and number not in (0, 1))
                 or (("-color-" in name or name.endswith("-opacity")) and not 0 <= number <= 1)
                 or (
                     name.endswith(
@@ -1745,6 +1778,7 @@ def main(argv: list[str] | None = None) -> int:
         "correct-words",
         "retime",
         "set-display",
+        "copy-block-transition",
         "set-style",
         "sequence-scenes",
     ):
@@ -1758,7 +1792,11 @@ def main(argv: list[str] | None = None) -> int:
         if name == "map":
             command.add_argument("--closed-only", action="store_true")
         if name not in ("inspect", "map", "rtf-text"):
-            command.add_argument("--spec", type=Path, required=True)
+            if name == "copy-block-transition":
+                command.add_argument("--template-project", type=Path, required=True)
+                command.add_argument("--template-clip-id", type=int, required=True)
+            else:
+                command.add_argument("--spec", type=Path, required=True)
             command.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
@@ -1773,22 +1811,29 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "rtf-text":
             report["cues"] = inspect_rtf(doc, args.clip_id)
         else:
-            spec = project.load(args.spec)[0]
-            if args.command == "correct-words":
-                candidate = correct_words(doc, args.source_id, args.source_track, spec)
-            elif args.command == "set-style":
-                candidate = set_style(doc, spec)
-            elif args.command == "sequence-scenes":
-                candidate = sequence_scenes(doc, spec)
+            if args.command == "copy-block-transition":
+                template, template_raw = project.load(args.template_project)
+                candidate = copy_block_transition(
+                    doc, args.clip_id, template, args.template_clip_id
+                )
+                report["templateSha256"] = project.digest(template_raw)
             else:
-                operation = {
-                    "set-text": correct_text,
-                    "set-rtf-text": correct_rtf,
-                    "set-cues": set_cues,
-                    "retime": retime,
-                    "set-display": set_display,
-                }[args.command]
-                candidate = operation(doc, args.clip_id, spec)
+                spec = project.load(args.spec)[0]
+                if args.command == "correct-words":
+                    candidate = correct_words(doc, args.source_id, args.source_track, spec)
+                elif args.command == "set-style":
+                    candidate = set_style(doc, spec)
+                elif args.command == "sequence-scenes":
+                    candidate = sequence_scenes(doc, spec)
+                else:
+                    operation = {
+                        "set-text": correct_text,
+                        "set-rtf-text": correct_rtf,
+                        "set-cues": set_cues,
+                        "retime": retime,
+                        "set-display": set_display,
+                    }[args.command]
+                    candidate = operation(doc, args.clip_id, spec)
             report.update(inventory(candidate))
             report.update(
                 output=str(args.output),
