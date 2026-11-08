@@ -419,6 +419,12 @@ for resource-backed fields, retained hard newlines, fixed-box clipping, stroke
 coverage and timed-rich/Group output comparisons. Layout edits preserve text,
 rich states, fonts, geometry and ancestor payload.
 
+The same definition route has [dynamic-caption outline checks](captions.md#dynamic-caption-outline-placement),
+for example `{"schema_version":1,"definition":{"text-stroke-alignment":1,"text-stroke-width":2}}`.
+Thick inside/center strokes can consume glyph fill and change caption reflow.
+After increasing an outside outline in a Group, inspect parent clipping and use
+the documented native resize workflow when its independent bounds are too small.
+
 Existing region annotations also accept static definition edits, for example:
 
 ```json
