@@ -103,6 +103,37 @@ it does not certify an archive, symlink transport, fonts, models, bookmarks,
 installation assets, or native playback. Compare destination hashes and perform
 the native package reopen/render checks described in [media](media.md).
 
+## Font resource handoff
+
+Use `scripts/font_resources.py` to inventory saved font declarations and explicitly
+selected physical fonts, stage a separate licensed font handoff, or verify its
+current bytes. The module docstring, `FONTTOOLS_REQUIREMENT`, `font_faces`,
+`spec_records`, `stage_handoff` and `verify_handoff` own the parser dependency,
+accepted formats, selection checks, manifest schema and publication contract.
+
+For installed consumers, run the optional parser in an isolated environment with
+the dependency named by `FONTTOOLS_REQUIREMENT`. In this repository, the `fonts`
+extra installs that same dependency. Core project inspection needs no font parser.
+
+| Command | Required inputs | Output / side effects |
+| --- | --- | --- |
+| `inspect PROJECT [--font FILE ...]` | Saved project; optional selected physical font files | Read-only project hash, font declarations, unresolved RTF paths and physical face/file metadata. |
+| `stage PROJECT --expected-sha256 HASH --spec SPEC --output DIRECTORY` | Closed project and inspection hash; explicit versioned font/license selections and redistribution confirmation | Independent complete font files and copyright/license notices, plus `font-handoff.json`, in a separate new directory. Original project and resources remain unchanged. Identical output is a no-op. |
+| `verify DIRECTORY` | Staged handoff | Rechecks the manifest, complete file inventory, hashes, independent regular files and physical face identities. Read-only. |
+
+Spec schema 1 carries `redistribution_confirmed`, `fonts` and `licenses`.
+Font selections provide `path`, `sha256`, `postscript_names` and `license_id`;
+license selections provide `id`, `path` and `sha256`. Relative input paths resolve
+beside the spec. Confirm rights for the complete unmodified files and every face
+they contain before staging. Embedding metadata does not grant redistribution rights.
+
+Stdout is schema 1, owner `camtasia-font-resources`, with `ok`, physical hashes
+and `nativeVerified: false`; inspection/staging also retain unresolved declaration
+limits and `completeFontClosure: false`. Exit codes are 0 success, 1 input/I/O or
+dependency refusal and 2 CLI syntax, with JSON errors on stderr. Staging never
+installs or activates fonts. Deliver and activate only the explicitly authorized
+resources, then verify the target editor using the [font workflow](font-resources.md).
+
 ## Source bundle staging
 
 Use `scripts/bundles.py` — module contract, `inspect_bundle` and `stage_bundle` —

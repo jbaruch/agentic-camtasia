@@ -24,6 +24,8 @@ save, close/reopen, and rendering must establish the delivered project's behavio
 For independent source copies, use [staged source bundles](bundles.md). The
 workflow preserves companions and original bytes, then verifies relocation with
 earlier paths absent; it retains the separate font/internal-resource limits.
+Use [font resources](font-resources.md) for explicit physical face inventory and
+licensed delivery alongside the project.
 
 For internal Lottie image inventory and explicitly selected PNG embedding, use
 [Lottie images](lottie-images.md). Its image-only report leaves fonts, glyph

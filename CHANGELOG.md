@@ -1,5 +1,27 @@
 # Changelog
 
+## 0.67.0 — 2026-11-08
+
+### Added
+
+- Explicit physical font inspection and separate licensed handoffs. The optional
+  FontTools parser inventories real face names, styles, weights, embedding flags,
+  collections and variable instances. Closed-project staging copies selected
+  complete files and copyright/license notices with independent bytes and a
+  versioned manifest; verification rechecks the complete tree and physical identities.
+  No font is installed, activated, modified or subsetted.
+- A real Regular/Bold Averia Libre handoff retains both original fonts and OFL
+  notice, repeats as a no-op and verifies after relocation with original paths
+  unavailable. Native 2026.2.5 renders the font-absent control while preserving
+  its requested font names, demonstrating that a saved declaration does not
+  prove effective font resolution. Font-present activation/recovery comparisons
+  and complete render-resource closure remain pending for 1.0.
+- Seventeen regression tests cover physical/variable/collection metadata, explicit
+  rights and face selections, stable hashes, independent copies, output aliases,
+  failure cleanup, manifest tampering, duplicate versions and optional parser
+  handling. The optional parser is pinned and Python dependency renewal is
+  scheduled through Dependabot alongside the existing action updates.
+
 ## 0.66.0 — 2026-11-08
 
 ### Added
