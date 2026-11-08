@@ -51,6 +51,65 @@ def fixture():
 
 
 class CaptionLayoutTests(unittest.TestCase):
+    def test_current_box_and_explicit_font_edits_preserve_words_styles_and_group_bounds(self):
+        for wrap in (lambda d: d, grouped):
+            doc = fixture()
+            doc["authoringClientName"]["version"] = "2026.2.5"
+            font = next(
+                r
+                for r in selected(doc)["def"]["textAttributes"]["keyframes"][0]["value"]
+                if r["name"] == "fontSize"
+            )
+            font["value"] = 96.0
+            doc = wrap(doc)
+            if wrap is grouped:
+                group = next(n for _, n in project.objects(doc) if n.get("_type") == "Group")
+                group["attributes"].update(widthAttr=608.0, heightAttr=168.0)
+                group["parameters"].update(translation1=-338.0, volume=1.0)
+            before = copy.deepcopy(doc)
+            for width, height in ((600.0, 40.0), (240.0, 160.0), (240.0, 40.0)):
+                geometry = dict(schema_version=1, definition={"width": width, "height": height})
+                style = dict(schema_version=1, rich={"fontSize": 32})
+                expected = copy.deepcopy(doc)
+                selected(expected)["def"].update(width=width, height=height)
+                next(
+                    r
+                    for r in selected(expected)["def"]["textAttributes"]["keyframes"][0]["value"]
+                    if r["name"] == "fontSize"
+                )["value"] = 32.0
+                with self.subTest(grouped=wrap is grouped, width=width, height=height):
+                    candidate = annotations.edit_annotation(doc, 6, geometry)
+                    result = captions.set_display(candidate, 6, style)
+                    self.assertEqual(result, expected)
+                    self.assertEqual(doc, before)
+                    self.assertEqual(
+                        captions.set_display(
+                            annotations.edit_annotation(result, 6, geometry), 6, style
+                        ),
+                        result,
+                    )
+
+    def test_caption_box_edits_refuse_invalid_or_missing_dimensions_without_source_changes(self):
+        for name, value in (
+            ("width", 0),
+            ("width", True),
+            ("height", "-1/2"),
+            ("height", float("nan")),
+        ):
+            doc = fixture()
+            before = copy.deepcopy(doc)
+            with self.subTest(name=name, value=value), self.assertRaises(ValueError):
+                annotations.edit_annotation(
+                    doc, 6, dict(schema_version=1, definition={name: value})
+                )
+            self.assertEqual(doc, before)
+        doc = fixture()
+        del selected(doc)["def"]["height"]
+        before = copy.deepcopy(doc)
+        with self.assertRaises(ValueError):
+            annotations.edit_annotation(doc, 6, dict(schema_version=1, definition={"height": 40}))
+        self.assertEqual(doc, before)
+
     def test_current_alignment_choices_preserve_partial_styles_resets_and_group_geometry(self):
         for wrap in (lambda d: d, grouped):
             doc = fixture()
