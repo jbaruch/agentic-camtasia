@@ -374,6 +374,12 @@ opaque style IDs and default fonts survive. Shape/style identifiers are not
 editable substitutes for full preset definitions. Numeric definition edits
 retain static typed descriptors and refuse animated parameters.
 
+Dynamic captions use this definition route for
+[native line spacing](captions.md#dynamic-caption-line-spacing), for example
+`{"schema_version":1,"definition":{"line-spacing":"3/2"}}`.
+The annotation contract above owns accepted values and parameter forms. Verify
+line gaps, complete text and word highlights in the matching editor.
+
 Definition edits also expose the existing native text-layout switches:
 
 ```json
