@@ -140,6 +140,10 @@ profile and native hazard checks. Their 44 raw errors are the known timeline
 metadata and wrapper Sepia-enum omissions; no new correction is needed.
 Completed comparison artifacts are removed after incorporation.
 
+The [linked frame-extension workflow](effect-recording-extensions.md) adds
+cross-join native parent curves, complete template copying and clearing on
+Mac 2026.2.5. Its linked moving child and silent hold remain separate descendants.
+
 ## Group-contained linked moving recordings
 
 The effect-curve helper now opts into existing Group-contained linked moving

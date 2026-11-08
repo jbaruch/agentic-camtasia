@@ -28,8 +28,11 @@ rate/inverse speed and a same-source AMFile audio child. Their visual effects
 require unique canonical tokens; recorded audio is preserved. Group ancestors
 and their clocks/geometry remain unchanged. Complete effect payloads keep the
 child's source clock independently of parent placement; no Group retiming is
-performed. Linked held, stitched and other containing owner kinds retain
-separate contracts. Other feature callers
+performed. Native frame-extension StitchedMedia parents retain their linked
+moving pair and separate silent ScreenIMFile hold. Select that direct parent
+for its own effect payload; it receives no wrapper/video effect mirrors.
+Unstitched holds use their existing direct-owner contract. Linked frozen/stitched
+wrapper kinds and unfamiliar containing owners retain separate contracts. Other feature callers
 must explicitly opt into their own verified linked-recording scope.
 Stitched parent edits preserve descendants and virtual holds;
 no recording/freeze/stitch constructor is inferred. Timed templates retain the
@@ -331,6 +334,11 @@ def constructor_owners(
     path, visual = hotspots.visual_target(doc, clip_id, visual_types=visual_types)
     if visual.get("_type") in FROZEN_STITCHED_TYPES and not project.is_native_format10(doc):
         raise ValueError("edit frozen/stitched effects with verified Mac format-10 native evidence")
+    if visual.get("_type") == "ScreenIMFile" and any(
+        node.get("_type") == "StitchedMedia" and path.startswith(parent + "/")
+        for parent, node in hotspots.clips(doc)
+    ):
+        raise ValueError("select the stitched parent or an unstitched standalone held recording")
     wrappers = [
         (parent, node)
         for parent, node in hotspots.clips(doc)

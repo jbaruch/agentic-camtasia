@@ -40,8 +40,10 @@ wrapper/video mirrors,
 complete shared clocks and the source/audio/token guard in effects.constructor_owners.
 Group ancestors, their placement/geometry and recorded audio are preserved;
 clip-relative inputs map through the child's source clock without Group retiming.
-Linked held, stitched and other containing variants retain
-separate contracts. Ordinary linked AV keeps its existing mirror contract.
+Native frame-extension StitchedMedia parents keep their source-position clock
+across the linked moving-to-held join, preserving both descendants. Other linked
+wrapper kinds and unfamiliar containing variants retain separate contracts.
+Ordinary linked AV keeps its existing mirror contract.
 No recording/freeze/stitch constructor is inferred.
 
 No editor is launched and no input project/media is written. Output is exclusive
@@ -100,7 +102,7 @@ def selected(
     visual = targets[-1][0]
     if visual.get("_type") not in OWNERS:
         raise ValueError("select a visual owner from OWNERS; capture other native clocks")
-    if len(targets) > 1 and visual.get("_type") in RECORDING_OWNERS:
+    if visual.get("_type") in RECORDING_OWNERS:
         effects.constructor_owners(
             doc, clip_id, visual_types=OWNERS, linked_recordings=True, grouped_recordings=True
         )
