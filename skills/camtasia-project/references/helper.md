@@ -309,6 +309,13 @@ infer the independent display's binding or visibility. Read the Group verificati
 above before placing a display across container boundaries.
 Verify physical fonts, fitting and actual word highlighting on the rendering host.
 
+For native [character spacing and ligatures](captions.md#dynamic-caption-character-spacing-and-ligatures),
+a display spec can supply `{"schema_version":1,"rich":{"kerning":"1/10"}}`.
+`DISPLAY_KERNING_VERSIONS` and `set_display` in
+`skills/camtasia-project/scripts/captions.py` own build scope and full-placeholder
+coverage checks. Preserve the saved units; confirm the resulting letter gaps,
+line breaks and highlight timing in the matching editor.
+
 A global style spec supplies a nonempty `style` object, for example:
 `{"schema_version":1,"style":{"fontName":"Trebuchet MS","fontSize":48,"foregroundColor":[255,128,64,255],"backgroundColor":[32,48,96,128]}}`.
 This project-wide edit takes no clip selector. It retains omitted style fields,
