@@ -1044,7 +1044,8 @@ Marker targets take `--marker-owner ID --marker-time SECONDS`. Use the logical
 The script's `marker_global_ticks` resolves observed single-scene media and Group
 clocks automatically, including the distinct held and stitched marker origins.
 The [recording-owner evidence](hotspot-recording-owners.md) records native
-ownership, trim/speed checks and a failed forward-reference roundtrip.
+ownership, trim/speed checks, linked-recording frame extensions with preserved
+recorded audio, and a failed forward-reference roundtrip.
 Other structures require `--marker-global-time SECONDS`
 from native evidence. An explicit value must agree with an available verified
 mapping. The [Group reopen finding](project-format.md#clock-domains) records a

@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.69.1 — 2026-11-08
+
+### Fixed
+
+- Verify the existing hotspot helper on native linked-recording frame extensions
+  in Mac 2026.2.5. Select the stitched parent containing moving linked AV and a
+  separate held frame; hidden children remain outside independent edits.
+  Continue, Time, URL, Marker and removal preserve cursor data, source clocks,
+  recorded audio and unrelated content. Parent Marker timing uses the trimmed
+  source clock once.
+- Two fresh-process 72-second web exports reproduce all 2,160 decoded RGB frames
+  and complete PCM streams. Thirty-six inspected frames, sixteen paired samples
+  and 72 audio-channel windows verify the moving/held join and audio boundaries.
+  All sixteen actual Smart Player activations pass. Independent reopen/save is
+  byte-identical with retained Marker bindings.
+- Five regressions cover exact native lifecycle payloads, parent marker identity
+  and clocks, hidden-child refusals, earlier destination owners and exclusive
+  CLI staging. Other linked wrappers, placeholders and scene clocks remain pending.
+
 ## 0.69.0 — 2026-11-08
 
 ### Added

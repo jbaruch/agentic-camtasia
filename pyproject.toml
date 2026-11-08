@@ -1,6 +1,6 @@
 [project]
 name = "agentic-camtasia"
-version = "0.69.0"
+version = "0.69.1"
 description = "Camtasia context and safe project helpers for ACR"
 requires-python = ">=3.11"
 dependencies = []
