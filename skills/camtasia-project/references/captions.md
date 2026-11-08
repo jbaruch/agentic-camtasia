@@ -1231,8 +1231,9 @@ under the exact-build profile and zero native compatibility errors.
 
 Box reflow and explicit font fitting have separate
 [native output checks](#dynamic-caption-box-reflow-and-explicit-fitting).
-Automatic fitting, disabling wrapping and outline placement retain unfinished
-checks. Saved values alone do not establish those controls' rendered behavior.
+[Outline placement](#dynamic-caption-outline-placement) has separate output
+checks. Automatic fitting and disabling wrapping remain unfinished; saved values
+alone do not establish those controls' rendered behavior.
 
 ## Dynamic-caption line spacing
 
@@ -1351,3 +1352,54 @@ parent values. Two earlier cold opens of a separate size-96 glyph-test input
 hung in native text layout. Each recovery followed a confirmed Not Responding
 state and preserved input bytes. The successful UI-derived candidates do not
 establish the cause or a general geometry restriction.
+
+## Dynamic-caption outline placement
+
+Mac 2026.2.5 (2026.136), format 10, renders the existing
+`def.text-stroke-alignment` and `def.text-stroke-width` on a dynamic-caption
+Callout. Use the [annotation helper contract](helper.md#annotation-json-editing)
+for editing and refusal conditions. The exercised definition edits preserve
+partial rich styles, owner reset RTF, source words, clocks and ancestor geometry.
+The native stroke-weight edit adds owner
+`metadata.default-callout-text-stroke-width: "4"`; helper edits retain that reset.
+No placement switch was observed in the native caption panel.
+
+The four-second Bebas specimen uses rich size 64, a 600×160 box and eleven
+source-bound words. With stroke weight 8 and active-word extra width zero, the
+colored active `TELLS` ink at frame 24 has these measured pixel bounds:
+
+| Placement | Saved value | Ink width × height |
+| --- | --- | --- |
+| No outline | Weight zero | 118×50 |
+| Center | 0 | 126×60 |
+| Inside | 1 | 120×51 |
+| Outside | 2 | 134×69 |
+
+The colored mask includes active fill and stroke, rejecting isolated codec noise.
+Inside stays within the unoutlined bounds to about two pixels; center and outside
+expand them. Thick center/inside strokes consume the thin font's fill, including
+the red active-word fill. A weight-2 inside control retains readable fill and
+colored highlighting. Stroke changes also alter line wrapping and word-page
+capacity in this specimen. Inspect legibility and layout with the intended font,
+weight and box rather than assuming placement alone preserves them.
+
+A native 600×160 Group around the thin inside control matches its root render.
+Changing only the child's placement/weight to outside/8 retains those parent
+bounds and clips the rounded block background. **Edit → Resize Group → To Visible
+Size** changes the parent bounds to 616×176, plus UI bookkeeping, and restores
+complete root-equivalent output. Child payload, parent translation, source clocks
+and audio remain unchanged. Resize the parent explicitly when the new extent
+requires it; the annotation helper preserves independent Group bounds.
+
+Fourteen four-second exports verify 1,680 active-word frames and eight complete
+decoded RGB/PCM pairs across native UI/helper parity, root/Group inside parity,
+root/resized-Group outside parity and independent reopening. The clipped Group
+also reproduces its counterexample after reopening. All audio matches. Highlight
+checks use colored fill/stroke masks across six distinct rendered layouts;
+inspected contacts retain the expected word states. Native helper saves change
+only thumbnail caches; grouping remaps IDs, moves translation onto the Group and
+adds unlocked child-lane metadata on reopen. Bundled media, source words/clocks,
+reset data and protected originals remain unchanged. Five saved root/Group
+candidates each have eight raw upstream schema errors, zero corrected errors
+and zero native compatibility errors under the exact-build profile. Remaining
+rich-style/RTF work, automatic fitting and disabling wrapping stay pending.

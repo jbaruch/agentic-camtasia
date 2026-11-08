@@ -4,7 +4,7 @@ requires-python = ">=3.11"
 
 [[package]]
 name = "agentic-camtasia"
-version = "0.63.3"
+version = "0.63.4"
 source = { virtual = "." }
 
 [package.optional-dependencies]

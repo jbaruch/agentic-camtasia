@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.63.4 — 2026-11-07
+
+### Added
+
+- Verified dynamic-caption center/inside/outside outline placement through the
+  existing annotation route on Mac 2026.2.5. Measured glyph bounds distinguish
+  placement; thick center/inside strokes can consume fill, while a thinner inside
+  control retains it. Outline changes can also alter wrapping and word pagination.
+- Verified the explicit native Group-resize workflow after an outside outline
+  clips a rounded caption background. Resize Group → To Visible Size expands
+  600×160 to 616×176 and restores root-equivalent output without changing child
+  content, translation, source words or clocks. Helpers preserve independent
+  parent bounds and owner reset RTF.
+- Fourteen native exports verify 1,680 active-word frames, eight identical complete
+  RGB/PCM pairs and unchanged audio across all outputs. Five exact-build schema
+  audits pass. Root/Group regressions cover placement, weight, restoration and
+  independent highlight/reset/style preservation. Automatic fitting, disabling
+  wrapping and remaining rich-style/RTF tasks stay pending for 1.0.
+
 ## 0.63.3 — 2026-11-07
 
 ### Added

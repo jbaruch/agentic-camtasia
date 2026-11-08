@@ -51,6 +51,37 @@ def fixture():
 
 
 class CaptionLayoutTests(unittest.TestCase):
+    def test_outline_choices_and_weight_preserve_highlight_styles_reset_and_group_bounds(self):
+        for wrap in (lambda d: d, grouped):
+            doc = fixture()
+            doc["authoringClientName"]["version"] = "2026.2.5"
+            owner = selected(doc)
+            owner.setdefault("metadata", {}).update(
+                {"default-text": r"{\rtf1\ansi ABC}", "default-callout-text-stroke-width": "4"}
+            )
+            owner["def"].update({"text-stroke-width": 8.0, "text-stroke-color-alpha": 0.8})
+            doc = wrap(doc)
+            before = copy.deepcopy(doc)
+            for alignment, width in ((0, 8), (1, 8), (2, 8), (1, 2), (2, 0)):
+                changes = {"text-stroke-alignment": alignment, "text-stroke-width": width}
+                expected = copy.deepcopy(doc)
+                selected(expected)["def"].update(changes)
+                with self.subTest(grouped=wrap is grouped, alignment=alignment, width=width):
+                    result = annotations.edit_annotation(
+                        doc, 6, dict(schema_version=1, definition=changes)
+                    )
+                    self.assertEqual(result, expected)
+                    self.assertEqual(doc, before)
+                    restored = annotations.edit_annotation(
+                        result,
+                        6,
+                        dict(
+                            schema_version=1,
+                            definition={"text-stroke-alignment": 2, "text-stroke-width": 8},
+                        ),
+                    )
+                    self.assertEqual(restored, before)
+
     def test_current_box_and_explicit_font_edits_preserve_words_styles_and_group_bounds(self):
         for wrap in (lambda d: d, grouped):
             doc = fixture()
