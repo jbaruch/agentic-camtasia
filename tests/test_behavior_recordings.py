@@ -199,7 +199,7 @@ class RecordingBehaviorTests(unittest.TestCase):
                 ),
                 lambda: behaviors.remove_behavior(doc, 3, "fade"),
             ):
-                with self.assertRaisesRegex(ValueError, "2026.2.4"):
+                with self.assertRaisesRegex(ValueError, "verified.*format-10"):
                     call()
             self.assertEqual(doc, before)
             dest = recipient(kind)

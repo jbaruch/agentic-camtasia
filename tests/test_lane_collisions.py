@@ -79,7 +79,7 @@ class LaneCollisionTests(unittest.TestCase):
         self.tracks[0]["medias"].append(clip(11, "FutureMedia"))
         self.assertEqual(project.native_hazards(self.doc), [])
         self.tracks[0]["medias"][1]["_type"] = "Callout"
-        self.doc["authoringClientName"]["version"] = "2026.2.5"
+        self.doc["authoringClientName"]["version"] = "2026.2.6"
         self.assertEqual(project.native_hazards(self.doc), [])
 
     def test_invalid_timing_is_reported_by_structural_validation(self) -> None:

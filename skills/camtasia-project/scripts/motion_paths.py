@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inspect and stage Mac 2026.2.4 format-10 Motion Path point curves.
+"""Inspect and stage verified Mac format-10 Motion Path point curves.
 
 inspect PROJECT reports physical MediaPath owners. set-path PROJECT --clip-id ID
 --spec SPEC --output CANDIDATE creates or replaces the selected visual owner's
@@ -132,8 +132,8 @@ def visual_targets(doc: dict[str, Any], clip_id: int) -> list[dict[str, Any]]:
 
 
 def require_native(doc: dict[str, Any]) -> None:
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-        raise ValueError("use the verified Mac 2026.2.4 format-10 Motion Path contract")
+    if not project.is_native_format10(doc):
+        raise ValueError("use a verified Mac format-10 Motion Path contract")
 
 
 def zero_rotation_parameters(visual: dict[str, Any]) -> dict[str, Any]:

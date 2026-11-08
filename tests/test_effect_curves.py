@@ -212,7 +212,7 @@ class EffectCurveTests(unittest.TestCase):
                 effect_curves.edit_curve(doc, 3, "Sepia", "intensity", spec())
         doc = fixture()
         doc["version"] = "9.0"
-        with self.assertRaisesRegex(ValueError, "2026.2.4"):
+        with self.assertRaisesRegex(ValueError, "verified.*format-10"):
             effect_curves.clear_curve(doc, 3, "Sepia", "intensity", 1)
         with self.assertRaisesRegex(ValueError, "motion_paths.py"):
             effect_curves.edit_curve(fixture(), 3, "MediaPath", "intensity", spec())

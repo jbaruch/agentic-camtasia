@@ -35,7 +35,7 @@ Only named supported timing attributes and static scalar parameters are patched.
 Inactive none phases are preserved and cannot be edited into active phases.
 
 NAMES and PHASE_NAMES own the exact observed outer/phase identifiers, separately.
-Edits require Mac 2026.2.4/format 10 and visual owners in OWNERS.
+Edits require a verified Mac format-10 build and visual owners in OWNERS.
 Mirrored controls/tokens and complete owner clocks must agree; audio is untouched.
 Direct moving/frozen recordings and stitched parents retain cursor data, child
 clocks, virtual holds and source selection. Their complete native behavior
@@ -183,8 +183,8 @@ class JsonArgumentParser(argparse.ArgumentParser):
 
 
 def require_native(doc: dict[str, Any]) -> None:
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-        raise ValueError("use the verified Camtasia Mac 2026.2.4 format-10 behavior contract")
+    if not project.is_native_format10(doc):
+        raise ValueError("use a verified Camtasia Mac format-10 behavior contract")
     if project.number(doc.get("editRate")) <= 0:
         raise ValueError("repair the positive project edit rate before behavior edits")
 
@@ -321,6 +321,7 @@ def add_behavior(
 ) -> dict[str, Any]:
     require_native(doc)
     source = targets(template, template_clip_id, name, template_token)
+    project.require_same_authoring_build(doc, template)
     if project.number(doc["editRate"]) != project.number(template["editRate"]):
         raise ValueError("select a native template with the destination project edit rate")
     result = copy.deepcopy(doc)
@@ -408,6 +409,7 @@ def copy_phase(
     source = targets(template, template_clip_id, name, template_token)
     result = copy.deepcopy(doc)
     destination = targets(result, clip_id, name, token)
+    project.require_same_authoring_build(doc, template)
     if project.number(doc["editRate"]) != project.number(template["editRate"]):
         raise ValueError("select a native phase template with the destination project edit rate")
     if len(source) != len(destination) or any(

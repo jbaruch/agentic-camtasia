@@ -55,7 +55,23 @@ PREVIEW_CHARS = 180
 DEFAULT_DIFF_LIMIT = 200
 HASH_CHUNK_BYTES = 1024 * 1024
 NATIVE_LUFS_LITERAL = "-1.79769313486232e+308"
-NATIVE_LUFS_BUILD_FORMATS = {"2025.0.3": "9.0", "2026.2.4": "10.0"}
+NATIVE_LUFS_BUILD_FORMATS = {"2025.0.3": "9.0", "2026.2.4": "10.0", "2026.2.5": "10.0"}
+NATIVE_FORMAT10_BUILDS = {"2026.2.4": "2026.132", "2026.2.5": "2026.136"}
+
+
+def is_native_format10(doc: dict[str, Any]) -> bool:
+    """Recognize only explicitly checked Mac format-10 authoring identities."""
+    return doc.get("version") == "10.0" and any(
+        doc.get("authoringClientName")
+        == {"name": "Camtasia", "platform": "Mac", "version": version}
+        for version in NATIVE_FORMAT10_BUILDS
+    )
+
+
+def require_same_authoring_build(doc: dict[str, Any], template: dict[str, Any]) -> None:
+    """Keep native-template copies within one exact authoring build and format."""
+    if any(doc.get(key) != template.get(key) for key in ("version", "authoringClientName")):
+        raise ValueError("select a native template from the same authoring build and format")
 
 
 class NativeLoudnessSentinel(Decimal):
@@ -264,8 +280,7 @@ def native_lane_collisions(doc: dict[str, Any]) -> list[str]:
     nested/stitched clocks have separate contracts. Gaps and touching endpoints
     are legal. Unknown clip types remain opaque, not certified by this check.
     """
-    client = {"name": "Camtasia", "platform": "Mac", "version": "2026.2.4"}
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != client:
+    if not is_native_format10(doc):
         return []
     try:
         scenes = scene_tracks(doc)
@@ -318,8 +333,7 @@ def native_group_reopen_hazards(doc: dict[str, Any]) -> list[str]:
     The separate animated-text 0.5x probe shrinks from 4 to 3.5 to 3 seconds
     on fresh loads with a half-second in-point. No other speeds are inferred.
     """
-    client = {"name": "Camtasia", "platform": "Mac", "version": "2026.2.4"}
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != client:
+    if not is_native_format10(doc):
         return []
     errors = []
     for path, node in objects(doc.get("timeline", {}), "/timeline"):
@@ -355,8 +369,7 @@ def native_duplicate_track_indices(doc: dict[str, Any]) -> list[str]:
     logCorruptProjectOpened. Changing only those indices to 3/4 opened normally.
     Indices are scoped to each scene/Group; no contiguous-index rule is inferred.
     """
-    client = {"name": "Camtasia", "platform": "Mac", "version": "2026.2.4"}
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != client:
+    if not is_native_format10(doc):
         return []
     errors = []
     for path, node in objects(doc.get("timeline", {}), "/timeline"):
@@ -380,7 +393,7 @@ def native_duplicate_track_indices(doc: dict[str, Any]) -> list[str]:
 
 
 def native_hazards(doc: dict[str, Any]) -> list[str]:
-    """Reject reproduced native parser/save hazards in their observed builds.
+    """Retain reproduced parser/save guards across admitted format-10 builds.
 
     A static double phase parameter with a redundant point keyframe at zero
     reaches AnimationTrack::mutex() during native loading. The same ten-preset
@@ -396,11 +409,7 @@ def native_hazards(doc: dict[str, Any]) -> list[str]:
         + native_group_reopen_hazards(doc)
         + native_duplicate_track_indices(doc)
     )
-    if doc.get("version") == "10.0" and doc.get("authoringClientName") == {
-        "name": "Camtasia",
-        "platform": "Mac",
-        "version": "2026.2.4",
-    }:
+    if is_native_format10(doc):
         timeline = doc.get("timeline")
         scene_track = timeline.get("sceneTrack") if isinstance(timeline, dict) else None
         scenes = scene_track.get("scenes") if isinstance(scene_track, dict) else None
@@ -517,8 +526,7 @@ def native_geometry_warnings(doc: dict[str, Any]) -> list[str]:
     not the MediaPath point parameter or a recorded cursor's point contract.
     Other properties, owners and builds require their own native evidence.
     """
-    client = {"name": "Camtasia", "platform": "Mac", "version": "2026.2.4"}
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != client:
+    if not is_native_format10(doc):
         return []
     warnings = []
     for path, node in objects(doc.get("timeline", {}), "/timeline"):

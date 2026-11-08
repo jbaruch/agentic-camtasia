@@ -1,4 +1,4 @@
-"""Read Mac 2026.2.4 transition defaults from a caller-selected installation.
+"""Read native Mac transition defaults from a caller-selected installation.
 
 Only the observed metadata extension (trailing decimal points outside strings)
 is normalized. Project parsing stays strict. Shader strings are never executed,
@@ -91,10 +91,11 @@ def installed(app: Path) -> list[dict[str, Any]]:
     if (
         not isinstance(info, dict)
         or info.get("CFBundleIdentifier") != "com.techsmith.camtasia"
-        or info.get("CFBundleShortVersionString") != "2026.2.4"
-        or info.get("CFBundleVersion") != "2026.132"
+        or not isinstance(info.get("CFBundleShortVersionString"), str)
+        or (info.get("CFBundleShortVersionString"), info.get("CFBundleVersion"))
+        not in project.NATIVE_FORMAT10_BUILDS.items()
     ):
-        raise ValueError("select the verified Camtasia Mac 2026.2.4 (2026.132) installation")
+        raise ValueError("select a verified Camtasia Mac installation")
     presets = []
     names: set[str] = set()
     for path in sorted((app / "Contents/Resources/Transitions").glob("*.tsceffect")):

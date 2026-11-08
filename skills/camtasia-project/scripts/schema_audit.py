@@ -27,7 +27,7 @@ from jsonschema.exceptions import SchemaError
 
 import captions
 
-from project import clip_paths, load, native_hazards, nonfinite_errors, objects
+from project import clip_paths, is_native_format10, load, native_hazards, nonfinite_errors, objects
 
 UPSTREAM_COMMIT = "443a41e37cddb460c0aa6e046c951cb17f241bf3"
 UPSTREAM_URL = (
@@ -40,12 +40,29 @@ PROFILE_FILE = Path(__file__).resolve().parent.parent / "assets/mac-2025.0.3-pro
 PROFILE_FILES = {
     "mac-2025.0.3": PROFILE_FILE,
     "mac-2026.2.4": PROFILE_FILE.with_name("mac-2026.2.4-profile.json"),
+    "mac-2026.2.5": PROFILE_FILE.with_name("mac-2026.2.5-profile.json"),
 }
 MAX_MESSAGE = 240
 
 
 def read_document(path: Path) -> dict[str, Any]:
     return load(path)[0]
+
+
+def read_profile(name: str) -> dict[str, Any]:
+    """Resolve one local correction-set reference without changing build scope."""
+    profile = read_document(PROFILE_FILES[name])
+    if "changesFrom" in profile:
+        base_name = profile["changesFrom"]
+        if base_name not in PROFILE_FILES or "changes" in profile:
+            raise ValueError("profile requires one known correction set")
+        base = read_document(PROFILE_FILES[base_name])
+        if "changesFrom" in base or any(
+            profile[key] != base[key] for key in ("upstreamCommit", "upstreamSha256")
+        ):
+            raise ValueError("profile correction set requires the same schema and no chaining")
+        profile["changes"] = base["changes"] + profile.get("additionalChanges", [])
+    return profile
 
 
 def fetch_schema(output: Path) -> dict[str, Any]:
@@ -172,12 +189,10 @@ def audit(
             raise ValueError(
                 "compatibility profile does not match this document's editor build and format"
             )
-        checked = (
-            group_caption_schema_view(doc) if profile["id"] == "mac-2026.2.4-format-10" else doc
-        )
+        checked = group_caption_schema_view(doc) if is_native_format10(doc) else doc
         corrected_errors = errors_for(apply_profile(schema, profile), checked)
     hazards = native_hazards(doc) + nonfinite_errors(doc)
-    if profile is not None and profile["id"] == "mac-2026.2.4-format-10":
+    if profile is not None and is_native_format10(doc):
         for path, node in objects(doc.get("timeline", {}), "/timeline"):
             parameters = node.get("parameters")
             if (
@@ -224,7 +239,7 @@ def main(argv: list[str] | None = None) -> int:
         if args.profile:
             if hashlib.sha256(raw).hexdigest() != UPSTREAM_SHA256:
                 raise ValueError("profile requires the reviewed upstream schema hash; run fetch")
-            profile = read_document(PROFILE_FILES[args.profile])
+            profile = read_profile(args.profile)
         reports = []
         for path in args.projects:
             report = audit(read_document(path), schema, profile)

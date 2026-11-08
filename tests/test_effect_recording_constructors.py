@@ -209,9 +209,9 @@ class RecordingEffectConstructorTests(unittest.TestCase):
                 authoringClientName=dict(name="Camtasia", platform="Mac", version="2025.0.3"),
             )
             before = copy.deepcopy(doc)
-            with self.assertRaisesRegex(ValueError, "2026.2.4"):
+            with self.assertRaisesRegex(ValueError, "verified.*format-10"):
                 effects.edit_effect(doc, 3, "Missing", dict(schema_version=1, bypassed=True))
-            with self.assertRaisesRegex(ValueError, "2026.2.4"):
+            with self.assertRaisesRegex(ValueError, "verified.*format-10"):
                 effects.remove_effect(doc, 3, "Missing")
             self.assertEqual(doc, before)
 

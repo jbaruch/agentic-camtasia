@@ -81,8 +81,10 @@ links each representation to its native evidence and limitations.
 
 ## Scope and limits
 
-Native contracts target Mac 2025.0.3/format 9 and Mac 2026.2.4/format 10; individual
-helpers retain their exact build/owner restrictions. Structural validation and
+Native contracts target Mac 2025.0.3/format 9 and Mac 2026.2.4–2026.2.5/format 10;
+the [version guide](skills/camtasia-project/references/mac-versions.md) scopes
+the upgrade checks. Individual helpers retain their build/owner restrictions.
+Structural validation and
 successful saves do not establish rendered support. Source-bin closure does not
 establish fonts, installation assets or internal SVG/Lottie dependencies.
 

@@ -325,7 +325,7 @@ class EffectConstructorTests(unittest.TestCase):
                 version="9.0",
                 authoringClientName={"name": "Camtasia", "platform": "Mac", "version": "2025.0.3"},
             )
-        with self.assertRaisesRegex(ValueError, "2026.2.4"):
+        with self.assertRaisesRegex(ValueError, "verified.*format-10"):
             effects.add_effect(dest, 3, source, 3, "Sepia")
 
     def test_cli_stages_copies_without_touching_project_template_or_existing_outputs(self):

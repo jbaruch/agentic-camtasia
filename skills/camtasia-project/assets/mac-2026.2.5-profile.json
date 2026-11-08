@@ -1,0 +1,21 @@
+{
+  "id": "mac-2026.2.5-format-10",
+  "appliesTo": {
+    "formatVersion": "10.0",
+    "authoringClient": {
+      "name": "Camtasia",
+      "platform": "Mac",
+      "version": "2026.2.5"
+    }
+  },
+  "upstreamCommit": "443a41e37cddb460c0aa6e046c951cb17f241bf3",
+  "upstreamSha256": "e8df2fab865f9a42b953985c01a47bfc898da3641b50dc7d0af80af53794f08a",
+  "changesFrom": "mac-2026.2.4",
+  "additionalChanges": [
+    {
+      "operation": "append-enum",
+      "path": ["definitions", "effect", "properties", "effectName", "enum"],
+      "value": "Border"
+    }
+  ]
+}

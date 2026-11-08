@@ -53,6 +53,9 @@ class NativeRoundtripTests(unittest.TestCase):
                     "CFBundleIdentifier": "com.techsmith.camtasia",
                     "CFBundleExecutable": "Camtasia",
                     "CFBundleShortVersionString": version,
+                    "CFBundleVersion": {"2026.2.4": "2026.132", "2026.2.5": "2026.136"}.get(
+                        version, "2025.1022"
+                    ),
                 }
             )
         )
@@ -166,6 +169,37 @@ class NativeRoundtripTests(unittest.TestCase):
     def test_known_editor_with_mismatched_project_format_is_refused(self) -> None:
         with self.assertRaisesRegex(ValueError, "project format"):
             native_roundtrip.select_editor(dict(self.doc, version="10.0"), self.health_report)
+
+    def test_matching_unknown_author_and_app_do_not_bypass_native_build_evidence(self) -> None:
+        app = self.make_editor("Unverified.app", "2026.2.6")
+        doc = dict(
+            self.doc,
+            version="10.0",
+            authoringClientName={"name": "Camtasia", "platform": "Mac", "version": "2026.2.6"},
+        )
+        with self.assertRaisesRegex(ValueError, "no verified profile"):
+            native_roundtrip.select_editor(doc, self.editor_health(app), app)
+
+    def test_2026_2_5_selection_requires_its_native_format_and_matching_app(self) -> None:
+        app = self.make_editor("Camtasia current.app", "2026.2.5")
+        doc = dict(
+            self.doc,
+            version="10.0",
+            authoringClientName={"name": "Camtasia", "platform": "Mac", "version": "2026.2.5"},
+        )
+        health = self.editor_health(app)
+        result = native_roundtrip.select_editor(doc, health, app)
+        self.assertEqual(result["version"], "2026.2.5")
+        with self.assertRaisesRegex(ValueError, "project format"):
+            native_roundtrip.select_editor(dict(doc, version="9.0"), health, app)
+        with self.assertRaisesRegex(ValueError, "authoring build"):
+            native_roundtrip.select_editor(doc, self.health_report)
+        info_path = app / "Contents/Info.plist"
+        info = plistlib.loads(info_path.read_bytes())
+        info["CFBundleVersion"] = "2026.132"
+        info_path.write_bytes(plistlib.dumps(info))
+        with self.assertRaisesRegex(ValueError, "verified native build"):
+            native_roundtrip.select_editor(doc, health, app)
 
     def test_wrong_build_or_missing_editor_is_refused_before_backup_or_native_calls(self) -> None:
         reports = [

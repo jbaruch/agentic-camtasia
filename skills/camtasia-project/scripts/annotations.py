@@ -5,7 +5,7 @@ inspect PROJECT lists Callouts, complete definitions, leftEdgeMods and declared 
 add PROJECT --track SCENE:TRACK --new-clip-id ID --template-project TEMPLATE
 --template-clip-id ID --output CANDIDATE copies a complete standalone Callout
 from its own root lane into an existing empty root lane. Both projects must be
-single-scene Mac 2026.2.4 format 10 with equal edit rate and canvas dimensions.
+single-scene native Mac format 10 from the same build, with equal edit rate and canvas dimensions.
 All clocks, opaque fields, native style IDs, animation tracks and drawing edge
 modifiers survive. One-sided Fade companions are copied with remapped media IDs.
 No retiming, group extraction, source/resource copying or effect rebinding is
@@ -207,8 +207,8 @@ class JsonArgumentParser(argparse.ArgumentParser):
 
 
 def require_native(doc: dict[str, Any]) -> None:
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-        raise ValueError("use the verified Mac 2026.2.4 format-10 annotation contract")
+    if not project.is_native_format10(doc):
+        raise ValueError("use a verified Mac format-10 annotation contract")
     if project.number(doc.get("editRate")) <= 0:
         raise ValueError("repair the positive project edit rate")
 
@@ -862,6 +862,7 @@ def add_annotation(
 ) -> dict[str, Any]:
     require_native(doc)
     source = target(template, template_id)
+    project.require_same_authoring_build(doc, template)
     if len(project.scene_tracks(doc)) != 1 or len(project.scene_tracks(template)) != 1:
         raise ValueError("capture a single-scene native annotation template and destination")
     if (

@@ -456,7 +456,7 @@ class StitchedCaptionTests(unittest.TestCase):
             elif mutation == "origin":
                 p["minMediaStart"] = R
             elif mutation == "client":
-                doc["authoringClientName"]["version"] = "2026.2.5"
+                doc["authoringClientName"]["version"] = "2026.2.6"
             elif mutation == "audio-duplicate":
                 child["audio"]["id"] = 6
             elif mutation == "child-captions":

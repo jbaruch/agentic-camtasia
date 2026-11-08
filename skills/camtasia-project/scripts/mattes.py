@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Inspect and stage Mac 2026.2.4 format-10 media/track mattes as JSON.
+"""Inspect and stage verified Mac format-10 media/track mattes as JSON.
 
 MODES owns native mode codes; MEDIA_TYPES owns visual owner support, including
 moving/frozen screen recordings and stitched parents. Ordinary linked
@@ -119,8 +119,8 @@ class JsonHelpParser(argparse.ArgumentParser):
 
 
 def require_native(doc: dict[str, Any]) -> None:
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-        raise ValueError("use the observed Mac 2026.2.4 format-10 matte contract")
+    if not project.is_native_format10(doc):
+        raise ValueError("use an observed Mac format-10 matte contract")
 
 
 def mode_code(mode: str) -> int:

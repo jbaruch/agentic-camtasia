@@ -1,5 +1,23 @@
 # Changelog
 
+## 0.62.0 — 2026-11-07
+
+### Added
+
+- Mac 2026.2.5 (2026.136) format-10 support, with a separate exact-build schema
+  profile and native `Border` correction found through local MP4 Rev import.
+  Project helpers retain earlier-build support and same-build template copying;
+  resource lookup and the native adapter check the actual app version/build pair.
+  Deferred quiz work stays on its existing contract.
+- Upgrade verification covers nine native movies, five identical complete decoded
+  video/audio pairs, 120 fitted-caption highlight frames and sample-identical
+  reopened AI Noise Removal output. Caption RGB output differs from 2026.2.4;
+  the version guide records measured differences, unchanged visible layout in the
+  inspected controls, Rev's working Effects tab and processor behavior. Preset
+  resources remain unchanged; new noise-removal model files expose no new observed
+  selector. Broader native matrices, camera/step-image fixes and remaining Rev,
+  Zoom/cloud and caption gaps retain their separate completion work.
+
 ## 0.61.0 — 2026-11-07
 
 ### Added

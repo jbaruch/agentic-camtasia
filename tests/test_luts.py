@@ -368,7 +368,7 @@ class LutTests(unittest.TestCase):
                 changed = plistlib.loads(before)
                 changed[key] = "different"
                 info.write_bytes(plistlib.dumps(changed))
-                with self.assertRaisesRegex(ValueError, "2026.2.4"):
+                with self.assertRaisesRegex(ValueError, "verified Camtasia Mac build"):
                     luts.resources(app, root / "absent")
             for raw in [b"bad plist", b'<?xml version="1.0"?><plist>broken']:
                 info.write_bytes(raw)

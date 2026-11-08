@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Stage explicit created and recorded cursor paths on Mac 2026.2.4 format 10.
+"""Stage explicit created and recorded cursor paths on verified Mac format 10.
 
 inspect PROJECT lists physical CursorPath effects. set-path PROJECT --clip-id ID
 --spec SPEC --output CANDIDATE replaces only cursorLocation keyframes in an
@@ -77,8 +77,8 @@ def planar_vector(value: Any) -> None:
 
 
 def selected(doc: dict[str, Any], clip_id: int) -> list[tuple[dict[str, Any], dict[str, Any]]]:
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-        raise ValueError("use the verified Mac 2026.2.4 format-10 created-cursor path contract")
+    if not project.is_native_format10(doc):
+        raise ValueError("use a verified Mac format-10 created-cursor path contract")
     path, visual = hotspots.visual_target(doc, clip_id, visual_types=OWNERS)
     ancestors = [(p, n) for p, n in hotspots.clips(doc) if path.startswith(p + "/")]
     if any(n.get("_type") != "UnifiedMedia" or path != p + "/video" for p, n in ancestors):
@@ -159,8 +159,8 @@ def set_path(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict[st
 
 
 def recording_target(doc: dict[str, Any], clip_id: int) -> dict[str, Any]:
-    if doc.get("version") != "10.0" or doc.get("authoringClientName") != hotspots.NATIVE_CLIENT:
-        raise ValueError("use the verified Mac 2026.2.4 format-10 recorded cursor contract")
+    if not project.is_native_format10(doc):
+        raise ValueError("use a verified Mac format-10 recorded cursor contract")
     path, owner = hotspots.visual_target(doc, clip_id, visual_types=RECORDING_OWNERS)
     if any(path.startswith(parent + "/") for parent, _ in hotspots.clips(doc)):
         raise ValueError("select a standalone root moving recording; capture other cursor clocks")

@@ -14,6 +14,12 @@ and Audiate. Skip their remaining work, including quiz-specific SCORM session
 follow-ups, and exclude it from the 1.0 gate; retain
 the other gaps in the completion plan.
 
+Version 0.62.0 adds the exact Mac 2026.2.5 build/profile, retains same-build
+template restrictions and verifies caption, audio and local-MP4 Rev output.
+The [version guide](../skills/camtasia-project/references/mac-versions.md#mac-202625-upgrade-checks)
+records changed pixel output, new model resources and remaining limits.
+Rev's local Effects tab works; other Rev/Zoom/cloud completion tasks stay pending.
+
 Version 0.61.0 adds native-template block-transition selection and reversal for
 dynamic captions, including None and independent duration preservation. Native
 UI/helper and root/Group save/reopen/render checks retain source words and clocks.

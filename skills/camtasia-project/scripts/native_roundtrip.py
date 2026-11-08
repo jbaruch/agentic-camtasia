@@ -54,6 +54,14 @@ def select_editor(
     ):
         raise ValueError("cannot verify the running Camtasia identity; inspect its app bundle")
     identity = document.get("authoringClientName")
+    app_version = info["CFBundleShortVersionString"]
+    if (
+        app_version in project.NATIVE_FORMAT10_BUILDS
+        and info.get("CFBundleVersion") != project.NATIVE_FORMAT10_BUILDS[app_version]
+    ):
+        raise ValueError(
+            "the running editor is not the verified native build; inspect its app bundle"
+        )
     if (
         not isinstance(identity, dict)
         or identity.get("name") != "Camtasia"
@@ -65,16 +73,20 @@ def select_editor(
             "open the matching version or perform an explicit conversion in the editor"
         )
     signature = {key: identity[key] for key in ("name", "platform", "version")}
+    matched_profile = False
     for profile_path in (Path(__file__).resolve().parent.parent / "assets").glob("*-profile.json"):
         match = json.loads(profile_path.read_text())["appliesTo"]
-        if (
-            match["authoringClient"] == signature
-            and document.get("version") != match["formatVersion"]
-        ):
-            raise ValueError(
-                "the project format does not match this verified authoring build; "
-                "use a same-build native template or convert explicitly in the editor"
-            )
+        if match["authoringClient"] == signature:
+            matched_profile = True
+            if document.get("version") != match["formatVersion"]:
+                raise ValueError(
+                    "the project format does not match this verified authoring build; "
+                    "use a same-build native template or convert explicitly in the editor"
+                )
+    if not matched_profile:
+        raise ValueError(
+            "the authoring build has no verified profile; capture its native contract first"
+        )
     return {"app": str(application), "pid": editor["pid"], "version": identity["version"]}
 
 
