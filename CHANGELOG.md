@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.63.2 — 2026-11-07
+
+### Added
+
+- Verified dynamic-caption alignment through the existing annotation definition
+  route on Mac 2026.2.5. Horizontal choices visibly move text; top→bottom shifts
+  the measured glyph bounds by 2 pixels with Bebas and 28 with Hoefler Text in
+  the exercised specimen. The guide records this font-dependent vertical behavior
+  without promising alignment against the full background box's edges.
+- Fourteen native exports verify 1,680 highlight frames and six complete decoded
+  RGB/PCM pairs across UI/helper parity and root/Group center reset/reopen paths.
+  All audio matches. Helper edits retain partial rich ranges and owner reset RTF;
+  regression fixtures now place reset metadata on its observed native owner.
+  Other caption layout, rich-style and RTF completion tasks remain pending.
+
 ## 0.63.1 — 2026-11-07
 
 ### Added

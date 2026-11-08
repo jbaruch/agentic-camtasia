@@ -374,6 +374,11 @@ opaque style IDs and default fonts survive. Shape/style identifiers are not
 editable substitutes for full preset definitions. Numeric definition edits
 retain static typed descriptors and refuse animated parameters.
 
+The same route edits [native dynamic-caption alignment](captions.md#dynamic-caption-alignment):
+`{"schema_version":1,"definition":{"horizontal-alignment":"right","vertical-alignment":"bottom"}}`.
+Inspect the rendered position in the actual font; the native evidence records
+font-dependent vertical shifts and preserves the independent caption box.
+
 Dynamic captions use this definition route for
 [native line spacing](captions.md#dynamic-caption-line-spacing), for example
 `{"schema_version":1,"definition":{"line-spacing":"3/2"}}`.

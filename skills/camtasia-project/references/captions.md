@@ -1229,7 +1229,7 @@ WAV/recording bytes and the protected original remain unchanged. Four saved
 root/Group candidates have eight raw upstream schema errors each, zero errors
 under the exact-build profile and zero native compatibility errors.
 
-Alignment, wrapping, autoresizing and outline placement retain
+Wrapping, autoresizing and outline placement retain
 separate unfinished native-output checks. Saved values alone do not establish
 those controls' rendered behavior.
 
@@ -1265,3 +1265,38 @@ zero corrected errors and zero native compatibility errors under the exact-build
 profile. Deterministic regressions retain partial rich styles and reset data,
 exercise scalar/static typed line spacing, reject invalid or animated forms
 atomically and stage the existing CLI without writing the source.
+
+## Dynamic-caption alignment
+
+Mac 2026.2.5 (2026.136), format 10, saves the native alignment buttons in the
+existing `def.horizontal-alignment` and `def.vertical-alignment` strings.
+The [annotation helper contract](helper.md#annotation-json-editing) owns accepted
+inputs and refusal conditions. Its definition route edits those fields while
+preserving word binding, clocks, geometry, reset metadata and partial rich styles.
+The first native horizontal edit in this specimen also adds owner
+`metadata.default-text` RTF, reorders rich properties and expands inactive
+underline/strikethrough ranges from 0–1 to 0–3. Native top alignment adds owner
+`metadata.default-callout-vertical-alignment: "center"`. The helper preserves
+the original partial ranges and matches the native UI's complete rendered output.
+
+The 600×160, rich-size-32 Bebas specimen uses eleven synthetic glyph-test words
+with unchanged source onsets. At frame 24, the leftmost white glyph pixel moves
+from x=433 to 523 to 612 for left, center and right. Top, center and bottom place
+the top white pixel at y=805, 806 and 807. Two otherwise matching Hoefler Text
+controls move that pixel from y=799 to 827 for top→bottom. Vertical placement is
+font-dependent here; these controls do not establish alignment against the full
+background box's edges. Verify the intended visual position with the actual font
+and text. The glyph fixture remains independent of the spoken source WAV.
+
+Fourteen four-second exports verify all 1,680 word-highlight frames. Six complete
+decoded RGB/PCM pairs match: native right/bottom UI/helper, helper/reopen,
+root/Group, Group/reopen, native center/Group center reset and reset/reopen.
+All fourteen decoded audio streams match. Inspected contacts retain all eleven
+words and their expected highlights. Nine staged candidates retain parsed
+payloads and bundled media after native saves; the helper and Group reset also
+reopen. Native grouping moves the caption translation onto the Group, remaps IDs
+and adds unlocked child-lane metadata on reopen. The protected original remains
+unchanged. Four saved candidates have eight raw upstream schema errors each,
+zero corrected errors and zero native compatibility errors under the exact-build
+profile. Deterministic regressions cover both axes' choices and center restoration
+on root/Group displays while retaining owner reset RTF, partial styles and geometry.
