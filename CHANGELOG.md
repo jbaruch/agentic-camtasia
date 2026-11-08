@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.63.1 — 2026-11-07
+
+### Added
+
+- Verified dynamic-caption line spacing through the existing annotation definition
+  route on Mac 2026.2.5. Native V Spacing 0→1.5 visibly increases the gap between
+  wrapped lines; helper edits preserve styles, source words, clocks and reset data.
+- Eight native exports verify 960 highlight frames and six complete decoded
+  RGB/PCM pairs across UI/helper parity, root/Group reopen and zero reset paths.
+  All audio matches; four exact-build schema audits pass. Existing regression
+  tests now cover line spacing, retained static descriptors and atomic refusals.
+  Alignment, wrapping, sizing, outline placement and remaining RTF work stay pending.
+
 ## 0.63.0 — 2026-11-07
 
 ### Added

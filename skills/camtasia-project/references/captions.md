@@ -1229,6 +1229,39 @@ WAV/recording bytes and the protected original remain unchanged. Four saved
 root/Group candidates have eight raw upstream schema errors each, zero errors
 under the exact-build profile and zero native compatibility errors.
 
-Alignment, wrapping, autoresizing, line spacing and outline placement retain
+Alignment, wrapping, autoresizing and outline placement retain
 separate unfinished native-output checks. Saved values alone do not establish
 those controls' rendered behavior.
+
+## Dynamic-caption line spacing
+
+Mac 2026.2.5 (2026.136), format 10, saves native **V Spacing** as the existing
+bare `def.line-spacing` number. The isolated native 0→1.5 edit also adds
+`default-callout-line-spacing: "0"` and increments the command counter.
+Use the [annotation helper contract](helper.md#annotation-json-editing) for
+accepted inputs, static parameter forms and refusal conditions. The exercised
+CLI definition edit preserves unrelated styles, reset data, source words and
+clocks; it uses the same annotation route as other caption layout fields.
+
+The 600×160 Hoefler Text specimen from the
+[character-spacing controls](#dynamic-caption-character-spacing-and-ligatures)
+has rich size 32, spacing 0.1, disabled ligatures and a two-line first sentence.
+At frame 24, changing V Spacing to 1.5 increases measured major white-glyph-band
+separation by 48 pixels. Inspected contacts retain all eleven synthetic words
+and their expected highlights. The source-word fixture retains its onsets and
+is independent of the spoken source WAV. The single-line second sentence
+remains complete. These observations establish visible line spacing on this
+specimen, without guaranteeing fitting for arbitrary boxes or spacing values.
+
+Eight four-second exports verify all 960 word-highlight frames. Six complete
+decoded RGB/PCM pairs match: native UI/helper, helper/reopen, root/Group,
+Group/reopen, root zero-spacing/Group reset and reset/reopen. All eight decoded
+audio streams match. Four staged candidates retain their parsed payloads and
+bundled media after native saves; the root helper and Group reset also reopen.
+Native grouping moves the caption translation onto the Group and remaps IDs;
+reopening adds unlocked child-lane metadata. The protected original remains
+unchanged. Four saved candidates have eight raw upstream schema errors each,
+zero corrected errors and zero native compatibility errors under the exact-build
+profile. Deterministic regressions retain partial rich styles and reset data,
+exercise scalar/static typed line spacing, reject invalid or animated forms
+atomically and stage the existing CLI without writing the source.

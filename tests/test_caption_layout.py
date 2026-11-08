@@ -22,6 +22,7 @@ INITIAL = {
     "enable-ligatures": 1.0,
     "word-wrap": 1.0,
     "text-stroke-alignment": 2.0,
+    "line-spacing": 0.0,
 }
 CHANGES = {
     "horizontal-alignment": "left",
@@ -30,6 +31,7 @@ CHANGES = {
     "enable-ligatures": 0,
     "word-wrap": 0,
     "text-stroke-alignment": 1,
+    "line-spacing": 1.5,
 }
 
 
@@ -38,6 +40,7 @@ def fixture():
     definition = selected(doc)["def"]
     definition.update(INITIAL)
     definition.update(width=600.0, height=160.0)
+    definition["default-callout-line-spacing"] = "0"
     definition["textAttributes"]["keyframes"][0]["value"].extend(
         [
             dict(name="strikethrough", rangeStart=0, rangeEnd=1, valueType="int", value=0),
@@ -82,6 +85,9 @@ class CaptionLayoutTests(unittest.TestCase):
             ("word-wrap", None),
             ("text-stroke-alignment", 3),
             ("text-stroke-alignment", float("nan")),
+            ("line-spacing", -1),
+            ("line-spacing", "31/10"),
+            ("line-spacing", True),
         ):
             doc = fixture()
             before = copy.deepcopy(doc)
@@ -90,32 +96,33 @@ class CaptionLayoutTests(unittest.TestCase):
             with self.subTest(name=name, value=value), self.assertRaises(ValueError):
                 annotations.edit_annotation(doc, 6, dict(schema_version=1, definition=request))
             self.assertEqual(doc, before)
-        for value in (
-            None,
-            {"type": "double"},
-            {"type": "double", "defaultValue": 1, "keyframes": [{"time": 0, "value": 1}]},
-        ):
+        for name, initial, changed in (("word-wrap", 1.0, 0.0), ("line-spacing", 0.0, 1.5)):
+            for value in (
+                None,
+                {"type": "double"},
+                {"type": "double", "defaultValue": 1, "keyframes": [{"time": 0, "value": 1}]},
+            ):
+                doc = fixture()
+                if value is None:
+                    del selected(doc)["def"][name]
+                else:
+                    selected(doc)["def"][name] = value
+                before = copy.deepcopy(doc)
+                with self.subTest(name=name, value=value), self.assertRaises(ValueError):
+                    annotations.edit_annotation(doc, 6, dict(schema_version=1, definition=CHANGES))
+                self.assertEqual(doc, before)
             doc = fixture()
-            if value is None:
-                del selected(doc)["def"]["word-wrap"]
-            else:
-                selected(doc)["def"]["word-wrap"] = value
-            before = copy.deepcopy(doc)
-            with self.subTest(value=value), self.assertRaises(ValueError):
-                annotations.edit_annotation(doc, 6, dict(schema_version=1, definition=CHANGES))
-            self.assertEqual(doc, before)
-        doc = fixture()
-        selected(doc)["def"]["word-wrap"] = dict(
-            type="double", defaultValue=1.0, keyframes=[], opaque=["keep"]
-        )
-        expected = copy.deepcopy(doc)
-        selected(expected)["def"]["word-wrap"]["defaultValue"] = 0.0
-        self.assertEqual(
-            annotations.edit_annotation(
-                doc, 6, dict(schema_version=1, definition={"word-wrap": 0})
-            ),
-            expected,
-        )
+            selected(doc)["def"][name] = dict(
+                type="double", defaultValue=initial, keyframes=[], opaque=["keep"]
+            )
+            expected = copy.deepcopy(doc)
+            selected(expected)["def"][name]["defaultValue"] = changed
+            self.assertEqual(
+                annotations.edit_annotation(
+                    doc, 6, dict(schema_version=1, definition={name: changed})
+                ),
+                expected,
+            )
 
     def test_uniform_rich_edit_still_refuses_partial_caption_ranges_without_flattening(self):
         doc = fixture()
