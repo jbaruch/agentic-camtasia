@@ -286,7 +286,9 @@ def spec_records(
                 selected = row["postscript_names"]
                 faces = font_faces(raw)
                 for face in selected_faces(faces, selected):
-                    aliases = {v for k in ("1", "6", "16") for v in face["names"][k]}
+                    aliases = {
+                        v for k in ("1", "6", "16") for v in face["names"][k]
+                    } | postscript_names(face)
                     if not aliases & declared:
                         raise ValueError(
                             "select physical faces related to inspected project declarations"

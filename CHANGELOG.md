@@ -16,7 +16,7 @@
   its requested font names, demonstrating that a saved declaration does not
   prove effective font resolution. Font-present activation/recovery comparisons
   and complete render-resource closure remain pending for 1.0.
-- Fifteen regression tests cover physical/variable/collection metadata, explicit
+- Seventeen regression tests cover physical/variable/collection metadata, explicit
   rights and face selections, stable hashes, independent copies, output aliases,
   failure cleanup, manifest tampering, duplicate versions and optional parser
   handling. The optional parser is pinned and Python dependency renewal is

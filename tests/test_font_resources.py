@@ -192,6 +192,47 @@ class FontResourceTests(unittest.TestCase):
             report["fontFiles"][0]["sha256"], project.digest(self.regular.read_bytes())
         )
 
+    def test_named_variable_instance_declaration_stages_the_unmodified_physical_font(self):
+        raw = font_file(variable=True)
+        self.regular.write_bytes(raw)
+        self.doc["timeline"]["captionAttributes"]["fontName"] = "FixtureHandoff-NamedBold"
+        self.before = project.encode_document(self.doc)
+        self.source.write_bytes(self.before)
+        self.expected = project.digest(self.before)
+        self.spec["fonts"] = [self.font_row(self.regular, "FixtureHandoff-NamedBold")]
+        report = self.stage()
+        row = report["manifest"]["fonts"][0]
+        self.assertEqual(row["postscriptNames"], ["FixtureHandoff-NamedBold"])
+        self.assertEqual(row["faces"][0]["namedInstances"][0]["coordinates"], {"wght": 700})
+        self.assertEqual((self.output / row["relativePath"]).read_bytes(), raw)
+        self.assertTrue(fonts.verify_handoff(self.output)["ok"])
+        self.assertFalse(self.stage()["written"])
+        self.assertEqual(self.source.read_bytes(), self.before)
+
+    def test_collection_staging_preserves_all_faces_in_one_independent_file(self):
+        collection = TTCollection()
+        collection.fonts = [
+            TTFont(io.BytesIO(self.regular.read_bytes()), recalcTimestamp=False),
+            TTFont(io.BytesIO(self.bold.read_bytes()), recalcTimestamp=False),
+        ]
+        output = io.BytesIO()
+        collection.save(output)
+        collection.close()
+        raw = output.getvalue()
+        path = self.root / "Collection.ttc"
+        path.write_bytes(raw)
+        self.spec["fonts"] = [self.font_row(path, "FixtureHandoff-Regular", "FixtureHandoff-Bold")]
+        report = self.stage()
+        self.assertEqual(len(report["manifest"]["fonts"]), 1)
+        row = report["manifest"]["fonts"][0]
+        target = self.output / row["relativePath"]
+        self.assertEqual(target.read_bytes(), raw)
+        self.assertNotEqual(target.stat().st_ino, path.stat().st_ino)
+        self.assertEqual(len(row["faces"]), 2)
+        self.assertEqual(row["postscriptNames"], ["FixtureHandoff-Regular", "FixtureHandoff-Bold"])
+        self.assertTrue(fonts.verify_handoff(self.output)["ok"])
+        self.assertFalse(self.stage()["written"])
+
     def test_staging_keeps_whole_files_and_notices_independent_and_reruns_as_noop(self):
         report = self.stage()
         self.assertTrue(report["written"])
