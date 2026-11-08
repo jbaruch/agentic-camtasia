@@ -1403,3 +1403,53 @@ reset data and protected originals remain unchanged. Five saved root/Group
 candidates each have eight raw upstream schema errors, zero corrected errors
 and zero native compatibility errors under the exact-build profile. Remaining
 rich-style/RTF work, automatic fitting and disabling wrapping stay pending.
+
+## Dynamic-caption underline and strikethrough
+
+Mac 2026.2.5 (2026.136), format 10, saves enabled native **Underline** and
+**Strike-through** as integer `1` in their existing rich records; clearing saves
+`0`. The caption strikethrough code is separate from ordinary annotation text's
+signed-code contract. Use the [caption helper contract](helper.md#caption-json-editing)
+to enable or clear these styles on an existing dynamic-caption Callout, including
+a selected child inside a native Group. Other builds retain their existing
+font/color editing contract. No source words or placeholder text are replaced.
+
+The native specimen's literal placeholder is `ABC`. Its inactive underline and
+strikethrough records initially cover bytes 0–1 with value zero. Enabling a style
+writes value one over bytes 0–3; the native UI also expands the other inactive
+style's range to 0–3. Clearing retains those full ranges with value zero. The
+helper changes only the requested decoration. Its underline-only and
+strikethrough-only candidates retain the other inactive 0–1 range and match the
+native UI's complete rendered output. Existing owner `metadata.default-text`
+reset RTF, unrelated rich fields, source words and clocks survive.
+
+The four-second Bebas specimen uses rich size 64, a 600×160 box and eleven
+source-bound words. Native exports visibly show underline, strikethrough, both
+together and clearing. Lines follow the rendered caption words and active-word
+colors, rather than styling the literal placeholder on screen. The helper's
+combined-style output also matches after native grouping and reopening; clearing
+inside that Group reproduces the undecorated root output. Group bounds and
+translation remain independent and unchanged by helper style edits.
+
+Thirteen four-second exports verify all 1,560 active-word frames and nine
+complete decoded RGB/PCM pairs: native baseline/clear, three native UI/helper
+style pairs, helper/reopen, root/Group both, Group/reopen, root clear/Group clear
+and its reopen. Every audio stream matches. Four distinct rendered style states
+have inspected word-state contacts, with full-stream equality for counterparts.
+Four helper candidates retain their parsed payloads through native saves;
+native grouping remaps IDs and moves translation onto the Group, and reopening
+adds unlocked child-lane metadata. Bundled media and protected originals remain
+unchanged. Five saved candidates each have eight raw upstream schema errors,
+zero corrected errors and zero native compatibility errors under the exact-build
+profile. Regressions cover independent/combined styles, clear/no-op behavior,
+UTF-8 ranges, Group preservation, earlier-build font support, CLI staging and
+atomic refusals for ambiguous or unfamiliar targets.
+
+One cold open of the owned Group-construction copy stalled before grouping.
+Activity Monitor confirmed the exact editor Not Responding; the sample showed
+a blocked preview/window path and a font-layout wait. The preserved input opened
+unchanged after recovering only that editor, and subsequent Group renders passed.
+This does not establish a cause or permanent stability fix; use the
+[native recovery procedure](native-verification.md#serialized-native-work-and-stability).
+Other rich-style operations and RTF forms, automatic fitting and disabling
+wrapping remain completion tasks.

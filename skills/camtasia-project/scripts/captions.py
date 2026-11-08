@@ -110,6 +110,14 @@ display. Spec schema_version 1 accepts start/duration seconds, definition (exist
 supported numeric controls), and rich (existing fields in DISPLAY_RICH_FIELDS).
 Native horizontal spacing uses the existing full-placeholder kerning property
 on DISPLAY_KERNING_VERSIONS. Values retain the native UI's raw signed units.
+Underline/strikethrough on DISPLAY_DECORATION_VERSIONS use native integer 0/1
+flags, including strikethrough (not the ordinary annotation's signed code).
+Each requested decoration requires a nonempty placeholder and one existing
+static int property. A range covering the full placeholder can be edited directly;
+an inactive zero-valued [0,1] prefix covering one complete character expands only
+when enabling that decoration.
+Clearing an inactive prefix leaves it unchanged. Active partial ranges,
+duplicates and unfamiliar existing codes refuse. Unrequested ranges survive.
 Active-word stroke RGBA uses 0..1; its glow radius is nonnegative in saved
 native units. Stroke width remains separate from the ordinary text outline.
 Background controls include block fill RGBA/corner radius and active-word
@@ -118,8 +126,8 @@ extra size is a fraction (native Scale 20% is 0.2); radii and time use the saved
 native values. Radii, extra size and transition time must be nonnegative. Zero
 alpha hides that background without clearing its RGB. Only existing static
 fields are patched.
-The native placeholder, partial rich ranges, style IDs and all other controls
-remain unchanged. Bound edits require an untrimmed scalar-one clean display.
+The native placeholder, unrelated partial rich ranges, style IDs and all other
+controls remain unchanged. Bound edits require an untrimmed scalar-one clean display.
 Group descendants require clock parent, accept signed local placement and retain
 every ancestor. Edited bounds use the parent clock's document frame grid; source
 onsets stay subframe. Display bounds are separate from source-word clock mapping.
@@ -210,8 +218,12 @@ DISPLAY_NUMBERS = frozenset(
         for ch in ("red", "green", "blue", "alpha")
     }
 )
-DISPLAY_RICH_FIELDS = frozenset({"fontName", "fontSize", "fgColor", "kerning"})
+DISPLAY_DECORATIONS = frozenset({"underline", "strikethrough"})
+DISPLAY_RICH_FIELDS = (
+    frozenset({"fontName", "fontSize", "fgColor", "kerning"}) | DISPLAY_DECORATIONS
+)
 DISPLAY_KERNING_VERSIONS = frozenset({"2026.2.5"})
+DISPLAY_DECORATION_VERSIONS = frozenset({"2026.2.5"})
 
 
 class JsonHelpParser(annotations.JsonArgumentParser):
@@ -1408,9 +1420,7 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
     keys = {"start", "duration", "definition", "rich", "clock"}
     spec_keys(spec, keys, set())
     if not spec.keys() - {"schema_version", "clock"}:
-        raise ValueError(
-            "name a display bound, existing definition control or existing rich font/color"
-        )
+        raise ValueError("name a display bound, existing definition control or existing rich style")
     result = copy.deepcopy(doc)
     if "clock" in spec and spec["clock"] != "parent":
         raise ValueError("use explicit clock parent for Group display bounds")
@@ -1472,6 +1482,11 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
             and result["authoringClientName"]["version"] not in DISPLAY_KERNING_VERSIONS
         ):
             raise ValueError("use the verified Mac 2026.2.5 horizontal-spacing contract")
+        if (
+            changes.keys() & DISPLAY_DECORATIONS
+            and result["authoringClientName"]["version"] not in DISPLAY_DECORATION_VERSIONS
+        ):
+            raise ValueError("use the verified Mac 2026.2.5 caption-decoration contract")
         attributes, text = definition.get("textAttributes"), definition.get("text")
         if (
             not isinstance(attributes, dict)
@@ -1491,6 +1506,7 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
             or not isinstance(frames[0].get("value"), list)
         ):
             raise ValueError("capture a static native display rich frame before styling")
+        length = len(text.encode("utf-8"))
         for name, value in changes.items():
             runs = [r for r in frames[0]["value"] if isinstance(r, dict) and r.get("name") == name]
             if (
@@ -1499,10 +1515,31 @@ def set_display(doc: dict[str, Any], clip_id: int, spec: dict[str, Any]) -> dict
                 or type(runs[0].get("rangeStart")) is not int
                 or runs[0]["rangeStart"] != 0
                 or type(runs[0].get("rangeEnd")) is not int
-                or runs[0]["rangeEnd"] != len(text.encode("utf-8"))
             ):
                 raise ValueError("select one full-placeholder native rich property: " + name)
-            runs[0]["value"] = annotations.rich_value(name, value)
+            run = runs[0]
+            if name in DISPLAY_DECORATIONS:
+                if not length or any(
+                    type(v) is not int or v not in (0, 1) for v in (value, run.get("value"))
+                ):
+                    raise ValueError(
+                        "capture existing native 0/1 caption flags and supply integer 0 or 1: "
+                        + name
+                    )
+                if run["rangeEnd"] != length:
+                    if (
+                        run["rangeEnd"] != 1
+                        or run["value"] != 0
+                        or len(text[0].encode("utf-8")) != 1
+                    ):
+                        raise ValueError("capture a full-placeholder caption decoration: " + name)
+                    if value == 1:
+                        run["rangeEnd"] = length
+                run["value"] = value
+            else:
+                if run["rangeEnd"] != length:
+                    raise ValueError("select one full-placeholder native rich property: " + name)
+                run["value"] = annotations.rich_value(name, value)
     return result
 
 
