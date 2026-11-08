@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.60.0 — 2026-11-07
+
+### Added
+
+- `set-display` edits existing active-word stroke RGBA and glow radius without
+  changing ordinary text outlines, stroke width, highlight activation, source
+  words or clocks. Missing, animated or unfamiliar parameter forms refuse.
+- Ten native movies verify 1,200 highlight frames, isolated RGB/opacity/glow
+  changes and four identical decoded video/audio comparisons covering native
+  UI/helper parity and root/Group save/reopen. Every movie retains identical
+  audio; both reopened project JSON files are byte-identical. Other caption
+  operations remain pending in the feature-complete 1.0 plan.
+
 ## 0.59.0 — 2026-11-07
 
 ### Added

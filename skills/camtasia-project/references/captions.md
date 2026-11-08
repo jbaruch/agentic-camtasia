@@ -134,23 +134,26 @@ Choosing native stroke color `#2050D0` changed only its RGB entries, saving
 radius from `0.0` to `20.0`. Each step also updated native reset bookkeeping.
 The new values introduce no source IDs, external resources or timed parameters.
 
-Four control movie files contain 480 mapped highlight frames and identical
-decoded PCM. Their separate RGB, opacity and glow changes produce different
+Version 0.60.0's ten native movies contain 1,200 mapped highlight frames and
+identical decoded PCM. Separate RGB, opacity and glow controls produce different
 decoded picture. The inspected frame shows the blue word outline around red
-active text. Glow's contribution is subtler with that thick outline; a clean
-comparison retaining the same text and color with word extra width zero is
-prepared.
+active text. A second comparison retains the same text and color with word extra
+width zero; its inspected frames isolate the softer halo from Glow 20.
 
 The complete native before/after payload differs only at those five definition
 entries and the observed reset/command bookkeeping. Staged root and Group
 edits differ only at the five entries. Their recognized-word and cue maps,
-source-bin data, bundled recording and WAV bytes remain unchanged. These staged
-checks are separate from the outstanding native candidate verification.
+source-bin data, bundled recording and WAV bytes remain unchanged. Native root
+and isolated-glow saves retain the complete parsed input payload. The Group
+save only remaps the three clip IDs, adds observed neutral child-lane defaults
+and removes its unused neutral root-lane attributes.
 
-Verification is in progress. The combined export's UI return, helper/native
-comparison, clean glow comparison, save/reopen and Group rendering remain
-pending while the native window is unavailable. The prepared candidates and
-their passing file/schema checks do not establish those native results.
+Four complete decoded RGB/PCM comparisons match: native UI against helper,
+helper against its same-process reopen, root against Group, and Group against
+its same-process reopen. Both reopened project JSON files are byte-identical.
+Every export returned to its expected editor document without an unsupported-
+feature prompt. All current specimens pass the exact-build schema profile and
+native-compatibility checks. Other display controls and RTF forms remain pending.
 
 ## Longer vertical edits and export checks
 
